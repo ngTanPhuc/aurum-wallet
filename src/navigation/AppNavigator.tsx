@@ -1,0 +1,232 @@
+import React, { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { NavigationContainer, DarkTheme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { RootStackParamList, BottomTabParamList } from '../types';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from '../theme/theme';
+
+import { useSettingsStore } from '../store/useSettingsStore';
+import { useFinanceStore } from '../store/useFinanceStore';
+import { initDb } from '../database/db';
+import { CategoryService } from '../services/CategoryService';
+import { BudgetService } from '../services/BudgetService';
+
+import { DashboardScreen } from '../screens/DashboardScreen';
+import { TransactionsScreen } from '../screens/TransactionsScreen';
+import { WalletsScreen } from '../screens/WalletsScreen';
+import { ReportsScreen } from '../screens/ReportsScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
+
+import { AddTransactionScreen } from '../screens/AddTransactionScreen';
+import { AddEditWalletScreen } from '../screens/AddEditWalletScreen';
+import { OnboardingScreen } from '../screens/OnboardingScreen';
+import { PinLockScreen } from '../screens/PinLockScreen';
+import { BudgetsScreen } from '../screens/BudgetsScreen';
+import { AddEditBudgetScreen } from '../screens/AddEditBudgetScreen';
+import { SavingsGoalsScreen } from '../screens/SavingsGoalsScreen';
+import { SavingsGoalDetailScreen } from '../screens/SavingsGoalDetailScreen';
+import { AddEditSavingsGoalScreen } from '../screens/AddEditSavingsGoalScreen';
+import { RecurringTransactionsScreen } from '../screens/RecurringTransactionsScreen';
+import { AddEditRecurringTransactionScreen } from '../screens/AddEditRecurringTransactionScreen';
+import { PendingRecurringScreen } from '../screens/PendingRecurringScreen';
+import { SpendingChartsScreen } from '../screens/SpendingChartsScreen';
+import { TemplatesScreen } from '../screens/TemplatesScreen';
+import { AddEditTemplateScreen } from '../screens/AddEditTemplateScreen';
+import { TagsScreen } from '../screens/TagsScreen';
+import { SubscriptionsScreen } from '../screens/SubscriptionsScreen';
+import { CalendarScreen } from '../screens/CalendarScreen';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
+
+function HomeTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        sceneContainerStyle: { backgroundColor: theme.colors.background },
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.border,
+        },
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textMuted,
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap = 'help';
+          if (route.name === 'Dashboard') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Transactions') {
+            iconName = focused ? 'list' : 'list-outline';
+          } else if (route.name === 'Wallets') {
+            iconName = focused ? 'wallet' : 'wallet-outline';
+          } else if (route.name === 'Reports') {
+            iconName = focused ? 'pie-chart' : 'pie-chart-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Overview' }} />
+      <Tab.Screen name="Transactions" component={TransactionsScreen} options={{ title: 'History' }} />
+      <Tab.Screen name="Wallets" component={WalletsScreen} options={{ title: 'Wallets' }} />
+      <Tab.Screen name="Reports" component={ReportsScreen} options={{ title: 'Reports' }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+    </Tab.Navigator>
+  );
+}
+
+export const AppNavigator = () => {
+  const { settings, isLoading: settingsLoading, loadSettings } = useSettingsStore();
+  const { loadData } = useFinanceStore();
+  const [dbReady, setDbReady] = React.useState(false);
+
+  useEffect(() => {
+    const initApp = async () => {
+      try {
+        await initDb();
+        await CategoryService.seedDefaultCategories();
+        await BudgetService.seedDefaultBudgets();
+        setDbReady(true);
+        await loadSettings();
+        await loadData();
+      } catch (e) {
+        console.error('Initialization error:', e);
+      }
+    };
+    initApp();
+  }, []);
+
+  if (!dbReady || settingsLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
+
+  const navTheme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: theme.colors.background,
+    },
+  };
+
+  return (
+    <NavigationContainer theme={navTheme}>
+      <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.background } }}>
+        {settings.isFirstRun ? (
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        ) : settings.pinEnabled ? (
+          // In a real app we'd verify PIN before showing HomeTabs. For now:
+          <Stack.Screen name="HomeTabs" component={HomeTabs} />
+        ) : (
+          <Stack.Screen name="HomeTabs" component={HomeTabs} />
+        )}
+
+        <Stack.Group screenOptions={{ presentation: 'modal', headerShown: false }}>
+          <Stack.Screen 
+            name="AddEditTransaction" 
+            component={AddTransactionScreen} 
+            options={{ title: 'Transaction' }} 
+          />
+          <Stack.Screen 
+        name="AddEditWallet" 
+        component={AddEditWalletScreen} 
+        options={{ title: 'Wallet', presentation: 'modal' }}
+      />
+      <Stack.Screen 
+        name="Budgets" 
+        component={BudgetsScreen} 
+        options={{ title: 'Monthly Budgets' }}
+      />
+      <Stack.Screen 
+        name="AddEditBudget" 
+        component={AddEditBudgetScreen} 
+        options={{ title: 'Budget', presentation: 'modal' }}
+      />
+          <Stack.Screen 
+            name="PinLock" 
+            component={PinLockScreen} 
+            options={{ title: 'PIN Lock', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="AddEditSavingsGoal" 
+            component={AddEditSavingsGoalScreen} 
+            options={({ route }) => ({
+              title: route.params?.goalId ? 'Edit Goal' : 'New Goal'
+            })} 
+          />
+        </Stack.Group>
+        <Stack.Group>
+          <Stack.Screen 
+            name="SavingsGoals" 
+            component={SavingsGoalsScreen} 
+            options={{ title: 'Savings Goals', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="SavingsGoalDetail" 
+            component={SavingsGoalDetailScreen} 
+            options={{ title: 'Goal Details', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="RecurringTransactions" 
+            component={RecurringTransactionsScreen} 
+            options={{ title: 'Recurring Transactions', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="AddEditRecurringTransaction" 
+            component={AddEditRecurringTransactionScreen} 
+            options={({ route }) => ({
+              title: route.params?.recurringId ? 'Edit Recurring' : 'New Recurring',
+              headerShown: false
+            })} 
+          />
+          <Stack.Screen 
+            name="PendingRecurring" 
+            component={PendingRecurringScreen} 
+            options={{ title: 'Pending Transactions', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="SpendingCharts" 
+            component={SpendingChartsScreen} 
+            options={{ title: 'Spending Charts', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Templates" 
+            component={TemplatesScreen} 
+            options={{ title: 'Transaction Templates', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Tags" 
+            component={TagsScreen} 
+            options={{ title: 'Manage Tags', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Subscriptions" 
+            component={SubscriptionsScreen} 
+            options={{ title: 'Subscriptions', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Calendar" 
+            component={CalendarScreen} 
+            options={{ title: 'Calendar', headerShown: false }} 
+          />
+        </Stack.Group>
+        <Stack.Group screenOptions={{ presentation: 'modal', headerShown: false }}>
+          <Stack.Screen 
+            name="AddEditTemplate" 
+            component={AddEditTemplateScreen} 
+            options={({ route }) => ({
+              title: route.params?.templateId ? 'Edit Template' : 'New Template'
+            })} 
+          />
+        </Stack.Group>
+    </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
