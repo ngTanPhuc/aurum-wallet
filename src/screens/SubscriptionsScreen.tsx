@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: theme.spacing.lg,
   },
-  listTitle: { ...theme.typography.h3, color: theme.colors.text,
+  listTitle: { ...theme.typography.h3, color: theme.colors.textPrimary,
     marginBottom: theme.spacing.lg, },
   card: {
     backgroundColor: theme.colors.surface,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   cardTitle: { ...theme.typography.body1, fontWeight: 'bold',
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     flex: 1, },
   cardAmount: { ...theme.typography.body1, fontWeight: 'bold', },
   cardDetails: {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 64,
   },
-  emptyStateText: { ...theme.typography.h3, color: theme.colors.text,
+  emptyStateText: { ...theme.typography.h3, color: theme.colors.textPrimary,
     marginBottom: theme.spacing.sm, },
   emptyStateSub: { ...theme.typography.body2, color: theme.colors.textMuted,
     textAlign: 'center',

@@ -44,7 +44,7 @@ export const GlobalFAB = () => {
                     style={styles.actionBtn} 
                     onPress={() => handleAction('AddEditSavingsGoal')}
                   >
-                    <Ionicons name="flag" size={20} color={theme.colors.primary} />
+                    <Ionicons name="flag" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} />
                   </TouchableOpacity>
                 </View>
 
@@ -54,7 +54,7 @@ export const GlobalFAB = () => {
                     style={styles.actionBtn} 
                     onPress={() => handleAction('AddEditBudget')}
                   >
-                    <Ionicons name="pie-chart" size={20} color={theme.colors.primary} />
+                    <Ionicons name="pie-chart" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} />
                   </TouchableOpacity>
                 </View>
 
@@ -67,7 +67,7 @@ export const GlobalFAB = () => {
                       navigation.navigate('AddEditRecurringTransaction', {});
                     }}
                   >
-                    <Ionicons name="repeat" size={20} color={theme.colors.primary} />
+                    <Ionicons name="repeat" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} />
                   </TouchableOpacity>
                 </View>
 
@@ -77,7 +77,7 @@ export const GlobalFAB = () => {
                     style={styles.actionBtn} 
                     onPress={() => handleAction('AddEditWallet')}
                   >
-                    <Ionicons name="wallet" size={20} color={theme.colors.primary} />
+                    <Ionicons name="wallet" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} />
                   </TouchableOpacity>
                 </View>
 
@@ -87,7 +87,7 @@ export const GlobalFAB = () => {
                     style={styles.actionBtn} 
                     onPress={() => handleAction('AddEditTransaction')}
                   >
-                    <Ionicons name="add" size={20} color={theme.colors.primary} />
+                    <Ionicons name="add" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} />
                   </TouchableOpacity>
                 </View>
                 
@@ -101,7 +101,7 @@ export const GlobalFAB = () => {
         style={[styles.fab, isOpen && styles.fabOpen]}
         onPress={toggleMenu}
       >
-        <Ionicons name={isOpen ? "close" : "add"} size={32} color={isOpen ? theme.colors.primary : theme.colors.background} />
+        <Ionicons name={isOpen ? "close" : "add"} size={32} color={isOpen ? theme.colors.primary : theme.colors.background} style={{ marginTop: -2 }} />
       </TouchableOpacity>
     </>
   );
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     zIndex: 100, // Make sure it sits on top
   },
   fabOpen: {
-    backgroundColor: theme.colors.surfaceHighlight,
+    backgroundColor: theme.colors.surfaceStrong,
   },
   fabIcon: { 
     fontSize: 32, 
@@ -151,22 +151,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  actionLabel: { ...theme.typography.body2, backgroundColor: theme.colors.surface,
+  actionLabel: { 
+    ...theme.typography.body2, 
+    backgroundColor: theme.colors.surfaceStrong,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
     fontWeight: '600',
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     overflow: 'hidden',
-    ...theme.shadows.subtle, },
+    borderWidth: 1,
+    borderColor: theme.colors.glassBorder,
+  },
   actionBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.surfaceStrong,
     justifyContent: 'center',
     alignItems: 'center',
-    ...theme.shadows.medium,
+    borderWidth: 1,
+    borderColor: theme.colors.glassBorder,
   },
   actionIcon: {
     fontSize: 20,

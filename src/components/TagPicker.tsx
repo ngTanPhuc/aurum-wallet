@@ -66,7 +66,7 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Manage Tags</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color={theme.colors.text} />
+                <Ionicons name="close" size={24} color={theme.colors.textPrimary} />
               </TouchableOpacity>
             </View>
 
@@ -118,22 +118,22 @@ const styles = StyleSheet.create({
   tagBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.primary, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderRadius: theme.radii.lg },
   tagBadgeText: { ...theme.typography.body2, color: theme.colors.background, fontWeight: '500' },
   addBtn: { backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderRadius: theme.radii.lg, justifyContent: 'center', borderWidth: 1, borderColor: theme.colors.border },
-  addBtnText: { ...theme.typography.body2, color: theme.colors.text, fontWeight: '500' },
+  addBtnText: { ...theme.typography.body2, color: theme.colors.textPrimary, fontWeight: '500' },
   
   modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.85)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: theme.colors.background, borderTopLeftRadius: theme.radii.xl, borderTopRightRadius: theme.radii.xl, padding: theme.spacing.xl, maxHeight: '80%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.lg },
-  modalTitle: { ...theme.typography.h2, color: theme.colors.text },
+  modalTitle: { ...theme.typography.h2, color: theme.colors.textPrimary },
   
   createRow: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.lg },
-  input: { ...theme.typography.body1, flex: 1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.text },
+  input: { ...theme.typography.body1, flex: 1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary },
   createBtn: { backgroundColor: theme.colors.primary, paddingHorizontal: theme.spacing.lg, justifyContent: 'center', borderRadius: theme.radii.sm },
   createBtnText: { color: theme.colors.background, fontWeight: 'bold' },
   
   tagList: { maxHeight: 300 },
   tagListItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.colors.border },
-  tagListItemSelected: { backgroundColor: theme.colors.surfaceHighlight, paddingHorizontal: theme.spacing.sm, borderRadius: theme.radii.sm },
-  tagListItemText: { ...theme.typography.body1, color: theme.colors.text },
+  tagListItemSelected: { backgroundColor: theme.colors.surfaceStrong, paddingHorizontal: theme.spacing.sm, borderRadius: theme.radii.sm },
+  tagListItemText: { ...theme.typography.body1, color: theme.colors.textPrimary },
   tagListItemTextSelected: { color: theme.colors.primary, fontWeight: 'bold' },
   
   doneBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: theme.spacing.lg },

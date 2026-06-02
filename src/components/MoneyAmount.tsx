@@ -35,7 +35,7 @@ export const MoneyAmount: React.FC<MoneyAmountProps> = ({
   }
   const displayText = `${sign}${formattedAmount}`;
 
-  let color = theme.colors.text; // neutral
+  let color = theme.colors.textPrimary; // neutral
   if (colorType === 'auto') {
     if (amount > 0) color = theme.colors.success;
     if (amount < 0) color = theme.colors.danger;

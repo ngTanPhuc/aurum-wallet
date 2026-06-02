@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MoneyAmount } from './MoneyAmount';
 import { theme } from '../theme/theme';
+import { GlassCard } from './glass/GlassCard';
 
 interface SummaryCardProps {
   title: string;
@@ -15,14 +16,14 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, type, c
     switch (type) {
       case 'income': return { color: theme.colors.success, bgColor: theme.colors.successBg };
       case 'expense': return { color: theme.colors.danger, bgColor: theme.colors.dangerBg };
-      case 'balance': return { color: theme.colors.info, bgColor: theme.colors.surfaceHighlight };
+      case 'balance': return { color: theme.colors.info, bgColor: theme.colors.surfaceStrong };
     }
   };
 
   const { color, bgColor } = getIconAndColor();
 
   return (
-    <View style={[styles.card, { backgroundColor: bgColor }]}>
+    <GlassCard style={styles.card} variant={type === 'balance' ? 'strong' : 'muted'}>
       <Text style={styles.title}>{title}</Text>
       <MoneyAmount 
         amount={amount} 
@@ -30,7 +31,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, type, c
         style={[styles.amount, { color }]} 
         colorType="neutral" // Force override by the style array
       />
-    </View>
+    </GlassCard>
   );
 };
 

@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { RootStackParamList, BottomTabParamList } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme/theme';
+import { GlassBottomTab } from '../components/glass/GlassBottomTab';
 
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -44,31 +45,11 @@ const Tab = createBottomTabNavigator<BottomTabParamList>();
 function HomeTabs() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      tabBar={props => <GlassBottomTab {...props} />}
+      sceneContainerStyle={{ backgroundColor: theme.colors.background }}
+      screenOptions={{
         headerShown: false,
-        sceneContainerStyle: { backgroundColor: theme.colors.background },
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.border,
-        },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textMuted,
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'help';
-          if (route.name === 'Dashboard') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Transactions') {
-            iconName = focused ? 'list' : 'list-outline';
-          } else if (route.name === 'Wallets') {
-            iconName = focused ? 'wallet' : 'wallet-outline';
-          } else if (route.name === 'Reports') {
-            iconName = focused ? 'pie-chart' : 'pie-chart-outline';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'settings' : 'settings-outline';
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-      })}
+      }}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Overview' }} />
       <Tab.Screen name="Transactions" component={TransactionsScreen} options={{ title: 'History' }} />

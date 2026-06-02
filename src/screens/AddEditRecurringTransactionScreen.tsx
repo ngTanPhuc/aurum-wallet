@@ -9,6 +9,8 @@ import { WalletPicker } from '../components/WalletPicker';
 import { CategoryPicker } from '../components/CategoryPicker';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditRecurringTransaction'>;
 
@@ -188,11 +190,11 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
         />
 
         <Text style={styles.label}>Amount</Text>
-        <TextInput 
+        <AmountInput 
           style={styles.input} 
           value={amount} 
           onChangeText={handleAmountChange} 
-          keyboardType="numeric" 
+           
           placeholder="0" 
           placeholderTextColor={theme.colors.textMuted}
         />
@@ -292,15 +294,15 @@ const styles = StyleSheet.create({
   typeSelector: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.xl },
   typeBtn: { flex: 1, padding: theme.spacing.md, backgroundColor: theme.colors.surface, borderRadius: theme.radii.sm, alignItems: 'center' },
   typeBtnActive: { backgroundColor: theme.colors.primary },
-  typeText: { color: theme.colors.text, textTransform: 'capitalize', fontWeight: '500' },
+  typeText: { color: theme.colors.textPrimary, textTransform: 'capitalize', fontWeight: '500' },
   typeTextActive: { color: theme.colors.background },
   frequencySelector: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.lg },
   freqBtn: { flex: 1, padding: theme.spacing.sm, backgroundColor: theme.colors.surface, borderRadius: theme.radii.sm, alignItems: 'center' },
   freqBtnActive: { backgroundColor: theme.colors.success },
-  freqText: { ...theme.typography.caption, color: theme.colors.text, textTransform: 'capitalize', fontWeight: '500' },
+  freqText: { ...theme.typography.caption, color: theme.colors.textPrimary, textTransform: 'capitalize', fontWeight: '500' },
   freqTextActive: { color: theme.colors.background },
   label: { ...theme.typography.body2, color: theme.colors.textMuted, marginBottom: theme.spacing.sm },
-  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.text, marginBottom: theme.spacing.lg },
+  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary, marginBottom: theme.spacing.lg },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.lg },
   saveBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: theme.spacing.lg, marginBottom: 40 },
   saveBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },

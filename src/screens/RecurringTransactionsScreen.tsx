@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -38,7 +39,11 @@ export const RecurringTransactionsScreen = ({ navigation }: Props) => {
             >
               <View style={styles.cardHeader}>
                 <View style={styles.titleRow}>
-                  <Text style={styles.icon}>{category?.icon || (isTransfer ? '🔄' : '💰')}</Text>
+                  {(!category?.icon || /^[a-z0-9-]+$/.test(category.icon)) ? (
+                    <Ionicons name={category?.icon as any || (isTransfer ? 'swap-horizontal' : 'wallet')} size={32} color={theme.colors.textPrimary} style={styles.icon} />
+                  ) : (
+                    <Text style={[styles.icon, { fontSize: 32 }]}>{category.icon}</Text>
+                  )}
                   <View>
                     <Text style={styles.title}>{item.name || category?.name || (isTransfer ? 'Transfer' : 'Transaction')}</Text>
                     <Text style={styles.subtitle}>
@@ -71,7 +76,7 @@ export const RecurringTransactionsScreen = ({ navigation }: Props) => {
         }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>📅</Text>
+            <Ionicons name="calendar-outline" size={48} color={theme.colors.textMuted} style={styles.emptyIcon} />
             <Text style={styles.emptyTitle}>No Recurring Transactions</Text>
             <Text style={styles.emptyDesc}>Set up automated bills, subscriptions, or salaries here.</Text>
             <TouchableOpacity 
@@ -122,7 +127,7 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.md,
   },
   title: { ...theme.typography.body1, fontWeight: '600',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
   subtitle: { ...theme.typography.caption, color: theme.colors.textMuted,
     marginTop: 2, },
   amount: { ...theme.typography.body1, fontWeight: 'bold', },
@@ -132,7 +137,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   badge: {
-    backgroundColor: theme.colors.surfaceHighlight,
+    backgroundColor: theme.colors.surfaceStrong,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -156,7 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 64,
     marginBottom: theme.spacing.lg,
   },
-  emptyTitle: { ...theme.typography.h2, color: theme.colors.text,
+  emptyTitle: { ...theme.typography.h2, color: theme.colors.textPrimary,
     marginBottom: theme.spacing.sm, },
   emptyDesc: { ...theme.typography.body2, color: theme.colors.textMuted,
     textAlign: 'center',

@@ -9,6 +9,8 @@ import { CategoryPicker } from '../components/CategoryPicker';
 import uuid from 'react-native-uuid';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditBudget'>;
 
@@ -112,11 +114,11 @@ export const AddEditBudgetScreen = ({ route, navigation }: Props) => {
       <KeyboardAwareScrollView enableOnAndroid={true} keyboardShouldPersistTaps="handled" extraScrollHeight={20}  style={styles.container}>
       <View style={styles.formGroup}>
         <Text style={styles.label}>Budget Amount</Text>
-        <TextInput
+        <AmountInput
           style={styles.amountInput}
           value={amount}
           onChangeText={handleAmountChange}
-          keyboardType="numeric"
+          
           placeholder="0"
           placeholderTextColor={theme.colors.textMuted}
         />
@@ -150,11 +152,11 @@ export const AddEditBudgetScreen = ({ route, navigation }: Props) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background, padding: theme.spacing.lg },
   formGroup: { marginBottom: theme.spacing.xl },
-  label: { ...theme.typography.body1, fontWeight: '600', color: theme.colors.text, marginBottom: theme.spacing.sm },
+  label: { ...theme.typography.body1, fontWeight: '600', color: theme.colors.textPrimary, marginBottom: theme.spacing.sm },
   amountInput: { ...theme.typography.h1, fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: theme.spacing.lg,
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radii.sm,
     padding: theme.spacing.md, },

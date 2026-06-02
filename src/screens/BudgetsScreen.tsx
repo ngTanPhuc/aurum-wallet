@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.sm,
   },
   arrowText: { ...theme.typography.h2, color: theme.colors.primary, },
-  monthText: { ...theme.typography.h3, color: theme.colors.text, },
+  monthText: { ...theme.typography.h3, color: theme.colors.textPrimary, },
   list: {
     padding: theme.spacing.lg,
     flexGrow: 1,
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.xl,
     marginTop: 40,
   },
-  emptyTitle: { ...theme.typography.h2, color: theme.colors.text,
+  emptyTitle: { ...theme.typography.h2, color: theme.colors.textPrimary,
     marginBottom: theme.spacing.sm, },
   emptyDesc: { ...theme.typography.body1, color: theme.colors.textMuted,
     textAlign: 'center',

@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     fontWeight: 'bold',
   },
-  monthTitle: { ...theme.typography.h3, color: theme.colors.text, },
+  monthTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, },
   weekDays: {
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
@@ -220,9 +220,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   todayCell: {
-    backgroundColor: theme.colors.surfaceHighlight,
+    backgroundColor: theme.colors.surfaceStrong,
   },
-  dayText: { ...theme.typography.body2, color: theme.colors.text, },
+  dayText: { ...theme.typography.body2, color: theme.colors.textPrimary, },
   dayTextOutside: {
     color: theme.colors.textMuted,
     opacity: 0.5,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.xl,
   },
-  modalTitle: { ...theme.typography.h3, color: theme.colors.text, },
+  modalTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, },
   closeBtn: { ...theme.typography.body1, color: theme.colors.primary,
     fontWeight: '600', },
   summaryRow: {
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     marginBottom: 4, },
   summaryAmount: { ...theme.typography.h3 },
   listTitle: { ...theme.typography.body1, fontWeight: 'bold',
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     marginBottom: theme.spacing.md, },
   transactionList: {
     maxHeight: 400,

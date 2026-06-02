@@ -157,7 +157,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
         <Text style={styles.sectionTitle}>About</Text>
         <View style={styles.row}>
           <Text style={styles.rowLabel}>App Version</Text>
-          <Text style={styles.rowValue}>1.0.0 (Phase 1)</Text>
+          <Text style={styles.rowValue}>1.0.1</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.rowLabel}>Developer</Text>
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: theme.colors.border,
   },
-  rowLabel: { ...theme.typography.body1, color: theme.colors.text, },
+  rowLabel: { ...theme.typography.body1, color: theme.colors.textPrimary, },
   rowValueContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.xl,
     maxHeight: '80%',
   },
-  modalTitle: { ...theme.typography.h2, color: theme.colors.text,
+  modalTitle: { ...theme.typography.h2, color: theme.colors.textPrimary,
     marginBottom: 4, },
   modalSubtitle: { ...theme.typography.body2, color: theme.colors.textMuted,
     marginBottom: theme.spacing.lg, },
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: theme.colors.border,
   },
-  currencyText: { ...theme.typography.body1, color: theme.colors.text, },
+  currencyText: { ...theme.typography.body1, color: theme.colors.textPrimary, },
   currencyTextActive: {
     color: theme.colors.primary,
     fontWeight: 'bold',
@@ -250,5 +250,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: { ...theme.typography.body1, fontWeight: '600',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
 });

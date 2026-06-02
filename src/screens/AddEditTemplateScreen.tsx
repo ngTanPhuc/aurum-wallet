@@ -9,6 +9,8 @@ import { WalletPicker } from '../components/WalletPicker';
 import { CategoryPicker } from '../components/CategoryPicker';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditTemplate'>;
 
@@ -145,11 +147,11 @@ export const AddEditTemplateScreen = ({ route, navigation }: Props) => {
         </View>
 
         <Text style={styles.label}>Amount</Text>
-        <TextInput 
+        <AmountInput 
           style={[styles.input, { fontSize: 24, fontWeight: 'bold' }]} 
           value={amount} 
           onChangeText={handleAmountChange} 
-          keyboardType="numeric" 
+           
           placeholder="0" 
           placeholderTextColor={theme.colors.textMuted}
         />
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
   typeText: { ...theme.typography.body2, fontWeight: '600', color: theme.colors.textMuted },
   typeTextActive: { color: theme.colors.primary },
   label: { ...theme.typography.body2, color: theme.colors.textMuted, marginBottom: theme.spacing.sm },
-  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.text, marginBottom: theme.spacing.lg },
+  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary, marginBottom: theme.spacing.lg },
   saveBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: theme.spacing.lg, marginBottom: 40 },
   saveBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },
 });

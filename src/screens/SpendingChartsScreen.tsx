@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   dateLabel: { ...theme.typography.caption, color: theme.colors.textMuted,
     marginBottom: 4, },
   dateValue: { ...theme.typography.body2, fontWeight: '600',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
   dateTo: {
     marginHorizontal: theme.spacing.md,
     color: theme.colors.textMuted,
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.xl,
     ...theme.shadows.subtle,
   },
-  cardTitle: { ...theme.typography.h3, color: theme.colors.text, },
+  cardTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, },
   dateSubtitle: { ...theme.typography.caption, color: theme.colors.textMuted,
     marginTop: 4,
     marginBottom: theme.spacing.xl, },
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   centerLabelText: { ...theme.typography.caption, color: theme.colors.textMuted, },
   centerLabelAmount: { ...theme.typography.body1, fontWeight: '700',
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     marginTop: 4, },
   legendContainer: {
     marginTop: theme.spacing.xl,
@@ -308,13 +308,13 @@ const styles = StyleSheet.create({
     borderRadius: theme.radii.sm,
     marginRight: theme.spacing.sm,
   },
-  legendLabel: { ...theme.typography.body2, color: theme.colors.text,
+  legendLabel: { ...theme.typography.body2, color: theme.colors.textPrimary,
     fontWeight: '500', },
   legendRight: {
     alignItems: 'flex-end',
   },
   legendAmount: { ...theme.typography.body2, fontWeight: '600',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
   legendPercent: { ...theme.typography.caption, color: theme.colors.textMuted,
     marginTop: 2, },
   summaryRow: {

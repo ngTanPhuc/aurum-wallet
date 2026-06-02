@@ -8,6 +8,8 @@ import { useFinanceStore } from '../store/useFinanceStore';
 import uuid from 'react-native-uuid';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -127,13 +129,13 @@ export const OnboardingScreen = ({ navigation }: Props) => {
           </ScrollView>
 
           <Text style={styles.label}>Initial Balance</Text>
-          <TextInput 
+          <AmountInput 
             style={styles.input}
             value={initialBalance}
             onChangeText={handleAmountChange}
             placeholder="0"
             placeholderTextColor={theme.colors.textMuted}
-            keyboardType="numeric"
+            
           />
 
           <TouchableOpacity style={styles.btn} onPress={handleComplete}>
@@ -147,11 +149,11 @@ export const OnboardingScreen = ({ navigation }: Props) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: theme.spacing.xl, backgroundColor: theme.colors.background },
-  title: { ...theme.typography.h1, marginBottom: theme.spacing.sm, color: theme.colors.text },
+  title: { ...theme.typography.h1, marginBottom: theme.spacing.sm, color: theme.colors.textPrimary },
   subtitle: { ...theme.typography.body1, color: theme.colors.textMuted, marginBottom: 32 },
   form: { gap: 16 },
-  label: { ...theme.typography.body2, color: theme.colors.text, marginBottom: -8 },
-  input: { ...theme.typography.body1, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.text },
+  label: { ...theme.typography.body2, color: theme.colors.textPrimary, marginBottom: -8 },
+  input: { ...theme.typography.body1, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary },
   currencyRow: { flexDirection: 'row', gap: 8 },
   currencyBtn: { flex: 1, padding: theme.spacing.md, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, alignItems: 'center' },
   currencyBtnActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
   colorScroll: { marginHorizontal: -4 },
   colorRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 4, paddingTop: 4, paddingBottom: 4 },
   colorCircle: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: 'transparent' },
-  colorCircleActive: { borderColor: theme.colors.text, transform: [{ scale: 1.1 }] },
+  colorCircleActive: { borderColor: theme.colors.textPrimary, transform: [{ scale: 1.1 }] },
   btn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: theme.spacing.lg },
   btnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },
 });

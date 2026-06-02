@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -5,6 +6,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, RecurringTransaction } from '../types';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PendingRecurring'>;
 
@@ -101,7 +104,11 @@ export const PendingRecurringScreen = ({ navigation }: Props) => {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.titleRow}>
-                  <Text style={styles.icon}>{category?.icon || (isTransfer ? '🔄' : '💰')}</Text>
+                  {(!category?.icon || /^[a-z0-9-]+$/.test(category.icon)) ? (
+                    <Ionicons name={category?.icon as any || (isTransfer ? 'swap-horizontal' : 'wallet')} size={32} color={theme.colors.textPrimary} style={styles.icon} />
+                  ) : (
+                    <Text style={[styles.icon, { fontSize: 32 }]}>{category.icon}</Text>
+                  )}
                   <View>
                     <Text style={styles.title}>{category?.name || (isTransfer ? 'Transfer' : 'Transaction')}</Text>
                     <Text style={styles.subtitle}>
@@ -136,7 +143,7 @@ export const PendingRecurringScreen = ({ navigation }: Props) => {
         }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>✨</Text>
+            <Ionicons name="sparkles-outline" size={48} color={theme.colors.textMuted} style={styles.emptyIcon} />
             <Text style={styles.emptyTitle}>All Caught Up!</Text>
             <Text style={styles.emptyDesc}>You have no pending recurring transactions.</Text>
             <TouchableOpacity 
@@ -197,7 +204,7 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: theme.spacing.md },
   titleRow: { flexDirection: 'row', alignItems: 'center' },
   icon: { fontSize: 24, marginRight: theme.spacing.md },
-  title: { ...theme.typography.body1, fontWeight: '600', color: theme.colors.text },
+  title: { ...theme.typography.body1, fontWeight: '600', color: theme.colors.textPrimary },
   subtitle: { ...theme.typography.caption, color: theme.colors.textMuted, marginTop: 2 },
   amount: { ...theme.typography.h3, fontWeight: 'bold' },
   dueText: { ...theme.typography.caption, color: theme.colors.danger, fontWeight: 'bold', marginTop: 4, backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, overflow: 'hidden' },
@@ -206,23 +213,23 @@ const styles = StyleSheet.create({
   btn: { flex: 1, paddingVertical: theme.spacing.md, borderRadius: theme.radii.sm, alignItems: 'center' },
   btnSkip: { backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.border },
   btnSkipText: { color: theme.colors.textMuted, fontWeight: '600' },
-  btnEdit: { backgroundColor: theme.colors.surfaceHighlight },
+  btnEdit: { backgroundColor: theme.colors.surfaceStrong },
   btnEditText: { color: theme.colors.primary, fontWeight: '600' },
   btnConfirm: { backgroundColor: theme.colors.primary },
   btnConfirmText: { color: theme.colors.background, fontWeight: 'bold' },
   emptyContainer: { alignItems: 'center', justifyContent: 'center', padding: theme.spacing.xl, marginTop: 64 },
   emptyIcon: { fontSize: 64, marginBottom: theme.spacing.lg },
-  emptyTitle: { ...theme.typography.h2, color: theme.colors.text, marginBottom: theme.spacing.sm },
+  emptyTitle: { ...theme.typography.h2, color: theme.colors.textPrimary, marginBottom: theme.spacing.sm },
   emptyDesc: { ...theme.typography.body2, color: theme.colors.textMuted, textAlign: 'center', marginBottom: theme.spacing.xl, lineHeight: 20 },
   backBtn: { backgroundColor: theme.colors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: theme.radii.sm },
   backBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: '600' },
   
   modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.85)', justifyContent: 'center', padding: theme.spacing.xl },
   modalContent: { backgroundColor: theme.colors.background, borderRadius: theme.radii.lg, padding: theme.spacing.xl },
-  modalTitle: { ...theme.typography.h3, marginBottom: theme.spacing.sm, color: theme.colors.text },
+  modalTitle: { ...theme.typography.h3, marginBottom: theme.spacing.sm, color: theme.colors.textPrimary },
   modalDesc: { ...theme.typography.caption, color: theme.colors.textMuted, marginBottom: theme.spacing.xl, lineHeight: 18 },
   label: { ...theme.typography.body2, color: theme.colors.textMuted, marginBottom: theme.spacing.sm },
-  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.text, marginBottom: theme.spacing.lg },
+  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary, marginBottom: theme.spacing.lg },
   modalBtnRow: { flexDirection: 'row', gap: 12, marginTop: theme.spacing.sm },
   modalCancelBtn: { flex: 1, padding: 14, alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: theme.radii.sm },
   modalCancelText: { color: theme.colors.textMuted, fontWeight: '600' },

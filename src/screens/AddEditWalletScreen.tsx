@@ -8,6 +8,8 @@ import uuid from 'react-native-uuid';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditWallet'>;
 
@@ -141,11 +143,11 @@ export const AddEditWalletScreen = ({ route, navigation }: Props) => {
         </View>
 
         <Text style={[styles.label, { marginTop: 8 }]}>Balance</Text>
-        <TextInput 
+        <AmountInput 
           style={styles.input} 
           value={balance} 
           onChangeText={handleAmountChange} 
-          keyboardType="numeric" 
+           
           placeholder="0" 
           placeholderTextColor={theme.colors.textMuted}
         />
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
   headerWrapper: { backgroundColor: theme.colors.background },
   container: { flex: 1, backgroundColor: theme.colors.background, padding: theme.spacing.lg },
   label: { ...theme.typography.body2, color: theme.colors.textMuted, marginBottom: theme.spacing.sm, marginTop: theme.spacing.lg },
-  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.text },
+  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary },
   typeRow: { flexDirection: 'row', gap: 8 },
   typeBtn: { flex: 1, padding: theme.spacing.md, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, alignItems: 'center' },
   typeBtnActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
   colorScroll: { marginHorizontal: -4 },
   colorRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 4, paddingTop: 4, paddingBottom: 4 },
   colorCircle: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: 'transparent' },
-  colorCircleActive: { borderColor: theme.colors.text, transform: [{ scale: 1.1 }] },
+  colorCircleActive: { borderColor: theme.colors.textPrimary, transform: [{ scale: 1.1 }] },
   saveBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: 32 },
   saveBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },
 });

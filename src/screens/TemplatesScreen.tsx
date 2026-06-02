@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -38,7 +39,7 @@ export const TemplatesScreen = ({ navigation }: Props) => {
         <View style={styles.cardHeader}>
           <Text style={styles.templateName}>{item.name}</Text>
           <TouchableOpacity onPress={() => handleDelete(item.id)}>
-            <Text style={{ fontSize: 20 }}>🗑️</Text>
+            <Ionicons name="trash" size={20} color={theme.colors.danger} />
           </TouchableOpacity>
         </View>
         
@@ -60,7 +61,7 @@ export const TemplatesScreen = ({ navigation }: Props) => {
       <CustomHeader title="Templates" />
       {templates.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={{ fontSize: 64 }}>📄</Text>
+          <Ionicons name="document-text-outline" size={64} color={theme.colors.textMuted} />
           <Text style={styles.emptyText}>No templates saved yet.</Text>
           <Text style={styles.emptySubtext}>Save a template while adding a new transaction.</Text>
         </View>
@@ -88,14 +89,14 @@ const styles = StyleSheet.create({
   listContainer: { padding: theme.spacing.lg },
   card: { backgroundColor: theme.colors.surface, borderRadius: theme.radii.sm, padding: theme.spacing.lg, marginBottom: theme.spacing.lg, ...theme.shadows.subtle },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md },
-  templateName: { ...theme.typography.h3, color: theme.colors.text },
+  templateName: { ...theme.typography.h3, color: theme.colors.textPrimary },
   cardBody: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md },
-  typeText: { ...theme.typography.caption, fontWeight: 'bold', color: theme.colors.primary, backgroundColor: theme.colors.surfaceHighlight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
-  amountText: { ...theme.typography.h3, fontWeight: '600', color: theme.colors.text },
+  typeText: { ...theme.typography.caption, fontWeight: 'bold', color: theme.colors.primary, backgroundColor: theme.colors.surfaceStrong, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
+  amountText: { ...theme.typography.h3, fontWeight: '600', color: theme.colors.textPrimary },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   metaText: { ...theme.typography.caption, color: theme.colors.textMuted },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.xl },
-  emptyText: { ...theme.typography.h3, color: theme.colors.text, marginTop: theme.spacing.lg },
+  emptyText: { ...theme.typography.h3, color: theme.colors.textPrimary, marginTop: theme.spacing.lg },
   emptySubtext: { ...theme.typography.body2, color: theme.colors.textMuted, marginTop: theme.spacing.sm, textAlign: 'center' },
   fab: { position: 'absolute', bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center', ...theme.shadows.subtle },
   fabIcon: { fontSize: 32, color: theme.colors.background, marginTop: -4 }

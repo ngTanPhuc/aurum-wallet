@@ -44,7 +44,7 @@ export const TransactionsScreen = ({ navigation }: Props) => {
           onChangeText={setTransactionSearchQuery}
         />
         <TouchableOpacity style={styles.filterBtn} onPress={() => setFilterVisible(true)}>
-          <Ionicons name={hasActiveFilters ? "filter" : "filter-outline"} size={20} color={hasActiveFilters ? theme.colors.primary : theme.colors.text} />
+          <Ionicons name={hasActiveFilters ? "filter" : "filter-outline"} size={20} color={hasActiveFilters ? theme.colors.primary : theme.colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -69,7 +69,7 @@ export const TransactionsScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   headerRow: { flexDirection: 'row', padding: theme.spacing.lg, backgroundColor: theme.colors.surface, borderBottomWidth: 1, borderBottomColor: theme.colors.border, alignItems: 'center' },
-  searchInput: { flex: 1, backgroundColor: theme.colors.background, paddingHorizontal: theme.spacing.lg, paddingVertical: 10, borderRadius: theme.radii.round, fontSize: 16, marginRight: theme.spacing.md, color: theme.colors.text },
+  searchInput: { flex: 1, backgroundColor: theme.colors.background, paddingHorizontal: theme.spacing.lg, paddingVertical: 10, borderRadius: theme.radii.round, fontSize: 16, marginRight: theme.spacing.md, color: theme.colors.textPrimary },
   filterBtn: { padding: theme.spacing.sm, backgroundColor: theme.colors.background, borderRadius: theme.radii.round },
   list: { padding: theme.spacing.lg },
   empty: { ...theme.typography.body1, textAlign: 'center', color: theme.colors.textMuted, marginTop: theme.spacing.xxl },

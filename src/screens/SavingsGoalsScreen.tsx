@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -27,7 +28,7 @@ export const SavingsGoalsScreen = ({ navigation }: Props) => {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🎯</Text>
+            <Ionicons name="flag-outline" size={48} color={theme.colors.textMuted} style={styles.emptyIcon} />
             <Text style={styles.emptyTitle}>No Savings Goals Yet</Text>
             <Text style={styles.emptyDesc}>Set a target to save for a vacation, emergency fund, or a new gadget!</Text>
             <TouchableOpacity 
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     fontSize: 64,
     marginBottom: theme.spacing.lg,
   },
-  emptyTitle: { ...theme.typography.h2, color: theme.colors.text,
+  emptyTitle: { ...theme.typography.h2, color: theme.colors.textPrimary,
     marginBottom: theme.spacing.sm, },
   emptyDesc: { ...theme.typography.body2, color: theme.colors.textMuted,
     textAlign: 'center',

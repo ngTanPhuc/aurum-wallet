@@ -60,7 +60,7 @@ export const FilterModal = ({ visible, onClose }: Props) => {
             </TouchableOpacity>
             <Text style={styles.title}>Filters</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color={theme.colors.text} />
+              <Ionicons name="close" size={24} color={theme.colors.textPrimary} />
             </TouchableOpacity>
           </View>
 
@@ -170,14 +170,14 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.85)', justifyContent: 'flex-end' },
   content: { backgroundColor: theme.colors.background, borderTopLeftRadius: theme.radii.xl, borderTopRightRadius: theme.radii.xl, padding: theme.spacing.xl, maxHeight: '85%' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.lg },
-  title: { ...theme.typography.h2, color: theme.colors.text },
+  title: { ...theme.typography.h2, color: theme.colors.textPrimary },
   clearBtn: { ...theme.typography.body1, color: theme.colors.primary },
   scroll: { maxHeight: 500 },
   sectionTitle: { ...theme.typography.body1, fontWeight: 'bold', color: theme.colors.textMuted, marginTop: theme.spacing.lg, marginBottom: theme.spacing.sm },
   rowWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: { backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm, borderRadius: theme.radii.round, borderWidth: 1, borderColor: theme.colors.border },
-  pillActive: { backgroundColor: theme.colors.surfaceHighlight, borderColor: theme.colors.primary },
-  pillText: { ...theme.typography.body2, color: theme.colors.text },
+  pillActive: { backgroundColor: theme.colors.surfaceStrong, borderColor: theme.colors.primary },
+  pillText: { ...theme.typography.body2, color: theme.colors.textPrimary },
   pillTextActive: { color: theme.colors.primary, fontWeight: 'bold' },
   applyBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: theme.spacing.lg },
   applyBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },

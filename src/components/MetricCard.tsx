@@ -2,6 +2,7 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '../theme/theme';
+import { GlassCard } from './glass/GlassCard';
 
 interface MetricCardProps {
   title: string;
@@ -14,10 +15,10 @@ interface MetricCardProps {
 
 export const MetricCard = ({ title, value, subtitle, icon, color = theme.colors.info, trend }: MetricCardProps) => {
   return (
-    <View style={styles.card}>
+    <GlassCard style={styles.card} variant="muted">
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: color + '20' }]}>
-          <Text style={styles.icon}>{icon}</Text>
+          <Ionicons name={icon as any} size={16} color={color} />
         </View>
         <Text style={styles.title} numberOfLines={1}>{title}</Text>
       </View>
@@ -33,7 +34,7 @@ export const MetricCard = ({ title, value, subtitle, icon, color = theme.colors.
           </View>
         )}
       </View>
-    </View>
+    </GlassCard>
   );
 };
 
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   value: { ...theme.typography.h2, fontWeight: 'bold',
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     marginBottom: theme.spacing.xs, },
   subtitleContainer: {
     flexDirection: 'row',

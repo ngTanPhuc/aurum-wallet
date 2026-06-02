@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   name: { ...theme.typography.body1, fontWeight: '600',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
   type: { ...theme.typography.caption, color: theme.colors.textMuted,
     textTransform: 'uppercase', },
   balanceContainer: {

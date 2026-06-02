@@ -8,6 +8,8 @@ import { useFinanceStore } from '../store/useFinanceStore';
 import uuid from 'react-native-uuid';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditSavingsGoal'>;
 
@@ -118,11 +120,11 @@ export const AddEditSavingsGoalScreen = ({ route, navigation }: Props) => {
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Target Amount</Text>
-        <TextInput
+        <AmountInput
           style={styles.input}
           placeholder="0"
           placeholderTextColor={theme.colors.textMuted}
-          keyboardType="numeric"
+          
           value={targetAmount}
           onChangeText={handleTargetChange}
         />
@@ -130,11 +132,11 @@ export const AddEditSavingsGoalScreen = ({ route, navigation }: Props) => {
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Starting/Current Amount</Text>
-        <TextInput
+        <AmountInput
           style={styles.input}
           placeholder="0"
           placeholderTextColor={theme.colors.textMuted}
-          keyboardType="numeric"
+          
           value={currentAmount}
           onChangeText={handleCurrentChange}
         />
@@ -146,7 +148,7 @@ export const AddEditSavingsGoalScreen = ({ route, navigation }: Props) => {
           style={styles.input} 
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={{ ...theme.typography.body1, color: targetDate ? theme.colors.text : theme.colors.textMuted }}>
+          <Text style={{ ...theme.typography.body1, color: targetDate ? theme.colors.textPrimary : theme.colors.textMuted }}>
             {targetDate ? targetDate.toLocaleDateString() : 'Select a target date...'}
           </Text>
         </TouchableOpacity>
@@ -227,7 +229,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radii.sm,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 10,
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     borderWidth: 1,
     borderColor: theme.colors.border, },
   hint: { ...theme.typography.caption, color: theme.colors.textMuted,
@@ -250,7 +252,7 @@ const styles = StyleSheet.create({
   selectedIconBtn: {
     borderColor: theme.colors.primary,
     borderWidth: 2,
-    backgroundColor: theme.colors.surfaceHighlight,
+    backgroundColor: theme.colors.surfaceStrong,
   },
   iconText: {
     fontSize: 24,
@@ -263,7 +265,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   selectedColorBtn: {
-    borderColor: theme.colors.text,
+    borderColor: theme.colors.textPrimary,
   },
   saveBtn: {
     backgroundColor: theme.colors.primary,

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
 import { View, StyleSheet, FlatList, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -6,6 +7,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabParamList, RootStackParamList } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { MoneyDisplay } from '../components/glass/MoneyDisplay';
+import { GlassCard } from '../components/glass/GlassCard';
 import { SummaryCard } from '../components/SummaryCard';
 import { TransactionItem } from '../components/TransactionItem';
 import { GlobalFAB } from '../components/GlobalFAB';
@@ -33,6 +36,7 @@ export const DashboardScreen = ({ navigation }: Props) => {
   } = useFinanceStore();
   const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
   
+  const [metricScroll, setMetricScroll] = React.useState(0);
   const balance = getTotalBalance();
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -75,18 +79,21 @@ export const DashboardScreen = ({ navigation }: Props) => {
             onPress={() => navigation.navigate('PendingRecurring')}
           >
             <View style={styles.pendingBannerContent}>
-              <Text style={styles.pendingIcon}>⚠️</Text>
+              <Ionicons name="warning" size={20} color={theme.colors.warning} style={styles.pendingIcon} />
               <View>
                 <Text style={styles.pendingTitle}>Pending Transactions</Text>
                 <Text style={styles.pendingDesc}>You have {pendingRecurringTransactions.length} recurring transaction(s) due.</Text>
               </View>
             </View>
-            <Text style={styles.pendingArrow}>➔</Text>
+            <Ionicons name="arrow-forward" size={16} color={theme.colors.textMuted} style={{marginHorizontal: 8}} />
           </TouchableOpacity>
         )}
 
-        <View style={styles.cardsRow}>
-          <SummaryCard title="Total Balance" amount={balance} type="balance" currency={defaultCurrency} />
+        <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
+          <GlassCard variant="strong" style={{ alignItems: 'center', paddingVertical: 32 }}>
+            <Text style={{ ...theme.typography.labelCaps, marginBottom: 8 }}>Total Balance</Text>
+            <MoneyDisplay amount={balance} currency={defaultCurrency} size="hero" colorType="default" />
+          </GlassCard>
         </View>
         <View style={styles.cardsRow}>
           <SummaryCard title="Monthly Income" amount={income} type="income" currency={defaultCurrency} />
@@ -95,11 +102,23 @@ export const DashboardScreen = ({ navigation }: Props) => {
 
         {/* Dashboard Metrics Horizontal Scroll */}
         <View style={styles.metricsContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.metricsScrollContent}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.metricsScrollContent}
+            scrollEventThrottle={16}
+            onScroll={(e) => {
+              const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+              const maxScroll = contentSize.width - layoutMeasurement.width;
+              if (maxScroll > 0) {
+                setMetricScroll(Math.min(1, Math.max(0, contentOffset.x / maxScroll)));
+              }
+            }}
+          >
             <MetricCard 
               title="Savings Rate" 
               value={`${savingsRate.rate.toFixed(1)}%`} 
-              icon="💰" 
+              icon="wallet" 
               color={theme.colors.success}
 
               subtitle={`${Math.abs(savingsRate.trend).toFixed(1)}% vs last month`}
@@ -108,7 +127,7 @@ export const DashboardScreen = ({ navigation }: Props) => {
             <MetricCard 
               title="Cash Flow" 
               value={formatCurrency(cashFlow.net)} 
-              icon={cashFlow.isPositive ? '📈' : '📉'} 
+              icon={cashFlow.isPositive ? 'trending-up' : 'trending-down'} 
               color={cashFlow.isPositive ? theme.colors.info : theme.colors.danger}
               subtitle={cashFlow.isPositive ? 'Positive cash flow' : 'Negative cash flow'}
             />
@@ -116,12 +135,15 @@ export const DashboardScreen = ({ navigation }: Props) => {
               <MetricCard 
                 title="Top Expense" 
                 value={largestCategory.categoryName} 
-                icon="🔥" 
+                icon="flame" 
                 color={theme.colors.warning}
                 subtitle={`${largestCategory.percentage.toFixed(1)}% of spending`}
               />
             )}
           </ScrollView>
+          <View style={{ width: 80, height: 4, backgroundColor: theme.colors.border, alignSelf: 'center', marginTop: 12, borderRadius: 2, overflow: 'hidden' }}>
+            <View style={{ width: 40, height: 4, backgroundColor: theme.colors.primary, borderRadius: 2, transform: [{ translateX: metricScroll * 40 }] }} />
+          </View>
         </View>
 
         {/* Smart Insights Section */}
@@ -209,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     marginBottom: 12 
   },
-  sectionTitle: { ...theme.typography.h3, color: theme.colors.text, marginBottom: 12 },
+  sectionTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, marginBottom: 12 },
   seeAll: { ...theme.typography.body2, color: theme.colors.primary, fontWeight: '500' },
   
   listContainer: {

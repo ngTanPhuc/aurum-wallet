@@ -59,8 +59,12 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
       onPress={() => onPress?.(transaction)}
       disabled={!onPress}
     >
-      <View style={[styles.iconContainer, { backgroundColor: category?.color || theme.colors.surfaceHighlight }]}>
-        <Ionicons name={getIcon() as any} size={24} color={theme.colors.text} style={{marginRight: 12}} />
+      <View style={[styles.iconContainer, { backgroundColor: category?.color || theme.colors.surfaceStrong }]}>
+        {(!getIcon() || /^[a-z0-9-]+$/.test(getIcon())) ? (
+          <Ionicons name={getIcon() as any} size={24} color={theme.colors.textPrimary} />
+        ) : (
+          <Text style={{ fontSize: 24 }}>{getIcon()}</Text>
+        )}
       </View>
       
       <View style={styles.content}>
@@ -121,7 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: { ...theme.typography.body1, fontWeight: '500',
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     marginBottom: theme.spacing.xs,
     textTransform: 'capitalize', },
   subtitle: { ...theme.typography.caption, color: theme.colors.textMuted, },

@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   selectorError: {
     borderColor: theme.colors.danger,
   },
-  selectedText: { ...theme.typography.body1, color: theme.colors.text, },
+  selectedText: { ...theme.typography.body1, color: theme.colors.textPrimary, },
   placeholderText: { ...theme.typography.body1, color: theme.colors.textMuted, },
   errorText: { ...theme.typography.caption, color: theme.colors.danger,
     marginTop: theme.spacing.xs, },
@@ -105,16 +105,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
-  modalTitle: { ...theme.typography.h3, color: theme.colors.text, },
+  modalTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, },
   closeText: { ...theme.typography.body1, color: theme.colors.primary, },
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: theme.spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.surfaceHighlight,
+    borderBottomColor: theme.colors.surfaceStrong,
   },
-  itemName: { ...theme.typography.body1, color: theme.colors.text, },
+  itemName: { ...theme.typography.body1, color: theme.colors.textPrimary, },
   check: {
     color: theme.colors.primary,
     fontSize: 16,

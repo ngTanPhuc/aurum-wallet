@@ -24,7 +24,7 @@ export const CustomHeader = ({ title, showBack = false, rightAction }: CustomHea
             onPress={() => navigation.goBack()}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
+            <Ionicons name="chevron-back" size={24} color={theme.colors.textPrimary} />
           </TouchableOpacity>
         )}
         <Text style={styles.title} numberOfLines={1}>{title}</Text>
@@ -59,10 +59,10 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 24,
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
     fontWeight: '300',
   },
-  title: { ...theme.typography.h3, color: theme.colors.text,
+  title: { ...theme.typography.h3, color: theme.colors.textPrimary,
     flex: 1, },
   rightContainer: {
     marginLeft: theme.spacing.md,

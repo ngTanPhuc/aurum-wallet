@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
@@ -9,6 +10,8 @@ import { WalletPicker } from '../components/WalletPicker';
 import uuid from 'react-native-uuid';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SavingsGoalDetail'>;
 
@@ -66,7 +69,7 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
     return (
       <View style={styles.container}>
         <CustomHeader title="Goal Not Found" showBack={true} />
-        <Text style={{ padding: theme.spacing.lg, color: theme.colors.text }}>Goal not found.</Text>
+        <Text style={{ padding: theme.spacing.lg, color: theme.colors.textPrimary }}>Goal not found.</Text>
       </View>
     );
   }
@@ -163,7 +166,7 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
 
         {projectedDate ? (
           <View style={styles.insightRow}>
-            <View style={styles.insightIconContainer}><Text style={styles.insightIcon}>📈</Text></View>
+            <View style={styles.insightIconContainer}><Ionicons name="trending-up" size={16} color={theme.colors.primary} style={styles.insightIcon} /></View>
             <View style={styles.insightTextContainer}>
               <Text style={styles.insightLabel}>Projected Completion</Text>
               <Text style={styles.insightValue}>
@@ -181,11 +184,11 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
         <Text style={styles.cardTitle}>Manage Funds</Text>
         <Text style={styles.cardDesc}>Enter an amount below to manually add or subtract from your current progress.</Text>
         
-        <TextInput
+        <AmountInput
           style={styles.input}
           placeholder="0"
           placeholderTextColor={theme.colors.textMuted}
-          keyboardType="numeric"
+          
           value={adjustAmount}
           onChangeText={handleAdjustChange}
         />
@@ -227,13 +230,13 @@ const styles = StyleSheet.create({
     padding: theme.spacing.xl,
     ...theme.shadows.subtle,
   },
-  cardTitle: { ...theme.typography.h3, color: theme.colors.text,
+  cardTitle: { ...theme.typography.h3, color: theme.colors.textPrimary,
     marginBottom: theme.spacing.sm, },
   cardDesc: { ...theme.typography.body2, color: theme.colors.textMuted,
     marginBottom: theme.spacing.xl,
     lineHeight: 20, },
   label: { ...theme.typography.body2, fontWeight: '600',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
   insightRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -243,7 +246,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: theme.colors.surfaceHighlight,
+    backgroundColor: theme.colors.surfaceStrong,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: theme.spacing.lg,
@@ -258,7 +261,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     fontWeight: '600',
     marginBottom: 2, },
-  insightValue: { ...theme.typography.h3, color: theme.colors.text,
+  insightValue: { ...theme.typography.h3, color: theme.colors.textPrimary,
     marginBottom: 2, },
   insightSub: { ...theme.typography.caption, color: theme.colors.textMuted, },
   divider: {
@@ -277,7 +280,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.xl,
     textAlign: 'center',
     fontWeight: 'bold',
-    color: theme.colors.text,
+    color: theme.colors.textPrimary,
   },
   btnRow: {
     flexDirection: 'row',

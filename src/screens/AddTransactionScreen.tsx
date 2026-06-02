@@ -10,6 +10,8 @@ import { CategoryPicker } from '../components/CategoryPicker';
 import { TagPicker } from '../components/TagPicker';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { AmountInput } from '../components/glass/AmountInput';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditTransaction'>;
 
@@ -189,11 +191,11 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
         </View>
 
         <Text style={styles.label}>Amount</Text>
-        <TextInput 
+        <AmountInput 
           style={styles.input} 
           value={amount} 
           onChangeText={handleAmountChange} 
-          keyboardType="numeric" 
+           
           placeholder="0" 
           placeholderTextColor={theme.colors.textMuted}
         />
@@ -276,20 +278,20 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
 const styles = StyleSheet.create({
   headerWrapper: { backgroundColor: theme.colors.background },
   container: { flex: 1, backgroundColor: theme.colors.background, padding: theme.spacing.lg },
-  goalBanner: { backgroundColor: theme.colors.surfaceHighlight, padding: theme.spacing.md, borderRadius: theme.radii.sm, marginBottom: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.primary },
+  goalBanner: { backgroundColor: theme.colors.surfaceStrong, padding: theme.spacing.md, borderRadius: theme.radii.sm, marginBottom: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.primary },
   goalBannerText: { color: theme.colors.primary, fontWeight: 'bold', textAlign: 'center' },
   typeSelector: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.xl },
   typeBtn: { flex: 1, padding: theme.spacing.md, backgroundColor: theme.colors.surface, borderRadius: theme.radii.sm, alignItems: 'center' },
   typeBtnActive: { backgroundColor: theme.colors.primary },
-  typeText: { color: theme.colors.text, textTransform: 'capitalize', fontWeight: '500' },
+  typeText: { color: theme.colors.textPrimary, textTransform: 'capitalize', fontWeight: '500' },
   typeTextActive: { color: theme.colors.background },
   label: { ...theme.typography.body2, color: theme.colors.textMuted, marginBottom: theme.spacing.sm },
-  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.text, marginBottom: theme.spacing.lg },
+  input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary, marginBottom: theme.spacing.lg },
   saveTemplateContainer: { backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.radii.sm, marginBottom: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.border },
   saveTemplateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.sm },
   templatesContainer: { marginBottom: theme.spacing.lg },
   templatesScroll: { flexDirection: 'row' },
-  templatePill: { backgroundColor: theme.colors.surfaceHighlight, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm, borderRadius: theme.radii.round, marginRight: theme.spacing.sm, borderWidth: 1, borderColor: theme.colors.primary },
+  templatePill: { backgroundColor: theme.colors.surfaceStrong, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm, borderRadius: theme.radii.round, marginRight: theme.spacing.sm, borderWidth: 1, borderColor: theme.colors.primary },
   templatePillText: { color: theme.colors.primary, fontWeight: '500' },
   saveBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: theme.spacing.lg, marginBottom: 40 },
   saveBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },

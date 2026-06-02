@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -22,7 +23,7 @@ export const ReportsScreen = ({ navigation }: Props) => {
         style={styles.card}
         onPress={() => navigation.navigate('Budgets')}
       >
-        <Text style={styles.cardIcon}>🎯</Text>
+        <Ionicons name="flag" size={32} color={theme.colors.primary} style={styles.cardIcon} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Monthly Budgets</Text>
           <Text style={styles.cardDesc}>Set spending limits and track your progress</Text>
@@ -33,7 +34,7 @@ export const ReportsScreen = ({ navigation }: Props) => {
         style={styles.card}
         onPress={() => navigation.navigate('Subscriptions')}
       >
-        <Text style={styles.cardIcon}>🔄</Text>
+        <Ionicons name="swap-horizontal" size={32} color={theme.colors.primary} style={styles.cardIcon} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Subscriptions</Text>
           <Text style={styles.cardDesc}>Manage recurring subscription costs</Text>
@@ -44,7 +45,7 @@ export const ReportsScreen = ({ navigation }: Props) => {
         style={styles.card}
         onPress={() => navigation.navigate('Calendar')}
       >
-        <Text style={styles.cardIcon}>📅</Text>
+        <Ionicons name="calendar" size={32} color={theme.colors.primary} style={styles.cardIcon} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Calendar View</Text>
           <Text style={styles.cardDesc}>View your transactions by day</Text>
@@ -55,7 +56,7 @@ export const ReportsScreen = ({ navigation }: Props) => {
         style={styles.card}
         onPress={() => navigation.navigate('SavingsGoals')}
       >
-        <Text style={styles.cardIcon}>💰</Text>
+        <Ionicons name="wallet" size={32} color={theme.colors.primary} style={styles.cardIcon} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Savings Goals</Text>
           <Text style={styles.cardDesc}>Save up for a vacation, new laptop, or emergency fund</Text>
@@ -66,7 +67,7 @@ export const ReportsScreen = ({ navigation }: Props) => {
         style={styles.card}
         onPress={() => navigation.navigate('RecurringTransactions')}
       >
-        <Text style={styles.cardIcon}>🔁</Text>
+        <Ionicons name="repeat" size={32} color={theme.colors.primary} style={styles.cardIcon} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Recurring Transactions</Text>
           <Text style={styles.cardDesc}>Manage your automated bills, subscriptions, and salary</Text>
@@ -77,7 +78,7 @@ export const ReportsScreen = ({ navigation }: Props) => {
         style={styles.card}
         onPress={() => navigation.navigate('SpendingCharts')}
       >
-        <Text style={styles.cardIcon}>📊</Text>
+        <Ionicons name="bar-chart" size={32} color={theme.colors.primary} style={styles.cardIcon} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Spending Charts</Text>
           <Text style={styles.cardDesc}>Visualize your income and expenses</Text>
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   cardContent: {
     flex: 1,
   },
-  cardTitle: { ...theme.typography.h3, color: theme.colors.text,
+  cardTitle: { ...theme.typography.h3, color: theme.colors.textPrimary,
     marginBottom: 4, },
   cardDesc: { ...theme.typography.body2, color: theme.colors.textMuted, }
 });

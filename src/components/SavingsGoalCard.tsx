@@ -32,7 +32,11 @@ export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal }) => {
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Ionicons name={(goal.icon as any) || "flag"} size={28} color={theme.colors.text} style={styles.icon} />
+          {(!goal.icon || /^[a-z0-9-]+$/.test(goal.icon)) ? (
+            <Ionicons name={(goal.icon as any) || "flag"} size={28} color={theme.colors.textPrimary} style={styles.icon} />
+          ) : (
+            <Text style={[styles.icon, { fontSize: 24 }]}>{goal.icon}</Text>
+          )}
           <Text style={styles.name}>{goal.name}</Text>
         </View>
         <Text style={styles.percentage}>{percentage.toFixed(0)}%</Text>
@@ -81,12 +85,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   name: { ...theme.typography.body1, fontWeight: '600',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
   percentage: { ...theme.typography.body1, fontWeight: 'bold',
     color: theme.colors.primary, },
   progressBarBg: {
     height: 8,
-    backgroundColor: theme.colors.surfaceHighlight,
+    backgroundColor: theme.colors.surfaceStrong,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: theme.spacing.md,
@@ -105,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   currentAmount: { ...theme.typography.body2, fontWeight: 'bold',
-    color: theme.colors.text, },
+    color: theme.colors.textPrimary, },
   separator: { ...theme.typography.body2, color: theme.colors.textMuted, },
   targetAmount: { ...theme.typography.caption, color: theme.colors.textMuted, },
   daysLeft: { ...theme.typography.caption, color: theme.colors.warning,
