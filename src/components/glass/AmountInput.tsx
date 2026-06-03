@@ -1,12 +1,14 @@
-import React from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, TextInputProps, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import React, { useRef } from 'react';
+import { View, TextInput, StyleSheet, TextInputProps, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { theme } from '../../theme/theme';
+import { useKeypad } from '../../context/KeypadContext';
 
 interface AmountInputProps extends Omit<TextInputProps, 'style'> {
   value: string;
   onChangeText: (text: string) => void;
   style?: StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
+  maxLength?: number;
 }
 
 export const AmountInput: React.FC<AmountInputProps> = ({ 
@@ -14,18 +16,21 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   onChangeText, 
   style, 
   containerStyle, 
+  maxLength,
   ...props 
 }) => {
-  const handleAddZeros = () => {
-    // We only add '000' if there is already some input, 
-    // or we can allow it to just be '000' which onChangeText logic might parse as 0.
-    // Let's pass '000' appended to current value. The parent's onChangeText will handle formatting.
-    const current = value || '';
-    onChangeText(current + '000');
+  const { showKeypad } = useKeypad();
+  const viewRef = useRef<View>(null);
+
+  const handleFocus = () => {
+    showKeypad({
+      initialValue: value,
+      onChange: onChangeText,
+      maxLength,
+      inputRef: viewRef
+    });
   };
 
-  // Extract margins from the passed style so we can apply them to the container instead
-  // to ensure the absolute positioned button stays vertically centered on the input field itself.
   const flatStyle = StyleSheet.flatten(style) || {};
   const { marginTop, marginBottom, marginVertical, margin, ...inputStyle } = flatStyle as any;
   
@@ -37,21 +42,17 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   };
 
   return (
-    <View style={[styles.container, margins, containerStyle]}>
+    <View ref={viewRef} style={[styles.container, margins, containerStyle]}>
       <TextInput
-        style={[styles.input, inputStyle, { paddingRight: 60 }]}
+        style={[styles.input, inputStyle]}
         value={value}
         onChangeText={onChangeText}
         keyboardType="numeric"
+        showSoftInputOnFocus={false}
+        onFocus={handleFocus}
+        onPressIn={handleFocus}
         {...props}
       />
-      <TouchableOpacity 
-        style={styles.btn} 
-        onPress={handleAddZeros} 
-        activeOpacity={0.7}
-      >
-        <Text style={styles.btnText}>000</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -62,22 +63,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
-    // paddingRight is injected inline to avoid conflicts with passed padding
+    // paddingRight removed since we no longer have the inline button
   },
-  btn: {
-    position: 'absolute',
-    right: 8,
-    backgroundColor: theme.colors.surfaceStrong,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: theme.radii.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.glassBorder,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  btnText: {
-    ...theme.typography.labelCaps,
-    color: theme.colors.primary,
-  }
 });

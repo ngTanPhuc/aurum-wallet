@@ -157,7 +157,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
         <Text style={styles.sectionTitle}>About</Text>
         <View style={styles.row}>
           <Text style={styles.rowLabel}>App Version</Text>
-          <Text style={styles.rowValue}>1.0.1</Text>
+          <Text style={styles.rowValue}>1.1.0</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.rowLabel}>Developer</Text>
