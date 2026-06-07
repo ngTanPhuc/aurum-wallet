@@ -117,7 +117,7 @@ describe('TransactionService', () => {
 
   describe('addTransaction', () => {
     it('should insert transaction and apply effect', async () => {
-      const tx: Transaction = { note: '', 
+      const tx: Transaction = { note: '',
         id: 'tx1',
         type: 'expense',
         amount: 100,
@@ -139,7 +139,7 @@ describe('TransactionService', () => {
     });
 
     it('should handle all optional fields and tags', async () => {
-      const tx: Transaction = { note: '', 
+      const tx: Transaction = { 
         id: 'tx1',
         type: 'transfer',
         amount: 100,
@@ -179,7 +179,7 @@ describe('TransactionService', () => {
   describe('updateTransaction', () => {
     it('should update transaction, modify tags, and apply new effect', async () => {
       const oldTx = { id: 'tx1', type: 'expense', amount: 50 };
-      const tx: Transaction = { note: '', 
+      const tx: Transaction = { 
         id: 'tx1',
         type: 'expense',
         amount: 100,
@@ -216,7 +216,7 @@ describe('TransactionService', () => {
 
     it('should handle optional fields and no tags', async () => {
       const oldTx = { id: 'tx1', type: 'expense', amount: 50 };
-      const tx: Transaction = { note: '', 
+      const tx: Transaction = { note: '',
         id: 'tx1',
         type: 'expense',
         amount: 100,

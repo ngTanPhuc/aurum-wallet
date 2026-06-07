@@ -14,13 +14,16 @@ jest.mock('../../store/useFinanceStore', () => ({
 
 describe('WalletCard', () => {
   const mockWallet: Wallet = {
-    id: 'w1',
-    name: 'Cash',
+    id: '1',
+    name: 'Main Cash',
     type: 'cash',
-    balance: 500000,
-    currency: 'VND',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    balance: 500,
+    currency: 'USD',
+    initialBalance: 0,
+    includeInTotal: true,
+    isArchived: false,
+    createdAt: '2023-01-01',
+    updatedAt: '2023-01-01'
   };
 
   it('renders wallet details correctly', () => {

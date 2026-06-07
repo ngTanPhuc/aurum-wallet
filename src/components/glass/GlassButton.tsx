@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   gradientFill: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill as object,
     justifyContent: 'center',
     alignItems: 'center',
   },

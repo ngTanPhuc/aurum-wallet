@@ -17,8 +17,9 @@ import { BudgetService } from '../services/BudgetService';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { TransactionsScreen } from '../screens/TransactionsScreen';
 import { WalletsScreen } from '../screens/WalletsScreen';
-import { ReportsScreen } from '../screens/ReportsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { PlanScreen } from '../screens/PlanScreen';
+import { InsightsScreen } from '../screens/InsightsScreen';
 
 import { AddTransactionScreen } from '../screens/AddTransactionScreen';
 import { AddEditWalletScreen } from '../screens/AddEditWalletScreen';
@@ -38,6 +39,9 @@ import { AddEditTemplateScreen } from '../screens/AddEditTemplateScreen';
 import { TagsScreen } from '../screens/TagsScreen';
 import { SubscriptionsScreen } from '../screens/SubscriptionsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
+import { SavingsDepositsScreen } from '../screens/SavingsDepositsScreen';
+import { SavingsDepositDetailScreen } from '../screens/SavingsDepositDetailScreen';
+import { AddEditSavingsDepositScreen } from '../screens/AddEditSavingsDepositScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -46,16 +50,15 @@ function HomeTabs() {
   return (
     <Tab.Navigator
       tabBar={props => <GlassBottomTab {...props} />}
-      sceneContainerStyle={{ backgroundColor: theme.colors.background }}
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Overview' }} />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Home' }} />
       <Tab.Screen name="Transactions" component={TransactionsScreen} options={{ title: 'History' }} />
       <Tab.Screen name="Wallets" component={WalletsScreen} options={{ title: 'Wallets' }} />
-      <Tab.Screen name="Reports" component={ReportsScreen} options={{ title: 'Reports' }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <Tab.Screen name="Plan" component={PlanScreen} options={{ title: 'Plan' }} />
+      <Tab.Screen name="Insights" component={InsightsScreen} options={{ title: 'Insights' }} />
     </Tab.Navigator>
   );
 }
@@ -70,7 +73,6 @@ export const AppNavigator = () => {
       try {
         await initDb();
         await CategoryService.seedDefaultCategories();
-        await BudgetService.seedDefaultBudgets();
         setDbReady(true);
         await loadSettings();
         await loadData();
@@ -142,8 +144,18 @@ export const AppNavigator = () => {
               title: route.params?.goalId ? 'Edit Goal' : 'New Goal'
             })} 
           />
+          <Stack.Screen 
+            name="AddEditSavingsDeposit" 
+            component={AddEditSavingsDepositScreen} 
+            options={{ title: 'Deposit', presentation: 'modal' }} 
+          />
         </Stack.Group>
         <Stack.Group>
+          <Stack.Screen 
+            name="Settings" 
+            component={SettingsScreen} 
+            options={{ title: 'Settings', headerShown: false }} 
+          />
           <Stack.Screen 
             name="SavingsGoals" 
             component={SavingsGoalsScreen} 
@@ -153,6 +165,16 @@ export const AppNavigator = () => {
             name="SavingsGoalDetail" 
             component={SavingsGoalDetailScreen} 
             options={{ title: 'Goal Details', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="SavingsDeposits" 
+            component={SavingsDepositsScreen} 
+            options={{ title: 'Savings Deposits', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="SavingsDepositDetail" 
+            component={SavingsDepositDetailScreen} 
+            options={{ title: 'Deposit Details', headerShown: false }} 
           />
           <Stack.Screen 
             name="RecurringTransactions" 

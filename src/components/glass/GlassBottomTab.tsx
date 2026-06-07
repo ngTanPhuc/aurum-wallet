@@ -30,10 +30,10 @@ export function GlassBottomTab({ state, descriptors, navigation }: BottomTabBarP
           iconName = isFocused ? 'list' : 'list-outline';
         } else if (route.name === 'Wallets') {
           iconName = isFocused ? 'wallet' : 'wallet-outline';
-        } else if (route.name === 'Reports') {
-          iconName = isFocused ? 'pie-chart' : 'pie-chart-outline';
-        } else if (route.name === 'Settings') {
-          iconName = isFocused ? 'settings' : 'settings-outline';
+        } else if (route.name === 'Plan') {
+          iconName = isFocused ? 'compass' : 'compass-outline';
+        } else if (route.name === 'Insights') {
+          iconName = isFocused ? 'stats-chart' : 'stats-chart-outline';
         }
 
         return (

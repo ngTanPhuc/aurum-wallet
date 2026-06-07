@@ -58,6 +58,7 @@ describe('TransactionItem', () => {
       sourceWalletId: 'w2',
       destinationWalletId: 'w1',
       transactionDate: '2023-10-02T12:00:00Z',
+      note: 'Transfer',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -76,6 +77,7 @@ describe('TransactionItem', () => {
       amount: 2000,
       sourceWalletId: 'w1',
       transactionDate: '2023-10-03T12:00:00Z',
+      note: 'Salary',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };

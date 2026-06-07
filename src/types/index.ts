@@ -134,6 +134,9 @@ export type RootStackParamList = {
   SavingsGoals: undefined;
   SavingsGoalDetail: { goalId: string };
   AddEditSavingsGoal: { goalId?: string };
+  SavingsDeposits: undefined;
+  SavingsDepositDetail: { depositId: string };
+  AddEditSavingsDeposit: { depositId?: string };
   RecurringTransactions: undefined;
   AddEditRecurringTransaction: { recurringId?: string };
   PendingRecurring: undefined;
@@ -143,14 +146,15 @@ export type RootStackParamList = {
   Tags: undefined;
   Subscriptions: undefined;
   Calendar: undefined;
+  Settings: undefined;
 };
 
 export type BottomTabParamList = {
   Dashboard: undefined;
   Transactions: undefined;
-  Reports: undefined;
   Wallets: undefined;
-  Settings: undefined;
+  Plan: undefined;
+  Insights: undefined;
 };
 
 export interface TransactionFilters {
@@ -165,5 +169,39 @@ export interface TransactionFilters {
 }
 
 export type TransactionSort = 'newest' | 'oldest' | 'highest_amount' | 'lowest_amount';
+
+export type SavingsDepositTermUnit = 'day' | 'month' | 'year';
+export type SavingsDepositInterestPayoutType = 'at_maturity' | 'monthly' | 'upfront';
+
+export interface SavingsDeposit {
+  id: string;
+  name: string;
+  sourceWalletId: string;
+  payoutWalletId: string;
+  principalAmount: number;
+  annualInterestRate: number;
+  termValue: number;
+  termUnit: SavingsDepositTermUnit;
+  startDate: string;
+  maturityDate: string;
+  interestPayoutType: SavingsDepositInterestPayoutType;
+  expectedInterestAmount: number;
+  expectedTotalPayout: number;
+  status: 'active' | 'matured' | 'closed_early';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface YieldPocketSettings {
+  walletId: string;
+  annualYieldRate: number;
+  yieldFrequency: 'daily' | 'monthly';
+  postingMode: 'auto' | 'manual';
+  lastYieldCalculatedAt?: string;
+  nextYieldDate?: string;
+  allowSpendingDirectly: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export * from './insights';

@@ -41,6 +41,7 @@ describe('TransactionTemplateService', () => {
       type: 'income' as const,
       amount: 200,
       walletId: 'w2',
+      note: '',
     };
 
     const before = new Date().toISOString();
@@ -110,7 +111,7 @@ describe('TransactionTemplateService', () => {
       name: 'T1',
       type: 'expense',
       amount: 150,
-      walletId: 'w1', note: '',
+      walletId: 'w1', note: 'New note',
       categoryId: 'c2',
       
       icon: 'icon2',

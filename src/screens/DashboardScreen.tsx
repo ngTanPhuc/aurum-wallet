@@ -70,7 +70,14 @@ export const DashboardScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Dashboard" />
+      <CustomHeader 
+        title="Home" 
+        rightAction={
+          <TouchableOpacity onPress={() => navigation.navigate('Settings' as any)} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+            <Ionicons name="settings-outline" size={24} color={theme.colors.textPrimary} />
+          </TouchableOpacity>
+        }
+      />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {pendingRecurringTransactions.length > 0 && (

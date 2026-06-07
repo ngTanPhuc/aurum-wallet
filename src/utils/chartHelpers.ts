@@ -45,7 +45,7 @@ export const generateDonutChartData = (
   // Default color palette for categories if they don't have one
   const defaultColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F9D56E', '#FF9F1C', '#9D4EDD', '#2EC4B6', '#E71D36'];
 
-  const data = Object.keys(categoryTotals)
+  const rawData = Object.keys(categoryTotals)
     .map((categoryId, index) => {
       const cat = categories.find(c => c.id === categoryId);
       const amount = categoryTotals[categoryId];
@@ -64,6 +64,28 @@ export const generateDonutChartData = (
       };
     })
     .sort((a, b) => b.value - a.value); // Sort largest to smallest
+
+  let data = rawData;
+
+  if (rawData.length > 5) {
+    const top5 = rawData.slice(0, 5);
+    const otherAmount = rawData.slice(5).reduce((sum, item) => sum + item.amount, 0);
+    const otherPercentage = totalExpense > 0 ? (otherAmount / totalExpense) * 100 : 0;
+    
+    data = [
+      ...top5,
+      {
+        value: otherAmount,
+        color: '#9CA3AF', // Gray color for other
+        gradientCenterColor: '#9CA3AF',
+        label: 'Other',
+        text: `${otherPercentage.toFixed(0)}%`,
+        percentage: otherPercentage,
+        amount: otherAmount,
+        icon: 'ellipsis-horizontal'
+      }
+    ];
+  }
 
   // Mark the largest slice as focused to pop out
   if (data.length > 0) {

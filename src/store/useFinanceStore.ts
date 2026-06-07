@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Wallet, Category, Transaction, Budget, SavingsGoal, RecurringTransaction, Insight, TransactionTemplate, Tag, TransactionFilters, TransactionSort } from '../types';
+import { Wallet, Category, Transaction, Budget, SavingsGoal, RecurringTransaction, Insight, TransactionTemplate, Tag, TransactionFilters, TransactionSort, SavingsDeposit, YieldPocketSettings } from '../types';
 import { WalletService } from '../services/WalletService';
 import { CategoryService } from '../services/CategoryService';
 import { TransactionService } from '../services/TransactionService';
@@ -9,6 +9,8 @@ import { RecurringTransactionService } from '../services/RecurringTransactionSer
 import { InsightEngine } from '../services/InsightEngine';
 import { TransactionTemplateService } from '../services/TransactionTemplateService';
 import { TagService } from '../services/TagService';
+import { SavingsDepositService } from '../services/SavingsDepositService';
+import { YieldPocketService } from '../services/YieldPocketService';
 
 interface FinanceState {
   wallets: Wallet[];
@@ -20,6 +22,8 @@ interface FinanceState {
   pendingRecurringTransactions: RecurringTransaction[];
   templates: TransactionTemplate[];
   tags: Tag[];
+  savingsDeposits: SavingsDeposit[];
+  yieldPocketSettings: YieldPocketSettings[];
   transactionFilters: TransactionFilters;
   transactionSearchQuery: string;
   transactionSort: TransactionSort;
@@ -63,6 +67,12 @@ interface FinanceState {
   updateTag: (tag: Tag) => Promise<void>;
   deleteTag: (id: string) => Promise<void>;
 
+  addSavingsDeposit: (deposit: SavingsDeposit) => Promise<void>;
+  updateSavingsDeposit: (deposit: SavingsDeposit) => Promise<void>;
+  matureSavingsDeposit: (deposit: SavingsDeposit) => Promise<void>;
+  closeSavingsDepositEarly: (deposit: SavingsDeposit) => Promise<void>;
+  saveYieldPocketSettings: (settings: YieldPocketSettings) => Promise<void>;
+
   setTransactionFilters: (filters: TransactionFilters) => void;
   setTransactionSearchQuery: (query: string) => void;
   setTransactionSort: (sort: TransactionSort) => void;
@@ -79,6 +89,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   pendingRecurringTransactions: [],
   templates: [],
   tags: [],
+  savingsDeposits: [],
+  yieldPocketSettings: [],
   transactionFilters: {},
   transactionSearchQuery: '',
   transactionSort: 'newest',
@@ -95,8 +107,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       const pendingRecurringTransactions = await RecurringTransactionService.getPendingTransactions();
       const templates = await TransactionTemplateService.getTemplates();
       const tags = await TagService.getTags();
+      const savingsDeposits = await SavingsDepositService.getSavingsDeposits();
+      const yieldPocketSettings = await YieldPocketService.getSettings();
       
-      set({ wallets, categories, transactions, savingsGoals, recurringTransactions, pendingRecurringTransactions, templates, tags, isLoading: false });
+      set({ wallets, categories, transactions, savingsGoals, recurringTransactions, pendingRecurringTransactions, templates, tags, savingsDeposits, yieldPocketSettings, isLoading: false });
     } catch (error) {
       console.error('Error loading finance data', error);
       set({ isLoading: false });
@@ -338,6 +352,27 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
   deleteTag: async (id) => {
     await TagService.deleteTag(id);
+    await get().loadData();
+  },
+
+  addSavingsDeposit: async (deposit) => {
+    await SavingsDepositService.addSavingsDeposit(deposit);
+    await get().loadData();
+  },
+  updateSavingsDeposit: async (deposit) => {
+    await SavingsDepositService.updateSavingsDeposit(deposit);
+    await get().loadData();
+  },
+  matureSavingsDeposit: async (deposit) => {
+    await SavingsDepositService.matureDeposit(deposit);
+    await get().loadData();
+  },
+  closeSavingsDepositEarly: async (deposit) => {
+    await SavingsDepositService.closeEarly(deposit);
+    await get().loadData();
+  },
+  saveYieldPocketSettings: async (settings) => {
+    await YieldPocketService.saveSettings(settings);
     await get().loadData();
   },
 

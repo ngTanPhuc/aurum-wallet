@@ -10,10 +10,7 @@ import { RootStackParamList, BottomTabParamList } from '../types';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
 
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<BottomTabParamList, 'Settings'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 const CURRENCIES = ['VND', 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD'];
 

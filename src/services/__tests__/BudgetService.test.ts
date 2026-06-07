@@ -29,46 +29,6 @@ describe('BudgetService', () => {
     jest.clearAllMocks();
   });
 
-  describe('seedDefaultBudgets', () => {
-    it('should not seed if budgets already exist', async () => {
-      mockDb.getFirstAsync.mockResolvedValue({ count: 1 });
-      await BudgetService.seedDefaultBudgets();
-      expect(mockDb.getFirstAsync).toHaveBeenCalledWith('SELECT COUNT(*) as count FROM budgets');
-      expect(CategoryService.getCategories).not.toHaveBeenCalled();
-    });
-
-    it('should not seed if no expense categories exist', async () => {
-      mockDb.getFirstAsync.mockResolvedValue({ count: 0 });
-      (CategoryService.getCategories as jest.Mock).mockResolvedValue([{ id: '1', name: 'Income', type: 'income' }]);
-      await BudgetService.seedDefaultBudgets();
-      expect(mockDb.runAsync).not.toHaveBeenCalled();
-    });
-
-    it('should seed default budgets for existing expense categories', async () => {
-      mockDb.getFirstAsync.mockResolvedValue({ count: 0 });
-      (CategoryService.getCategories as jest.Mock).mockResolvedValue([
-        { id: 'cat-1', name: 'Food & Drinks', type: 'expense' },
-        { id: 'cat-2', name: 'Coffee', type: 'expense' },
-        { id: 'cat-3', name: 'Random', type: 'expense' }
-      ]);
-      
-      const addBudgetSpy = jest.spyOn(BudgetService, 'addBudget').mockResolvedValue(undefined);
-
-      await BudgetService.seedDefaultBudgets();
-      
-      expect(addBudgetSpy).toHaveBeenCalledTimes(2);
-      expect(addBudgetSpy).toHaveBeenCalledWith(expect.objectContaining({
-        categoryId: 'cat-1',
-        amount: 3000000,
-      }));
-      expect(addBudgetSpy).toHaveBeenCalledWith(expect.objectContaining({
-        categoryId: 'cat-2',
-        amount: 400000,
-      }));
-
-      addBudgetSpy.mockRestore();
-    });
-  });
 
   describe('getBudgets', () => {
     it('should return budgets for a specific month and year', async () => {

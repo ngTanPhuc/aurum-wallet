@@ -29,7 +29,7 @@ describe('WalletsScreen', () => {
     jest.clearAllMocks();
   });
 
-  const setupStore = (wallets = []) => {
+  const setupStore = (wallets: any[] = []) => {
     (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
       const state = { wallets };
       return selector(state);

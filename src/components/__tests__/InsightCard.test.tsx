@@ -7,8 +7,9 @@ describe('InsightCard', () => {
   const defaultInsight: Insight = {
     id: '1',
     type: 'info',
-    title: 'Info Title',
-    description: 'Info Description',
+    title: 'Test Insight',
+    description: 'This is a test insight description.',
+    priority: 1,
   };
 
   it('renders info insight correctly', () => {

@@ -11,9 +11,11 @@ jest.mock('../../store/useFinanceStore', () => ({
 const mockBudget: Budget = {
   id: 'b1',
   categoryId: 'c1',
-  amount: 1000,
+  amount: 500,
   month: 6,
-  year: 2026,
+  year: 2023,
+  createdAt: '2023-01-01',
+  updatedAt: '2023-01-01'
 };
 
 describe('BudgetProgressCard', () => {

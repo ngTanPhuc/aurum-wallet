@@ -62,7 +62,7 @@ describe('WalletService', () => {
     it('should insert a new wallet', async () => {
       const wallet: any = {
         id: '1', name: 'Cash', type: 'cash', balance: 1000, initialBalance: 1000,
-        currency: 'USD', initialBalance: 0, color: '#000', icon: '💰', includeInTotal: true, isArchived: false,
+        currency: 'USD', color: '#000', icon: '💰', includeInTotal: true, isArchived: false,
         createdAt: '2023', updatedAt: '2023'
       };
 
@@ -77,7 +77,7 @@ describe('WalletService', () => {
     it('should insert a new wallet with null optional fields', async () => {
       const wallet: any = {
         id: '1', name: 'Cash', type: 'cash', balance: 1000, initialBalance: 1000,
-        currency: 'USD', initialBalance: 0, includeInTotal: false, isArchived: true,
+        currency: 'USD', includeInTotal: false, isArchived: true,
         createdAt: '2023', updatedAt: '2023'
       };
 
@@ -94,7 +94,7 @@ describe('WalletService', () => {
     it('should update an existing wallet', async () => {
       const wallet: any = {
         id: '1', name: 'Cash', type: 'cash', balance: 1000, initialBalance: 1000,
-        currency: 'USD', initialBalance: 0, color: '#000', icon: '💰', includeInTotal: true, isArchived: false,
+        currency: 'USD', color: '#000', icon: '💰', includeInTotal: true, isArchived: false,
         updatedAt: '2023'
       };
 
@@ -109,7 +109,7 @@ describe('WalletService', () => {
     it('should update an existing wallet with null optional fields', async () => {
       const wallet: any = {
         id: '1', name: 'Cash', type: 'cash', balance: 1000, initialBalance: 1000,
-        currency: 'USD', initialBalance: 0, includeInTotal: false, isArchived: true,
+        currency: 'USD', includeInTotal: false, isArchived: true,
         updatedAt: '2023'
       };
 
