@@ -43,18 +43,20 @@ export const DashboardScreen = ({ navigation }: Props) => {
   const currentYear = now.getFullYear();
   
   // Basic Stats
-  const thisMonthTxs = transactions.filter(t => {
-    const d = new Date(t.transactionDate);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-  });
-
-  const income = thisMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const expense = thisMonthTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const { income, expense } = useMemo(() => {
+    const txs = transactions.filter(t => {
+      const d = new Date(t.transactionDate);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+    const inc = txs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const exp = txs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    return { income: inc, expense: exp };
+  }, [transactions, currentMonth, currentYear]);
 
   // New Metrics
-  const savingsRate = getSavingsRate(currentMonth, currentYear);
-  const cashFlow = getCashFlow(currentMonth, currentYear);
-  const largestCategory = getLargestSpendingCategory(currentMonth, currentYear);
+  const savingsRate = useMemo(() => getSavingsRate(currentMonth, currentYear), [transactions, currentMonth, currentYear, getSavingsRate]);
+  const cashFlow = useMemo(() => getCashFlow(currentMonth, currentYear), [transactions, currentMonth, currentYear, getCashFlow]);
+  const largestCategory = useMemo(() => getLargestSpendingCategory(currentMonth, currentYear), [transactions, currentMonth, currentYear, getLargestSpendingCategory]);
   
   // Smart Insights (Top 3)
   const insights = useMemo(() => getInsights().slice(0, 3), [transactions, getInsights]);

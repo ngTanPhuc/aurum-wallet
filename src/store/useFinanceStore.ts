@@ -99,16 +99,22 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   loadData: async () => {
     set({ isLoading: true });
     try {
-      const wallets = await WalletService.getWallets();
-      const categories = await CategoryService.getCategories();
-      const transactions = await TransactionService.getTransactions();
-      const savingsGoals = await SavingsGoalService.getSavingsGoals();
-      const recurringTransactions = await RecurringTransactionService.getRecurringTransactions();
-      const pendingRecurringTransactions = await RecurringTransactionService.getPendingTransactions();
-      const templates = await TransactionTemplateService.getTemplates();
-      const tags = await TagService.getTags();
-      const savingsDeposits = await SavingsDepositService.getSavingsDeposits();
-      const yieldPocketSettings = await YieldPocketService.getSettings();
+      const [
+        wallets, categories, transactions, savingsGoals, 
+        recurringTransactions, pendingRecurringTransactions, 
+        templates, tags, savingsDeposits, yieldPocketSettings
+      ] = await Promise.all([
+        WalletService.getWallets(),
+        CategoryService.getCategories(),
+        TransactionService.getTransactions(),
+        SavingsGoalService.getSavingsGoals(),
+        RecurringTransactionService.getRecurringTransactions(),
+        RecurringTransactionService.getPendingTransactions(),
+        TransactionTemplateService.getTemplates(),
+        TagService.getTags(),
+        SavingsDepositService.getSavingsDeposits(),
+        YieldPocketService.getSettings()
+      ]);
       
       set({ wallets, categories, transactions, savingsGoals, recurringTransactions, pendingRecurringTransactions, templates, tags, savingsDeposits, yieldPocketSettings, isLoading: false });
     } catch (error) {
@@ -134,17 +140,55 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   addTransaction: async (tx: Transaction) => {
     await TransactionService.addTransaction(tx);
-    await get().loadData();
+    
+    // Defer state update to avoid blocking navigation animation
+    setTimeout(async () => {
+      // Only refetch affected aggregates to guarantee accuracy
+      const [wallets, savingsGoals] = await Promise.all([
+        WalletService.getWallets(),
+        SavingsGoalService.getSavingsGoals()
+      ]);
+      
+      set(state => ({
+        wallets,
+        savingsGoals,
+        transactions: [tx, ...state.transactions].sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
+      }));
+    }, 0);
   },
 
   updateTransaction: async (tx: Transaction) => {
     await TransactionService.updateTransaction(tx);
-    await get().loadData();
+    
+    setTimeout(async () => {
+      const [wallets, savingsGoals] = await Promise.all([
+        WalletService.getWallets(),
+        SavingsGoalService.getSavingsGoals()
+      ]);
+      
+      set(state => ({
+        wallets,
+        savingsGoals,
+        transactions: state.transactions.map(t => t.id === tx.id ? tx : t).sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
+      }));
+    }, 0);
   },
 
   deleteTransaction: async (id: string) => {
     await TransactionService.deleteTransaction(id);
-    await get().loadData(); // To recalculate balances
+    
+    setTimeout(async () => {
+      const [wallets, savingsGoals] = await Promise.all([
+        WalletService.getWallets(),
+        SavingsGoalService.getSavingsGoals()
+      ]);
+      
+      set(state => ({
+        wallets,
+        savingsGoals,
+        transactions: state.transactions.filter(t => t.id !== id)
+      }));
+    }, 0);
   },
 
   loadBudgetsForMonth: async (month: number, year: number) => {

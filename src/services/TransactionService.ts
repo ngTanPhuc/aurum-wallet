@@ -42,83 +42,105 @@ export const TransactionService = {
   async addTransaction(tx: Transaction): Promise<void> {
     const db = await getDb();
     
-    await db.runAsync(
-      `INSERT INTO transactions (id, type, amount, fee, sourceWalletId, destinationWalletId, categoryId, savingsGoalId, note, transactionDate, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ${tx.destinationWalletId ? '?' : 'NULL'}, ${tx.categoryId ? '?' : 'NULL'}, ${tx.savingsGoalId ? '?' : 'NULL'}, ?, ?, ?, ?)`,
-      tx.id,
-      tx.type,
-      tx.amount,
-      tx.fee || 0,
-      tx.sourceWalletId,
-      ...(tx.destinationWalletId ? [tx.destinationWalletId] : []),
-      ...(tx.categoryId ? [tx.categoryId] : []),
-      ...(tx.savingsGoalId ? [tx.savingsGoalId] : []),
-      tx.note || '',
-      tx.transactionDate,
-      tx.createdAt,
-      tx.updatedAt
-    );
+    await db.execAsync('BEGIN EXCLUSIVE TRANSACTION');
+    try {
+      await db.runAsync(
+        `INSERT INTO transactions (id, type, amount, fee, sourceWalletId, destinationWalletId, categoryId, savingsGoalId, note, transactionDate, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?, ${tx.destinationWalletId ? '?' : 'NULL'}, ${tx.categoryId ? '?' : 'NULL'}, ${tx.savingsGoalId ? '?' : 'NULL'}, ?, ?, ?, ?)`,
+        tx.id,
+        tx.type,
+        tx.amount,
+        tx.fee || 0,
+        tx.sourceWalletId,
+        ...(tx.destinationWalletId ? [tx.destinationWalletId] : []),
+        ...(tx.categoryId ? [tx.categoryId] : []),
+        ...(tx.savingsGoalId ? [tx.savingsGoalId] : []),
+        tx.note || '',
+        tx.transactionDate,
+        tx.createdAt,
+        tx.updatedAt
+      );
 
-    // Save tags if any
-    if (tx.tags && tx.tags.length > 0) {
-      for (const tag of tx.tags) {
-        await db.runAsync('INSERT INTO transaction_tags (transactionId, tagId) VALUES (?, ?)', [tx.id, tag.id]);
+      // Save tags if any
+      if (tx.tags && tx.tags.length > 0) {
+        for (const tag of tx.tags) {
+          await db.runAsync('INSERT INTO transaction_tags (transactionId, tagId) VALUES (?, ?)', [tx.id, tag.id]);
+        }
       }
-    }
 
-    // Apply effect
-    await this.applyTransactionEffect(tx);
+      // Apply effect
+      await this.applyTransactionEffect(tx);
+      await db.execAsync('COMMIT');
+    } catch (e) {
+      await db.execAsync('ROLLBACK');
+      throw e;
+    }
   },
 
   async updateTransaction(tx: Transaction): Promise<void> {
     const db = await getDb();
     
-    // Reverse old effect
-    const oldTx = await this.getTransactionById(tx.id);
-    if (oldTx) {
-      await this.reverseTransactionEffect(oldTx);
-    }
-
-    await db.runAsync(
-      `UPDATE transactions SET 
-        type = ?, amount = ?, fee = ?, sourceWalletId = ?, 
-        destinationWalletId = ${tx.destinationWalletId ? '?' : 'NULL'}, 
-        categoryId = ${tx.categoryId ? '?' : 'NULL'}, 
-        savingsGoalId = ${tx.savingsGoalId ? '?' : 'NULL'}, 
-        note = ?, transactionDate = ?, updatedAt = ?
-       WHERE id = ?`,
-      tx.type,
-      tx.amount,
-      tx.fee || 0,
-      tx.sourceWalletId,
-      ...(tx.destinationWalletId ? [tx.destinationWalletId] : []),
-      ...(tx.categoryId ? [tx.categoryId] : []),
-      ...(tx.savingsGoalId ? [tx.savingsGoalId] : []),
-      tx.note || '',
-      tx.transactionDate,
-      tx.updatedAt,
-      tx.id
-    );
-
-    // Update tags
-    await db.runAsync('DELETE FROM transaction_tags WHERE transactionId = ?', [tx.id]);
-    if (tx.tags && tx.tags.length > 0) {
-      for (const tag of tx.tags) {
-        await db.runAsync('INSERT INTO transaction_tags (transactionId, tagId) VALUES (?, ?)', [tx.id, tag.id]);
+    await db.execAsync('BEGIN EXCLUSIVE TRANSACTION');
+    try {
+      // Reverse old effect
+      const oldTx = await this.getTransactionById(tx.id);
+      if (oldTx) {
+        await this.reverseTransactionEffect(oldTx);
       }
-    }
 
-    // Apply new effect
-    await this.applyTransactionEffect(tx);
+      await db.runAsync(
+        `UPDATE transactions SET 
+          type = ?, amount = ?, fee = ?, sourceWalletId = ?, 
+          destinationWalletId = ${tx.destinationWalletId ? '?' : 'NULL'}, 
+          categoryId = ${tx.categoryId ? '?' : 'NULL'}, 
+          savingsGoalId = ${tx.savingsGoalId ? '?' : 'NULL'}, 
+          note = ?, transactionDate = ?, updatedAt = ?
+         WHERE id = ?`,
+        tx.type,
+        tx.amount,
+        tx.fee || 0,
+        tx.sourceWalletId,
+        ...(tx.destinationWalletId ? [tx.destinationWalletId] : []),
+        ...(tx.categoryId ? [tx.categoryId] : []),
+        ...(tx.savingsGoalId ? [tx.savingsGoalId] : []),
+        tx.note || '',
+        tx.transactionDate,
+        tx.updatedAt,
+        tx.id
+      );
+
+      // Update tags
+      await db.runAsync('DELETE FROM transaction_tags WHERE transactionId = ?', [tx.id]);
+      if (tx.tags && tx.tags.length > 0) {
+        for (const tag of tx.tags) {
+          await db.runAsync('INSERT INTO transaction_tags (transactionId, tagId) VALUES (?, ?)', [tx.id, tag.id]);
+        }
+      }
+
+      // Apply new effect
+      await this.applyTransactionEffect(tx);
+      await db.execAsync('COMMIT');
+    } catch (e) {
+      await db.execAsync('ROLLBACK');
+      throw e;
+    }
   },
 
   async deleteTransaction(id: string): Promise<void> {
     const db = await getDb();
-    const oldTx = await this.getTransactionById(id);
-    if (oldTx) {
-      await this.reverseTransactionEffect(oldTx);
+    
+    await db.execAsync('BEGIN EXCLUSIVE TRANSACTION');
+    try {
+      const oldTx = await this.getTransactionById(id);
+      if (oldTx) {
+        await this.reverseTransactionEffect(oldTx);
+      }
+      await db.runAsync('DELETE FROM transactions WHERE id = ?', id);
+      await db.execAsync('COMMIT');
+    } catch (e) {
+      await db.execAsync('ROLLBACK');
+      throw e;
     }
-    await db.runAsync('DELETE FROM transactions WHERE id = ?', id);
   },
 
   async applyTransactionEffect(tx: Transaction): Promise<void> {
