@@ -147,6 +147,13 @@ export type RootStackParamList = {
   Subscriptions: undefined;
   Calendar: undefined;
   Settings: undefined;
+  DebtDashboard: undefined;
+  AddEditDebt: { debtId?: string; direction?: DebtDirection };
+  DebtDetail: { debtId: string };
+  RecordDebtPayment: { debtId: string };
+  People: undefined;
+  PersonDetail: { personId: string };
+  AddEditPerson: { personId?: string };
 };
 
 export type BottomTabParamList = {
@@ -203,5 +210,58 @@ export interface YieldPocketSettings {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Person {
+  id: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  note?: string;
+  avatarColor?: string;
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type DebtDirection = 'lent' | 'borrowed';
+export type InterestType = 'none' | 'flat' | 'simple_annual';
+export type DebtStatus = 'active' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled';
+
+export interface Debt {
+  id: string;
+  personId: string;
+  direction: DebtDirection;
+  principalAmount: number;
+  interestType: InterestType;
+  interestRate: number;
+  interestAmount: number;
+  totalExpectedAmount: number;
+  amountPaid: number;
+  remainingAmount: number;
+  walletId: string;
+  categoryId?: string;
+  startDate: string;
+  dueDate?: string;
+  status: DebtStatus;
+  note?: string;
+  openingTransactionId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DebtPayment {
+  id: string;
+  debtId: string;
+  walletId: string;
+  amount: number;
+  paymentDate: string;
+  note?: string;
+  transactionId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Add these to RootStackParamList
+// We will modify RootStackParamList below.
 
 export * from './insights';

@@ -63,7 +63,11 @@ export const SettingsScreen = ({ navigation }: Props) => {
           style: 'destructive',
           onPress: async () => {
             await wipeData();
-            Alert.alert('Success', 'All app data has been wiped clean.');
+            Alert.alert(
+              'Success', 
+              'All app data has been wiped clean.',
+              [{ text: 'OK', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] }) }]
+            );
           }
         }
       ]

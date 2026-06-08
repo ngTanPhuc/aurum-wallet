@@ -6,7 +6,10 @@ export const CategoryService = {
   async seedDefaultCategories(): Promise<void> {
     const db = await getDb();
     const countResult = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM categories');
-    if (countResult && countResult.count > 0) return;
+    if (countResult && countResult.count > 0) {
+      await this.ensureDebtCategoriesExist();
+      return;
+    }
 
     const defaultExpenses = [
       { name: 'Food & Drinks', icon: 'fast-food' },
@@ -24,6 +27,8 @@ export const CategoryService = {
       { name: 'Gifts', icon: 'gift' },
       { name: 'Subscriptions', icon: 'repeat' },
       { name: 'Other', icon: 'cube' },
+      { name: 'Lending', icon: 'push-outline' },
+      { name: 'Debt Payment', icon: 'cash-outline' },
     ];
 
     const defaultIncome = [
@@ -34,6 +39,8 @@ export const CategoryService = {
       { name: 'Interest', icon: 'trending-up' },
       { name: 'Refund', icon: 'arrow-undo' },
       { name: 'Other', icon: 'cube' },
+      { name: 'Borrowed Money', icon: 'download-outline' },
+      { name: 'Debt Repayment', icon: 'wallet-outline' },
     ];
 
     for (const exp of defaultExpenses) {
@@ -111,5 +118,31 @@ export const CategoryService = {
   async deleteCategory(id: string): Promise<void> {
     const db = await getDb();
     await db.runAsync('DELETE FROM categories WHERE id = ?', id);
+  },
+
+  async ensureDebtCategoriesExist(): Promise<void> {
+    const db = await getDb();
+    const debtCategories = [
+      { name: 'Lending', type: 'expense', icon: 'push-outline' },
+      { name: 'Debt Payment', type: 'expense', icon: 'cash-outline' },
+      { name: 'Borrowed Money', type: 'income', icon: 'download-outline' },
+      { name: 'Debt Repayment', type: 'income', icon: 'wallet-outline' },
+    ] as const;
+
+    for (const cat of debtCategories) {
+      const existing = await db.getFirstAsync<{ id: string }>('SELECT id FROM categories WHERE name = ? AND type = ?', [cat.name, cat.type]);
+      if (!existing) {
+        await this.addCategory({
+          id: uuid.v4() as string,
+          name: cat.name,
+          type: cat.type,
+          icon: cat.icon,
+          isDefault: true,
+          isArchived: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    }
   }
 };

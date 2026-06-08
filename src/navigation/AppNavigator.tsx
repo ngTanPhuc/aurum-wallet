@@ -43,6 +43,14 @@ import { SavingsDepositsScreen } from '../screens/SavingsDepositsScreen';
 import { SavingsDepositDetailScreen } from '../screens/SavingsDepositDetailScreen';
 import { AddEditSavingsDepositScreen } from '../screens/AddEditSavingsDepositScreen';
 
+import { DebtDashboardScreen } from '../screens/DebtDashboardScreen';
+import { AddEditDebtScreen } from '../screens/AddEditDebtScreen';
+import { DebtDetailScreen } from '../screens/DebtDetailScreen';
+import { RecordDebtPaymentScreen } from '../screens/RecordDebtPaymentScreen';
+import { PeopleScreen } from '../screens/PeopleScreen';
+import { PersonDetailScreen } from '../screens/PersonDetailScreen';
+import { AddEditPersonScreen } from '../screens/AddEditPersonScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -149,6 +157,21 @@ export const AppNavigator = () => {
             component={AddEditSavingsDepositScreen} 
             options={{ title: 'Deposit', presentation: 'modal' }} 
           />
+          <Stack.Screen 
+            name="AddEditDebt" 
+            component={AddEditDebtScreen} 
+            options={{ title: 'Debt', presentation: 'modal' }} 
+          />
+          <Stack.Screen 
+            name="RecordDebtPayment" 
+            component={RecordDebtPaymentScreen} 
+            options={{ title: 'Record Payment', presentation: 'modal' }} 
+          />
+          <Stack.Screen 
+            name="AddEditPerson" 
+            component={AddEditPersonScreen} 
+            options={{ title: 'Person', presentation: 'modal' }} 
+          />
         </Stack.Group>
         <Stack.Group>
           <Stack.Screen 
@@ -218,6 +241,26 @@ export const AppNavigator = () => {
             name="Calendar" 
             component={CalendarScreen} 
             options={{ title: 'Calendar', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="DebtDashboard" 
+            component={DebtDashboardScreen} 
+            options={{ title: 'Debt & Lending', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="DebtDetail" 
+            component={DebtDetailScreen} 
+            options={{ title: 'Debt Details', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="People" 
+            component={PeopleScreen} 
+            options={{ title: 'People', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="PersonDetail" 
+            component={PersonDetailScreen} 
+            options={{ title: 'Person Details', headerShown: false }} 
           />
         </Stack.Group>
         <Stack.Group screenOptions={{ presentation: 'modal', headerShown: false }}>

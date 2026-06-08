@@ -32,6 +32,16 @@ export const MoneyDisplay: React.FC<MoneyDisplayProps> = ({
     }
   };
 
+  const getCurrencyStyle = () => {
+    switch (size) {
+      case 'hero': return { fontSize: 22, alignSelf: 'center' as const, marginBottom: 4 };
+      case 'large': return { fontSize: 18, alignSelf: 'center' as const, marginBottom: 2 };
+      case 'medium': return { fontSize: 14, alignSelf: 'center' as const, marginBottom: 2 };
+      case 'small': return { fontSize: 12, alignSelf: 'center' as const, marginBottom: 1 };
+      default: return { fontSize: 14, alignSelf: 'center' as const, marginBottom: 2 };
+    }
+  };
+
   const getColor = () => {
     switch (colorType) {
       case 'positive': return theme.colors.success;
@@ -45,7 +55,7 @@ export const MoneyDisplay: React.FC<MoneyDisplayProps> = ({
     <View style={styles.container}>
       {currency !== '' && (
         <Text 
-          style={[getTextStyle(), styles.currencySign, { color: getColor() }, style]}
+          style={[getTextStyle(), styles.currencySign, getCurrencyStyle(), { color: getColor() }, style]}
         >
           {currency}
         </Text>

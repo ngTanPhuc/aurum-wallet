@@ -44,27 +44,42 @@ export const TransactionService = {
     
     await db.execAsync('BEGIN EXCLUSIVE TRANSACTION');
     try {
-      await db.runAsync(
-        `INSERT INTO transactions (id, type, amount, fee, sourceWalletId, destinationWalletId, categoryId, savingsGoalId, note, transactionDate, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ${tx.destinationWalletId ? '?' : 'NULL'}, ${tx.categoryId ? '?' : 'NULL'}, ${tx.savingsGoalId ? '?' : 'NULL'}, ?, ?, ?, ?)`,
+      const args = [
         tx.id,
         tx.type,
         tx.amount,
         tx.fee || 0,
         tx.sourceWalletId,
-        ...(tx.destinationWalletId ? [tx.destinationWalletId] : []),
-        ...(tx.categoryId ? [tx.categoryId] : []),
-        ...(tx.savingsGoalId ? [tx.savingsGoalId] : []),
+        tx.destinationWalletId || null,
+        tx.categoryId || null,
+        tx.savingsGoalId || null,
         tx.note || '',
         tx.transactionDate,
         tx.createdAt,
         tx.updatedAt
-      );
+      ];
+      console.log('[DEBUG_SQL_INSERT] args:', args);
+      try {
+        await db.runAsync(
+          `INSERT INTO transactions (id, type, amount, fee, sourceWalletId, destinationWalletId, categoryId, savingsGoalId, note, transactionDate, createdAt, updatedAt)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          args
+        );
+      } catch (insertErr) {
+        console.error('[DEBUG_SQL_INSERT_ERROR]', insertErr);
+        throw insertErr;
+      }
 
       // Save tags if any
       if (tx.tags && tx.tags.length > 0) {
         for (const tag of tx.tags) {
-          await db.runAsync('INSERT INTO transaction_tags (transactionId, tagId) VALUES (?, ?)', [tx.id, tag.id]);
+          console.log('[DEBUG_SQL_TAG_INSERT] inserting tag:', tag.id, 'for tx:', tx.id);
+          try {
+            await db.runAsync('INSERT INTO transaction_tags (transactionId, tagId) VALUES (?, ?)', [tx.id, tag.id]);
+          } catch (tagErr) {
+            console.error('[DEBUG_SQL_TAG_INSERT_ERROR]', tagErr);
+            throw tagErr;
+          }
         }
       }
 
@@ -91,22 +106,22 @@ export const TransactionService = {
       await db.runAsync(
         `UPDATE transactions SET 
           type = ?, amount = ?, fee = ?, sourceWalletId = ?, 
-          destinationWalletId = ${tx.destinationWalletId ? '?' : 'NULL'}, 
-          categoryId = ${tx.categoryId ? '?' : 'NULL'}, 
-          savingsGoalId = ${tx.savingsGoalId ? '?' : 'NULL'}, 
+          destinationWalletId = ?, categoryId = ?, savingsGoalId = ?, 
           note = ?, transactionDate = ?, updatedAt = ?
          WHERE id = ?`,
-        tx.type,
-        tx.amount,
-        tx.fee || 0,
-        tx.sourceWalletId,
-        ...(tx.destinationWalletId ? [tx.destinationWalletId] : []),
-        ...(tx.categoryId ? [tx.categoryId] : []),
-        ...(tx.savingsGoalId ? [tx.savingsGoalId] : []),
-        tx.note || '',
-        tx.transactionDate,
-        tx.updatedAt,
-        tx.id
+        [
+          tx.type,
+          tx.amount,
+          tx.fee || 0,
+          tx.sourceWalletId,
+          tx.destinationWalletId || null,
+          tx.categoryId || null,
+          tx.savingsGoalId || null,
+          tx.note || '',
+          tx.transactionDate,
+          tx.updatedAt,
+          tx.id
+        ]
       );
 
       // Update tags

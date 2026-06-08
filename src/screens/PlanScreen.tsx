@@ -24,7 +24,8 @@ export const PlanScreen = ({ navigation }: Props) => {
     savingsDeposits,
     yieldPocketSettings,
     pendingRecurringTransactions,
-    getBudgetProgress
+    getBudgetProgress,
+    debts
   } = useFinanceStore();
   const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
 
@@ -72,6 +73,19 @@ export const PlanScreen = ({ navigation }: Props) => {
     const active = savingsDeposits.filter(d => d.status === 'active');
     return { activeCount: active.length };
   }, [savingsDeposits]);
+
+  // Debt Summary
+  const debtSummary = useMemo(() => {
+    let owedToMe = 0;
+    let iOwe = 0;
+    debts.forEach(d => {
+      if (d.status !== 'paid' && d.status !== 'cancelled') {
+        if (d.direction === 'lent') owedToMe += d.remainingAmount;
+        if (d.direction === 'borrowed') iOwe += d.remainingAmount;
+      }
+    });
+    return { owedToMe, iOwe };
+  }, [debts]);
 
   const formatCurrency = (val: number) => {
     return `${val.toLocaleString()} ${defaultCurrency}`;
@@ -173,6 +187,21 @@ export const PlanScreen = ({ navigation }: Props) => {
               <Text style={styles.tileTitle}>Yield Pockets</Text>
               <Text style={styles.tileDesc}>
                 {yieldPocketSettings.length > 0 ? `${yieldPocketSettings.length} active pockets` : 'Flexible daily yield'}
+              </Text>
+            </GlassCard>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.sectionTitle}>People & Debt</Text>
+        <View style={styles.grid}>
+          <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate('DebtDashboard')}>
+            <GlassCard style={styles.tileCard}>
+              <Ionicons name="people" size={24} color={theme.colors.warning} style={styles.tileIcon} />
+              <Text style={styles.tileTitle}>Debt & Lending</Text>
+              <Text style={styles.tileDesc}>
+                {debtSummary.iOwe === 0 && debtSummary.owedToMe === 0 
+                  ? 'Track who owes who'
+                  : `You owe ${formatCurrency(debtSummary.iOwe)} · Owed to you ${formatCurrency(debtSummary.owedToMe)}`}
               </Text>
             </GlassCard>
           </TouchableOpacity>

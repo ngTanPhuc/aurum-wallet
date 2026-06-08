@@ -100,8 +100,9 @@ export const DashboardScreen = ({ navigation }: Props) => {
 
         <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
           <GlassCard variant="strong" style={{ alignItems: 'center', paddingVertical: 32 }}>
-            <Text style={{ ...theme.typography.labelCaps, marginBottom: 8 }}>Total Balance</Text>
-            <MoneyDisplay amount={balance} currency={defaultCurrency} size="hero" colorType="default" />
+            <Text style={{ ...theme.typography.labelCaps, marginBottom: 8 }}>TOTAL BALANCE</Text>
+            <MoneyDisplay amount={balance} currency="" size="hero" colorType="default" />
+            <Text style={{ ...theme.typography.body2, color: theme.colors.textMuted, marginTop: 4, letterSpacing: 1 }}>{defaultCurrency}</Text>
           </GlassCard>
         </View>
         <View style={styles.cardsRow}>

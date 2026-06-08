@@ -20,6 +20,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
   const isEditing = !!transactionId;
 
   const transactions = useFinanceStore(state => state.transactions);
+  const wallets = useFinanceStore(state => state.wallets);
   const savingsGoals = useFinanceStore(state => state.savingsGoals);
   const addTransaction = useFinanceStore(state => state.addTransaction);
   const updateTransaction = useFinanceStore(state => state.updateTransaction);
@@ -106,51 +107,79 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
       return;
     }
 
-    try {
-      const txData = {
-        type,
-        amount: amtNum,
-        fee: feeNum,
-        sourceWalletId,
-        destinationWalletId: type === 'transfer' ? destinationWalletId : undefined,
-        categoryId: type !== 'transfer' ? categoryId : undefined,
-        savingsGoalId: savingsGoalId || undefined,
-        note,
-        tags: tags.filter(t => tagIds.includes(t.id)),
-        transactionDate: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      if (isEditing && transactionId) {
-        const tx = transactions.find(t => t.id === transactionId);
-        if (tx) {
-          await updateTransaction({ ...tx, ...txData });
-        }
-      } else {
-        await addTransaction({
-          ...txData,
-          id: uuid.v4() as string,
-          createdAt: new Date().toISOString(),
-        });
-      }
-
-      if (saveAsTemplate && templateName.trim()) {
-        await addTemplate({
-          name: templateName.trim(),
+    const performSave = async () => {
+      try {
+        const txData = {
           type,
           amount: amtNum,
           fee: feeNum,
-          walletId: sourceWalletId,
+          sourceWalletId,
+          destinationWalletId: type === 'transfer' ? destinationWalletId : undefined,
           categoryId: type !== 'transfer' ? categoryId : undefined,
+          savingsGoalId: savingsGoalId || undefined,
           note,
-        });
+          tags: tags.filter(t => tagIds.includes(t.id)),
+          transactionDate: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        if (isEditing && transactionId) {
+          const tx = transactions.find(t => t.id === transactionId);
+          if (tx) {
+            updateTransaction({ ...tx, ...txData });
+          }
+        } else {
+          addTransaction({
+            ...txData,
+            id: uuid.v4() as string,
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        if (saveAsTemplate && templateName.trim()) {
+          addTemplate({
+            name: templateName.trim(),
+            type,
+            amount: amtNum,
+            fee: feeNum,
+            walletId: sourceWalletId,
+            categoryId: type !== 'transfer' ? categoryId : undefined,
+            note,
+          });
+        }
+
+        navigation.goBack();
+      } catch (e: any) {
+        console.error('Error saving transaction:', e);
+        Alert.alert('Error', e?.message || 'Failed to save transaction');
+      }
+    };
+
+    if (type === 'expense' || type === 'transfer') {
+      const wallet = wallets.find(w => w.id === sourceWalletId);
+      let availableBalance = wallet ? wallet.balance : 0;
+      
+      if (isEditing && transactionId) {
+        const oldTx = transactions.find(t => t.id === transactionId);
+        if (oldTx && oldTx.sourceWalletId === sourceWalletId) {
+          availableBalance += (oldTx.amount + (oldTx.fee || 0));
+        }
       }
 
-      navigation.goBack();
-    } catch (e: any) {
-      console.error('Error saving transaction:', e);
-      Alert.alert('Error', e?.message || 'Failed to save transaction');
+      const totalAmount = amtNum + feeNum;
+      if (wallet && availableBalance < totalAmount) {
+        Alert.alert(
+          'Insufficient Funds',
+          'This wallet does not have enough balance for this transaction.',
+          [
+            { text: 'Okay', style: 'default' }
+          ]
+        );
+        return;
+      }
     }
+
+    performSave();
   };
 
   return (

@@ -149,6 +149,103 @@ CREATE TABLE IF NOT EXISTS transaction_tags (
 );
 `;
 
+export const SAVINGS_DEPOSITS_TABLE = `
+CREATE TABLE IF NOT EXISTS savings_deposits (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  sourceWalletId TEXT NOT NULL,
+  payoutWalletId TEXT NOT NULL,
+  principalAmount REAL NOT NULL,
+  annualInterestRate REAL NOT NULL,
+  termValue INTEGER NOT NULL,
+  termUnit TEXT NOT NULL,
+  startDate TEXT NOT NULL,
+  maturityDate TEXT NOT NULL,
+  interestPayoutType TEXT NOT NULL,
+  expectedInterestAmount REAL NOT NULL,
+  expectedTotalPayout REAL NOT NULL,
+  status TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  FOREIGN KEY (sourceWalletId) REFERENCES wallets (id),
+  FOREIGN KEY (payoutWalletId) REFERENCES wallets (id)
+);
+`;
+
+export const YIELD_POCKET_SETTINGS_TABLE = `
+CREATE TABLE IF NOT EXISTS yield_pocket_settings (
+  walletId TEXT PRIMARY KEY,
+  annualYieldRate REAL NOT NULL,
+  yieldFrequency TEXT NOT NULL,
+  postingMode TEXT NOT NULL,
+  lastYieldCalculatedAt TEXT,
+  nextYieldDate TEXT,
+  allowSpendingDirectly INTEGER NOT NULL DEFAULT 1,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  FOREIGN KEY (walletId) REFERENCES wallets (id) ON DELETE CASCADE
+);
+`;
+
+export const PEOPLE_TABLE = `
+CREATE TABLE IF NOT EXISTS people (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  phone TEXT,
+  email TEXT,
+  note TEXT,
+  avatarColor TEXT,
+  isArchived INTEGER NOT NULL DEFAULT 0,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL
+);
+`;
+
+export const DEBTS_TABLE = `
+CREATE TABLE IF NOT EXISTS debts (
+  id TEXT PRIMARY KEY,
+  personId TEXT NOT NULL,
+  direction TEXT NOT NULL,
+  principalAmount REAL NOT NULL,
+  interestType TEXT NOT NULL,
+  interestRate REAL NOT NULL DEFAULT 0,
+  interestAmount REAL NOT NULL DEFAULT 0,
+  totalExpectedAmount REAL NOT NULL,
+  amountPaid REAL NOT NULL DEFAULT 0,
+  remainingAmount REAL NOT NULL,
+  walletId TEXT NOT NULL,
+  categoryId TEXT,
+  startDate TEXT NOT NULL,
+  dueDate TEXT,
+  status TEXT NOT NULL,
+  note TEXT,
+  openingTransactionId TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  FOREIGN KEY (personId) REFERENCES people (id),
+  FOREIGN KEY (walletId) REFERENCES wallets (id),
+  FOREIGN KEY (categoryId) REFERENCES categories (id),
+  FOREIGN KEY (openingTransactionId) REFERENCES transactions (id)
+);
+`;
+
+export const DEBT_PAYMENTS_TABLE = `
+CREATE TABLE IF NOT EXISTS debt_payments (
+  id TEXT PRIMARY KEY,
+  debtId TEXT NOT NULL,
+  walletId TEXT NOT NULL,
+  amount REAL NOT NULL,
+  paymentDate TEXT NOT NULL,
+  note TEXT,
+  transactionId TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  FOREIGN KEY (debtId) REFERENCES debts (id),
+  FOREIGN KEY (walletId) REFERENCES wallets (id),
+  FOREIGN KEY (transactionId) REFERENCES transactions (id)
+);
+`;
+
 export const ALL_SCHEMAS_V1 = [
   WALLETS_TABLE,
   CATEGORIES_TABLE,

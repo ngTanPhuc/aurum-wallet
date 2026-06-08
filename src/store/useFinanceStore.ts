@@ -12,6 +12,9 @@ import { TagService } from '../services/TagService';
 import { SavingsDepositService } from '../services/SavingsDepositService';
 import { YieldPocketService } from '../services/YieldPocketService';
 
+import { PersonService } from '../services/PersonService';
+import { DebtService } from '../services/DebtService';
+
 interface FinanceState {
   wallets: Wallet[];
   categories: Category[];
@@ -24,6 +27,9 @@ interface FinanceState {
   tags: Tag[];
   savingsDeposits: SavingsDeposit[];
   yieldPocketSettings: YieldPocketSettings[];
+  people: Person[];
+  debts: Debt[];
+  debtPayments: DebtPayment[];
   transactionFilters: TransactionFilters;
   transactionSearchQuery: string;
   transactionSort: TransactionSort;
@@ -77,6 +83,14 @@ interface FinanceState {
   setTransactionSearchQuery: (query: string) => void;
   setTransactionSort: (sort: TransactionSort) => void;
   getFilteredTransactions: () => Transaction[];
+
+  addPerson: (person: Person) => Promise<void>;
+  updatePerson: (person: Person) => Promise<void>;
+  deletePerson: (id: string) => Promise<void>;
+
+  addDebt: (debt: Debt, tx: Transaction) => Promise<void>;
+  recordDebtPayment: (payment: DebtPayment, tx: Transaction, updatedDebt: Debt) => Promise<void>;
+  updateDebtStatus: (id: string, status: string) => Promise<void>;
 }
 
 export const useFinanceStore = create<FinanceState>((set, get) => ({
@@ -91,6 +105,9 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   tags: [],
   savingsDeposits: [],
   yieldPocketSettings: [],
+  people: [],
+  debts: [],
+  debtPayments: [],
   transactionFilters: {},
   transactionSearchQuery: '',
   transactionSort: 'newest',
@@ -102,7 +119,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       const [
         wallets, categories, transactions, savingsGoals, 
         recurringTransactions, pendingRecurringTransactions, 
-        templates, tags, savingsDeposits, yieldPocketSettings
+        templates, tags, savingsDeposits, yieldPocketSettings,
+        people, debts, debtPayments
       ] = await Promise.all([
         WalletService.getWallets(),
         CategoryService.getCategories(),
@@ -113,10 +131,13 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         TransactionTemplateService.getTemplates(),
         TagService.getTags(),
         SavingsDepositService.getSavingsDeposits(),
-        YieldPocketService.getSettings()
+        YieldPocketService.getSettings(),
+        PersonService.getPeople(),
+        DebtService.getDebts(),
+        DebtService.getDebtPayments()
       ]);
       
-      set({ wallets, categories, transactions, savingsGoals, recurringTransactions, pendingRecurringTransactions, templates, tags, savingsDeposits, yieldPocketSettings, isLoading: false });
+      set({ wallets, categories, transactions, savingsGoals, recurringTransactions, pendingRecurringTransactions, templates, tags, savingsDeposits, yieldPocketSettings, people, debts, debtPayments, isLoading: false });
     } catch (error) {
       console.error('Error loading finance data', error);
       set({ isLoading: false });
@@ -139,56 +160,150 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   addTransaction: async (tx: Transaction) => {
-    await TransactionService.addTransaction(tx);
-    
-    // Defer state update to avoid blocking navigation animation
-    setTimeout(async () => {
-      // Only refetch affected aggregates to guarantee accuracy
-      const [wallets, savingsGoals] = await Promise.all([
-        WalletService.getWallets(),
-        SavingsGoalService.getSavingsGoals()
-      ]);
-      
-      set(state => ({
-        wallets,
-        savingsGoals,
-        transactions: [tx, ...state.transactions].sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
-      }));
-    }, 0);
+    const { wallets, savingsGoals, transactions } = get();
+
+    // 1. Optimistic Update
+    let updatedWallets = [...wallets];
+    let updatedGoals = [...savingsGoals];
+
+    if (tx.type === 'expense') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance - (tx.amount + (tx.fee || 0)) } : w);
+      if (tx.savingsGoalId) {
+        updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: g.currentAmount + tx.amount } : g);
+      }
+    } else if (tx.type === 'income') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount } : w);
+      if (tx.savingsGoalId) {
+        updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: Math.max(0, g.currentAmount - tx.amount) } : g);
+      }
+    } else if (tx.type === 'transfer' && tx.destinationWalletId) {
+      updatedWallets = updatedWallets.map(w => {
+        if (w.id === tx.sourceWalletId) return { ...w, balance: w.balance - (tx.amount + (tx.fee || 0)) };
+        if (w.id === tx.destinationWalletId) return { ...w, balance: w.balance + tx.amount };
+        return w;
+      });
+    }
+
+    updatedGoals = updatedGoals.map(g => ({ ...g, isCompleted: g.currentAmount >= g.targetAmount }));
+
+    set({
+      wallets: updatedWallets,
+      savingsGoals: updatedGoals,
+      transactions: [tx, ...transactions].sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
+    });
+
+    // 2. Background DB Write
+    TransactionService.addTransaction(tx).catch(async (error) => {
+      console.error('Background save failed, reverting state:', error);
+      await get().loadData();
+    });
   },
 
   updateTransaction: async (tx: Transaction) => {
-    await TransactionService.updateTransaction(tx);
+    const { wallets, savingsGoals, transactions } = get();
+    const oldTx = transactions.find(t => t.id === tx.id);
     
-    setTimeout(async () => {
-      const [wallets, savingsGoals] = await Promise.all([
-        WalletService.getWallets(),
-        SavingsGoalService.getSavingsGoals()
-      ]);
-      
-      set(state => ({
-        wallets,
-        savingsGoals,
-        transactions: state.transactions.map(t => t.id === tx.id ? tx : t).sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
-      }));
-    }, 0);
+    // 1. Optimistic Update
+    let updatedWallets = [...wallets];
+    let updatedGoals = [...savingsGoals];
+
+    // Revert old tx effects
+    if (oldTx) {
+      if (oldTx.type === 'expense') {
+        updatedWallets = updatedWallets.map(w => w.id === oldTx.sourceWalletId ? { ...w, balance: w.balance + (oldTx.amount + (oldTx.fee || 0)) } : w);
+        if (oldTx.savingsGoalId) {
+          updatedGoals = updatedGoals.map(g => g.id === oldTx.savingsGoalId ? { ...g, currentAmount: g.currentAmount - oldTx.amount } : g);
+        }
+      } else if (oldTx.type === 'income') {
+        updatedWallets = updatedWallets.map(w => w.id === oldTx.sourceWalletId ? { ...w, balance: w.balance - oldTx.amount } : w);
+        if (oldTx.savingsGoalId) {
+          updatedGoals = updatedGoals.map(g => g.id === oldTx.savingsGoalId ? { ...g, currentAmount: g.currentAmount + oldTx.amount } : g);
+        }
+      } else if (oldTx.type === 'transfer' && oldTx.destinationWalletId) {
+        updatedWallets = updatedWallets.map(w => {
+          if (w.id === oldTx.sourceWalletId) return { ...w, balance: w.balance + (oldTx.amount + (oldTx.fee || 0)) };
+          if (w.id === oldTx.destinationWalletId) return { ...w, balance: w.balance - oldTx.amount };
+          return w;
+        });
+      }
+    }
+
+    // Apply new tx effects
+    if (tx.type === 'expense') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance - (tx.amount + (tx.fee || 0)) } : w);
+      if (tx.savingsGoalId) {
+        updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: g.currentAmount + tx.amount } : g);
+      }
+    } else if (tx.type === 'income') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount } : w);
+      if (tx.savingsGoalId) {
+        updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: Math.max(0, g.currentAmount - tx.amount) } : g);
+      }
+    } else if (tx.type === 'transfer' && tx.destinationWalletId) {
+      updatedWallets = updatedWallets.map(w => {
+        if (w.id === tx.sourceWalletId) return { ...w, balance: w.balance - (tx.amount + (tx.fee || 0)) };
+        if (w.id === tx.destinationWalletId) return { ...w, balance: w.balance + tx.amount };
+        return w;
+      });
+    }
+
+    updatedGoals = updatedGoals.map(g => ({ ...g, isCompleted: g.currentAmount >= g.targetAmount }));
+
+    set({
+      wallets: updatedWallets,
+      savingsGoals: updatedGoals,
+      transactions: transactions.map(t => t.id === tx.id ? tx : t).sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
+    });
+
+    // 2. Background DB Write
+    TransactionService.updateTransaction(tx).catch(async (error) => {
+      console.error('Background update failed, reverting state:', error);
+      await get().loadData();
+    });
   },
 
   deleteTransaction: async (id: string) => {
-    await TransactionService.deleteTransaction(id);
+    const { wallets, savingsGoals, transactions } = get();
+    const tx = transactions.find(t => t.id === id);
     
-    setTimeout(async () => {
-      const [wallets, savingsGoals] = await Promise.all([
-        WalletService.getWallets(),
-        SavingsGoalService.getSavingsGoals()
-      ]);
-      
-      set(state => ({
-        wallets,
-        savingsGoals,
-        transactions: state.transactions.filter(t => t.id !== id)
-      }));
-    }, 0);
+    // 1. Optimistic Update
+    let updatedWallets = [...wallets];
+    let updatedGoals = [...savingsGoals];
+
+    // Revert tx effects
+    if (tx) {
+      if (tx.type === 'expense') {
+        updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + (tx.amount + (tx.fee || 0)) } : w);
+        if (tx.savingsGoalId) {
+          updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: Math.max(0, g.currentAmount - tx.amount) } : g);
+        }
+      } else if (tx.type === 'income') {
+        updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance - tx.amount } : w);
+        if (tx.savingsGoalId) {
+          updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: g.currentAmount + tx.amount } : g);
+        }
+      } else if (tx.type === 'transfer' && tx.destinationWalletId) {
+        updatedWallets = updatedWallets.map(w => {
+          if (w.id === tx.sourceWalletId) return { ...w, balance: w.balance + (tx.amount + (tx.fee || 0)) };
+          if (w.id === tx.destinationWalletId) return { ...w, balance: w.balance - tx.amount };
+          return w;
+        });
+      }
+    }
+
+    updatedGoals = updatedGoals.map(g => ({ ...g, isCompleted: g.currentAmount >= g.targetAmount }));
+
+    set({
+      wallets: updatedWallets,
+      savingsGoals: updatedGoals,
+      transactions: transactions.filter(t => t.id !== id)
+    });
+
+    // 2. Background DB Write
+    TransactionService.deleteTransaction(id).catch(async (error) => {
+      console.error('Background delete failed, reverting state:', error);
+      await get().loadData();
+    });
   },
 
   loadBudgetsForMonth: async (month: number, year: number) => {
@@ -374,16 +489,13 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   addTemplate: async (template) => {
-    await TransactionTemplateService.addTemplate(template);
-    await get().loadData();
+    TransactionTemplateService.addTemplate(template).then(() => get().loadData());
   },
   updateTemplate: async (template) => {
-    await TransactionTemplateService.updateTemplate(template);
-    await get().loadData();
+    TransactionTemplateService.updateTemplate(template).then(() => get().loadData());
   },
   deleteTemplate: async (id) => {
-    await TransactionTemplateService.deleteTemplate(id);
-    await get().loadData();
+    TransactionTemplateService.deleteTemplate(id).then(() => get().loadData());
   },
 
   addTag: async (tag) => {
@@ -489,5 +601,83 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     });
 
     return filtered;
+  },
+
+  addPerson: async (person) => {
+    set(state => ({ people: [...state.people, person].sort((a, b) => a.name.localeCompare(b.name)) }));
+    PersonService.addPerson(person).catch(async (e) => {
+      console.error(e);
+      await get().loadData();
+    });
+  },
+  updatePerson: async (person) => {
+    set(state => ({ people: state.people.map(p => p.id === person.id ? person : p).sort((a, b) => a.name.localeCompare(b.name)) }));
+    PersonService.updatePerson(person).catch(async (e) => {
+      console.error(e);
+      await get().loadData();
+    });
+  },
+  deletePerson: async (id) => {
+    set(state => ({ people: state.people.filter(p => p.id !== id) }));
+    PersonService.deletePerson(id).catch(async (e) => {
+      console.error(e);
+      await get().loadData();
+    });
+  },
+
+  addDebt: async (debt, tx) => {
+    const { wallets, transactions, debts } = get();
+    let updatedWallets = [...wallets];
+    
+    // Optimistically update wallet
+    if (tx.type === 'expense') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance - (tx.amount + (tx.fee || 0)) } : w);
+    } else if (tx.type === 'income') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount } : w);
+    }
+
+    set({
+      wallets: updatedWallets,
+      transactions: [tx, ...transactions].sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()),
+      debts: [debt, ...debts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    });
+
+    DebtService.createDebtWithTransaction(debt, tx).catch(async (e) => {
+      console.error('Background addDebt failed', e);
+      await get().loadData();
+    });
+  },
+
+  recordDebtPayment: async (payment, tx, updatedDebt) => {
+    const { wallets, transactions, debts, debtPayments } = get();
+    let updatedWallets = [...wallets];
+    
+    if (tx.type === 'expense') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance - (tx.amount + (tx.fee || 0)) } : w);
+    } else if (tx.type === 'income') {
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount } : w);
+    }
+
+    set({
+      wallets: updatedWallets,
+      transactions: [tx, ...transactions].sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()),
+      debts: debts.map(d => d.id === updatedDebt.id ? updatedDebt : d),
+      debtPayments: [payment, ...debtPayments].sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime())
+    });
+
+    DebtService.recordDebtPayment(payment, tx, updatedDebt).catch(async (e) => {
+      console.error('Background recordDebtPayment failed', e);
+      await get().loadData();
+    });
+  },
+
+  updateDebtStatus: async (id, status) => {
+    set(state => ({
+      debts: state.debts.map(d => d.id === id ? { ...d, status: status as any } : d)
+    }));
+    DebtService.updateDebtStatus(id, status).catch(async (e) => {
+      console.error('Background updateDebtStatus failed', e);
+      await get().loadData();
+    });
   }
 }));

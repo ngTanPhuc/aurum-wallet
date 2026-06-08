@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import { ALL_SCHEMAS_V1, TRANSACTION_TEMPLATES_TABLE, TAGS_TABLE, TRANSACTION_TAGS_TABLE } from './schema';
+import { ALL_SCHEMAS_V1, TRANSACTION_TEMPLATES_TABLE, TAGS_TABLE, TRANSACTION_TAGS_TABLE, SAVINGS_DEPOSITS_TABLE, YIELD_POCKET_SETTINGS_TABLE, PEOPLE_TABLE, DEBTS_TABLE, DEBT_PAYMENTS_TABLE } from './schema';
 
 export const DATABASE_NAME = 'aurum_v1.db';
 
@@ -89,6 +89,29 @@ const MIGRATIONS: Migration[] = [
         await db.execAsync('ALTER TABLE transaction_templates ADD COLUMN fee REAL NOT NULL DEFAULT 0;');
       } catch (e) {}
     }
+  },
+  {
+    id: 7,
+    name: 'add_savings_deposits_table',
+    up: async (db) => {
+      await db.execAsync(SAVINGS_DEPOSITS_TABLE);
+    }
+  },
+  {
+    id: 8,
+    name: 'add_yield_pocket_settings_table',
+    up: async (db) => {
+      await db.execAsync(YIELD_POCKET_SETTINGS_TABLE);
+    }
+  },
+  {
+    id: 9,
+    name: 'add_debt_and_lending_tables',
+    up: async (db) => {
+      await db.execAsync(PEOPLE_TABLE);
+      await db.execAsync(DEBTS_TABLE);
+      await db.execAsync(DEBT_PAYMENTS_TABLE);
+    }
   }
 ];
 
@@ -145,6 +168,9 @@ export const resetDb = async () => {
       'savings_goals',
       'wallets',
       'categories',
+      'debt_payments',
+      'debts',
+      'people',
       'app_settings',
       'migrations'
     ];
