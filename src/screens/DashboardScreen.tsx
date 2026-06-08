@@ -24,16 +24,14 @@ type Props = CompositeScreenProps<
 >;
 
 export const DashboardScreen = ({ navigation }: Props) => {
-  const { 
-    getTotalBalance, 
-    transactions, 
-    savingsGoals,
-    pendingRecurringTransactions,
-    getSavingsRate,
-    getCashFlow,
-    getLargestSpendingCategory,
-    getInsights
-  } = useFinanceStore();
+  const getTotalBalance = useFinanceStore(state => state.getTotalBalance);
+  const transactions = useFinanceStore(state => state.transactions);
+  const savingsGoals = useFinanceStore(state => state.savingsGoals);
+  const pendingRecurringTransactions = useFinanceStore(state => state.pendingRecurringTransactions);
+  const getSavingsRate = useFinanceStore(state => state.getSavingsRate);
+  const getCashFlow = useFinanceStore(state => state.getCashFlow);
+  const getLargestSpendingCategory = useFinanceStore(state => state.getLargestSpendingCategory);
+  const getInsights = useFinanceStore(state => state.getInsights);
   const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
   
   const [metricScroll, setMetricScroll] = React.useState(0);
@@ -61,10 +59,9 @@ export const DashboardScreen = ({ navigation }: Props) => {
   // Smart Insights (Top 3)
   const insights = useMemo(() => getInsights().slice(0, 3), [transactions, getInsights]);
 
-  // Active Goals (Top 1)
-  const activeGoal = savingsGoals.filter(g => !g.isCompleted)[0];
+  const activeGoal = useMemo(() => savingsGoals.filter(g => !g.isCompleted)[0], [savingsGoals]);
 
-  const recentTransactions = transactions.slice(0, 5);
+  const recentTransactions = useMemo(() => transactions.slice(0, 5), [transactions]);
 
   const formatCurrency = (val: number) => {
     return `${val.toLocaleString()} ${defaultCurrency}`;

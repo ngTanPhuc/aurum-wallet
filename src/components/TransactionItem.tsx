@@ -12,7 +12,7 @@ interface TransactionItemProps {
   onPress?: (transaction: Transaction) => void;
 }
 
-export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onPress }) => {
+export const TransactionItem: React.FC<TransactionItemProps> = React.memo(({ transaction, onPress }) => {
   const wallets = useFinanceStore(state => state.wallets);
   const categories = useFinanceStore(state => state.categories);
 
@@ -97,7 +97,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

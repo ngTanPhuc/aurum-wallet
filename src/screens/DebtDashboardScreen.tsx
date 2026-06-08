@@ -54,7 +54,7 @@ export const DebtDashboardScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Debt & Lending" showBackButton />
+      <CustomHeader title="Debt & Lending" showBack={true} />
       
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         

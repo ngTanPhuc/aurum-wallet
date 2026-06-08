@@ -146,17 +146,20 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   addWallet: async (wallet: Wallet) => {
     await WalletService.addWallet(wallet);
-    await get().loadData(); // reload to get updated list
+    const wallets = await WalletService.getWallets();
+    set({ wallets });
   },
 
   updateWallet: async (wallet: Wallet) => {
     await WalletService.updateWallet(wallet);
-    await get().loadData();
+    const wallets = await WalletService.getWallets();
+    set({ wallets });
   },
 
   addCategory: async (category: Category) => {
     await CategoryService.addCategory(category);
-    await get().loadData();
+    const categories = await CategoryService.getCategories();
+    set({ categories });
   },
 
   addTransaction: async (tx: Transaction) => {
@@ -331,32 +334,38 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   addSavingsGoal: async (goal: SavingsGoal) => {
     await SavingsGoalService.addSavingsGoal(goal);
-    await get().loadData();
+    const savingsGoals = await SavingsGoalService.getSavingsGoals();
+    set({ savingsGoals });
   },
 
   updateSavingsGoal: async (goal: SavingsGoal) => {
     await SavingsGoalService.updateSavingsGoal(goal);
-    await get().loadData();
+    const savingsGoals = await SavingsGoalService.getSavingsGoals();
+    set({ savingsGoals });
   },
 
   deleteSavingsGoal: async (id: string) => {
     await SavingsGoalService.deleteSavingsGoal(id);
-    await get().loadData();
+    const savingsGoals = await SavingsGoalService.getSavingsGoals();
+    set({ savingsGoals });
   },
 
   addRecurringTransaction: async (rt: RecurringTransaction) => {
     await RecurringTransactionService.addRecurringTransaction(rt);
-    await get().loadData();
+    const recurringTransactions = await RecurringTransactionService.getRecurringTransactions();
+    set({ recurringTransactions });
   },
 
   updateRecurringTransaction: async (rt: RecurringTransaction) => {
     await RecurringTransactionService.updateRecurringTransaction(rt);
-    await get().loadData();
+    const recurringTransactions = await RecurringTransactionService.getRecurringTransactions();
+    set({ recurringTransactions });
   },
 
   deleteRecurringTransaction: async (id: string) => {
     await RecurringTransactionService.deleteRecurringTransaction(id);
-    await get().loadData();
+    const recurringTransactions = await RecurringTransactionService.getRecurringTransactions();
+    set({ recurringTransactions });
   },
 
   loadPendingRecurringTransactions: async () => {
@@ -366,12 +375,22 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   confirmPendingTransaction: async (rt: RecurringTransaction, txData?: Partial<Transaction>) => {
     await RecurringTransactionService.confirmPendingTransaction(rt, txData);
-    await get().loadData(); // Reload wallets, txs, and pending items
+    const [wallets, transactions, pendingRecurringTransactions, recurringTransactions] = await Promise.all([
+      WalletService.getWallets(),
+      TransactionService.getTransactions(),
+      RecurringTransactionService.getPendingTransactions(),
+      RecurringTransactionService.getRecurringTransactions()
+    ]);
+    set({ wallets, transactions, pendingRecurringTransactions, recurringTransactions });
   },
 
   skipPendingTransaction: async (rt: RecurringTransaction) => {
     await RecurringTransactionService.skipPendingTransaction(rt);
-    await get().loadData();
+    const [pendingRecurringTransactions, recurringTransactions] = await Promise.all([
+      RecurringTransactionService.getPendingTransactions(),
+      RecurringTransactionService.getRecurringTransactions()
+    ]);
+    set({ pendingRecurringTransactions, recurringTransactions });
   },
 
   getBudgetProgress: (categoryId: string, month: number, year: number) => {
@@ -407,14 +426,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const state = get();
     const currentMonthTxs = state.transactions.filter(t => {
       const d = new Date(t.transactionDate);
-      return d.getMonth() === month && d.getFullYear() === year;
+      return d.getMonth() + 1 === month && d.getFullYear() === year;
     });
 
-    const previousMonth = month === 0 ? 11 : month - 1;
-    const previousYear = month === 0 ? year - 1 : year;
+    const previousMonth = month === 1 ? 12 : month - 1;
+    const previousYear = month === 1 ? year - 1 : year;
     const previousMonthTxs = state.transactions.filter(t => {
       const d = new Date(t.transactionDate);
-      return d.getMonth() === previousMonth && d.getFullYear() === previousYear;
+      return d.getMonth() + 1 === previousMonth && d.getFullYear() === previousYear;
     });
 
     const currentIncome = currentMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
@@ -432,7 +451,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const state = get();
     const currentMonthTxs = state.transactions.filter(t => {
       const d = new Date(t.transactionDate);
-      return d.getMonth() === month && d.getFullYear() === year;
+      return d.getMonth() + 1 === month && d.getFullYear() === year;
     });
 
     const currentIncome = currentMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
@@ -446,7 +465,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const state = get();
     const currentMonthTxs = state.transactions.filter(t => {
       const d = new Date(t.transactionDate);
-      return d.getMonth() === month && d.getFullYear() === year && t.type === 'expense';
+      return d.getMonth() + 1 === month && d.getFullYear() === year && t.type === 'expense';
     });
 
     if (currentMonthTxs.length === 0) return null;
@@ -489,47 +508,67 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   addTemplate: async (template) => {
-    TransactionTemplateService.addTemplate(template).then(() => get().loadData());
+    await TransactionTemplateService.addTemplate(template);
+    const templates = await TransactionTemplateService.getTemplates();
+    set({ templates });
   },
   updateTemplate: async (template) => {
-    TransactionTemplateService.updateTemplate(template).then(() => get().loadData());
+    await TransactionTemplateService.updateTemplate(template);
+    const templates = await TransactionTemplateService.getTemplates();
+    set({ templates });
   },
   deleteTemplate: async (id) => {
-    TransactionTemplateService.deleteTemplate(id).then(() => get().loadData());
+    await TransactionTemplateService.deleteTemplate(id);
+    const templates = await TransactionTemplateService.getTemplates();
+    set({ templates });
   },
 
   addTag: async (tag) => {
     await TagService.addTag(tag);
-    await get().loadData();
+    const tags = await TagService.getTags();
+    set({ tags });
   },
   updateTag: async (tag) => {
     await TagService.updateTag(tag);
-    await get().loadData();
+    const tags = await TagService.getTags();
+    set({ tags });
   },
   deleteTag: async (id) => {
     await TagService.deleteTag(id);
-    await get().loadData();
+    const tags = await TagService.getTags();
+    set({ tags });
   },
 
   addSavingsDeposit: async (deposit) => {
     await SavingsDepositService.addSavingsDeposit(deposit);
-    await get().loadData();
+    const [savingsDeposits, wallets, transactions] = await Promise.all([
+      SavingsDepositService.getSavingsDeposits(), WalletService.getWallets(), TransactionService.getTransactions()
+    ]);
+    set({ savingsDeposits, wallets, transactions });
   },
   updateSavingsDeposit: async (deposit) => {
     await SavingsDepositService.updateSavingsDeposit(deposit);
-    await get().loadData();
+    const savingsDeposits = await SavingsDepositService.getSavingsDeposits();
+    set({ savingsDeposits });
   },
   matureSavingsDeposit: async (deposit) => {
     await SavingsDepositService.matureDeposit(deposit);
-    await get().loadData();
+    const [savingsDeposits, wallets, transactions] = await Promise.all([
+      SavingsDepositService.getSavingsDeposits(), WalletService.getWallets(), TransactionService.getTransactions()
+    ]);
+    set({ savingsDeposits, wallets, transactions });
   },
   closeSavingsDepositEarly: async (deposit) => {
     await SavingsDepositService.closeEarly(deposit);
-    await get().loadData();
+    const [savingsDeposits, wallets, transactions] = await Promise.all([
+      SavingsDepositService.getSavingsDeposits(), WalletService.getWallets(), TransactionService.getTransactions()
+    ]);
+    set({ savingsDeposits, wallets, transactions });
   },
   saveYieldPocketSettings: async (settings) => {
     await YieldPocketService.saveSettings(settings);
-    await get().loadData();
+    const yieldPocketSettings = await YieldPocketService.getSettings();
+    set({ yieldPocketSettings });
   },
 
   setTransactionFilters: (filters) => set({ transactionFilters: filters }),

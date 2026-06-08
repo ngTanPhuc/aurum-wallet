@@ -109,7 +109,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Settings" />
+      <CustomHeader title="Settings" showBack={true} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>

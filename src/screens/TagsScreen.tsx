@@ -79,7 +79,7 @@ export const TagsScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Tags" />
+      <CustomHeader title="Tags" showBack={true} />
       {tags.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="pricetag-outline" size={64} color={theme.colors.textMuted} />

@@ -181,7 +181,7 @@ export const PlanScreen = ({ navigation }: Props) => {
             </GlassCard>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate('Wallets')}>
+          <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate('YieldPockets')}>
             <GlassCard style={styles.tileCard}>
               <Ionicons name="trending-up" size={24} color={theme.colors.primary} style={styles.tileIcon} />
               <Text style={styles.tileTitle}>Yield Pockets</Text>

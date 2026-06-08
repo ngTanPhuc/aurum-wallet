@@ -69,7 +69,7 @@ export const AddEditPersonScreen = ({ navigation, route }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title={existingPerson ? 'Edit Person' : 'Add Person'} showBackButton />
+      <CustomHeader title={existingPerson ? 'Edit Person' : 'Add Person'} showBack={true} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         

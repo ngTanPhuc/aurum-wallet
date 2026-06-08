@@ -16,7 +16,7 @@ export const SavingsDepositsScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Savings Deposits" />
+      <CustomHeader title="Savings Deposits" showBack={true} />
       <FlatList
         data={savingsDeposits}
         keyExtractor={item => item.id}

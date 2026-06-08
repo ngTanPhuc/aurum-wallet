@@ -147,6 +147,8 @@ export type RootStackParamList = {
   Subscriptions: undefined;
   Calendar: undefined;
   Settings: undefined;
+  YieldPockets: undefined;
+  AddEditYieldPocket: { walletId?: string };
   DebtDashboard: undefined;
   AddEditDebt: { debtId?: string; direction?: DebtDirection };
   DebtDetail: { debtId: string };

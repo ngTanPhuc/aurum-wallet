@@ -32,7 +32,7 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
   if (!debt) {
     return (
       <View style={styles.container}>
-        <CustomHeader title="Debt Not Found" showBackButton />
+        <CustomHeader title="Debt Not Found" showBack={true} />
       </View>
     );
   }
@@ -103,7 +103,7 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title={isLent ? 'Record Repayment Received' : 'Record Repayment Paid'} showBackButton />
+      <CustomHeader title={isLent ? 'Record Repayment Received' : 'Record Repayment Paid'} showBack={true} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         

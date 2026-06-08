@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import { ALL_SCHEMAS_V1, TRANSACTION_TEMPLATES_TABLE, TAGS_TABLE, TRANSACTION_TAGS_TABLE, SAVINGS_DEPOSITS_TABLE, YIELD_POCKET_SETTINGS_TABLE, PEOPLE_TABLE, DEBTS_TABLE, DEBT_PAYMENTS_TABLE } from './schema';
+import { ALL_SCHEMAS_V1, ALL_INDEXES, TRANSACTION_TEMPLATES_TABLE, TAGS_TABLE, TRANSACTION_TAGS_TABLE, SAVINGS_DEPOSITS_TABLE, YIELD_POCKET_SETTINGS_TABLE, PEOPLE_TABLE, DEBTS_TABLE, DEBT_PAYMENTS_TABLE } from './schema';
 
 export const DATABASE_NAME = 'aurum_v1.db';
 
@@ -8,6 +8,8 @@ let _dbInstance: SQLite.SQLiteDatabase | null = null;
 export const getDb = async () => {
   if (!_dbInstance) {
     _dbInstance = await SQLite.openDatabaseAsync(DATABASE_NAME);
+    await _dbInstance.execAsync('PRAGMA foreign_keys = ON;');
+    await _dbInstance.execAsync('PRAGMA busy_timeout = 5000;');
   }
   return _dbInstance;
 };
@@ -25,6 +27,9 @@ const MIGRATIONS: Migration[] = [
     up: async (db) => {
       for (const schema of ALL_SCHEMAS_V1) {
         await db.execAsync(schema);
+      }
+      for (const indexSql of ALL_INDEXES) {
+        await db.execAsync(indexSql);
       }
     }
   },
@@ -112,6 +117,15 @@ const MIGRATIONS: Migration[] = [
       await db.execAsync(DEBTS_TABLE);
       await db.execAsync(DEBT_PAYMENTS_TABLE);
     }
+  },
+  {
+    id: 10,
+    name: 'add_indexes_for_performance',
+    up: async (db) => {
+      for (const indexSql of ALL_INDEXES) {
+        await db.execAsync(indexSql);
+      }
+    }
   }
 ];
 
@@ -159,6 +173,11 @@ export const resetDb = async () => {
   try {
     const db = await getDb();
     const tables = [
+      'debt_payments',
+      'debts',
+      'people',
+      'yield_pocket_settings',
+      'savings_deposits',
       'transaction_tags',
       'tags',
       'transaction_templates',
@@ -168,9 +187,6 @@ export const resetDb = async () => {
       'savings_goals',
       'wallets',
       'categories',
-      'debt_payments',
-      'debts',
-      'people',
       'app_settings',
       'migrations'
     ];

@@ -7,6 +7,7 @@ import { RootStackParamList } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { SavingsGoalCard } from '../components/SavingsGoalCard';
 import { WalletPicker } from '../components/WalletPicker';
+import { useSettingsStore } from '../store/useSettingsStore';
 import uuid from 'react-native-uuid';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
@@ -18,6 +19,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SavingsGoalDetail'>;
 export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
   const { goalId } = route.params;
   const store = useFinanceStore();
+  const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
   const goal = store.transactions ? store.savingsGoals.find(g => g.id === goalId) : null;
   const goalTransactions = store.transactions.filter(t => t.savingsGoalId === goalId && t.type === 'expense');
 
@@ -153,7 +155,7 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
             <View style={styles.insightTextContainer}>
               <Text style={styles.insightLabel}>Required Monthly Savings</Text>
               <Text style={styles.insightValue}>
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(requiredMonthly)}
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: defaultCurrency }).format(requiredMonthly)}
               </Text>
               <Text style={styles.insightSub}>to reach goal by {new Date(goal.targetDate).toLocaleDateString()}</Text>
             </View>
@@ -172,7 +174,7 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
               <Text style={styles.insightValue}>
                 {projectedDate.toLocaleDateString()}
               </Text>
-              <Text style={styles.insightSub}>based on your average savings of {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(averageMonthlySavings)}/month</Text>
+              <Text style={styles.insightSub}>based on your average savings of {new Intl.NumberFormat('en-US', { style: 'currency', currency: defaultCurrency }).format(averageMonthlySavings)}/month</Text>
             </View>
           </View>
         ) : (

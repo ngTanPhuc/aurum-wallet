@@ -17,6 +17,7 @@ export const PeopleScreen = ({ navigation }: Props) => {
     <View style={styles.container}>
       <CustomHeader 
         title="People" 
+        showBack={true}
         showBackButton 
         rightComponent={
           <TouchableOpacity onPress={() => navigation.navigate('AddEditPerson', {})}>

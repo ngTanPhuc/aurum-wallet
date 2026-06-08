@@ -42,7 +42,7 @@ export const PersonDetailScreen = ({ navigation, route }: Props) => {
   if (!person) {
     return (
       <View style={styles.container}>
-        <CustomHeader title="Person Not Found" showBackButton />
+        <CustomHeader title="Person Not Found" showBack={true} />
       </View>
     );
   }
@@ -66,8 +66,8 @@ export const PersonDetailScreen = ({ navigation, route }: Props) => {
   return (
     <View style={styles.container}>
       <CustomHeader 
-        title="Person Details" 
-        showBackButton 
+        title={person.name} 
+        showBack={true} 
         rightComponent={
           <TouchableOpacity onPress={() => navigation.navigate('AddEditPerson', { personId: person.id })}>
             <Ionicons name="pencil" size={20} color={theme.colors.textPrimary} />

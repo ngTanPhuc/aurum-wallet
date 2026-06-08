@@ -125,7 +125,7 @@ export const SpendingChartsScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Analytics" />
+      <CustomHeader title="Analytics" showBack={true} />
       <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 40, padding: theme.spacing.lg }}>
         {renderFilterPills()}
       {renderCustomDatePickers()}

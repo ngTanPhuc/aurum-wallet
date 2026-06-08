@@ -10,7 +10,7 @@ interface SavingsGoalCardProps {
   goal: SavingsGoal;
 }
 
-export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal }) => {
+export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = React.memo(({ goal }) => {
   const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
   
   let progressColor = goal.color || theme.colors.primary;
@@ -60,7 +60,7 @@ export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal }) => {
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   card: {

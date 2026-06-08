@@ -73,9 +73,14 @@ export class RecurringTransactionService {
       case 'weekly':
         date.setDate(date.getDate() + 7);
         break;
-      case 'monthly':
-        date.setMonth(date.getMonth() + 1);
+      case 'monthly': {
+        const currentMonth = date.getMonth();
+        date.setMonth(currentMonth + 1);
+        if (date.getMonth() !== (currentMonth + 1) % 12) {
+          date.setDate(0);
+        }
         break;
+      }
       case 'yearly':
         date.setFullYear(date.getFullYear() + 1);
         break;
@@ -98,6 +103,8 @@ export class RecurringTransactionService {
     rt: RecurringTransaction,
     editedTransactionData?: Partial<Transaction>
   ): Promise<{ transaction: Transaction; updatedRecurring: RecurringTransaction }> {
+    const db = await getDb();
+    
     const txData: Transaction = {
       id: uuid.v4() as string,
       type: editedTransactionData?.type || rt.type,
@@ -107,7 +114,7 @@ export class RecurringTransactionService {
       destinationWalletId: editedTransactionData?.destinationWalletId || rt.destinationWalletId,
       categoryId: editedTransactionData?.categoryId || rt.categoryId,
       note: editedTransactionData?.note !== undefined ? editedTransactionData.note : rt.note,
-      transactionDate: rt.nextDueDate, // Log it on the due date, not necessarily today
+      transactionDate: rt.nextDueDate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

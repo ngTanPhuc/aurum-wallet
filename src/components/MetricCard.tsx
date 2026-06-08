@@ -13,7 +13,7 @@ interface MetricCardProps {
   trend?: 'up' | 'down' | 'neutral';
 }
 
-export const MetricCard = ({ title, value, subtitle, icon, color = theme.colors.info, trend }: MetricCardProps) => {
+export const MetricCard = React.memo(({ title, value, subtitle, icon, color = theme.colors.info, trend }: MetricCardProps) => {
   return (
     <GlassCard style={styles.card} variant="muted">
       <View style={styles.header}>
@@ -36,7 +36,7 @@ export const MetricCard = ({ title, value, subtitle, icon, color = theme.colors.
       </View>
     </GlassCard>
   );
-};
+});
 
 const styles = StyleSheet.create({
   card: {

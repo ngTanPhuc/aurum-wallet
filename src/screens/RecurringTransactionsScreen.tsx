@@ -20,7 +20,7 @@ export const RecurringTransactionsScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Recurring" />
+      <CustomHeader title="Recurring" showBack={true} />
       <FlatList
         data={recurringTransactions}
         keyExtractor={item => item.id}

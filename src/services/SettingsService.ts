@@ -40,9 +40,17 @@ export const SettingsService = {
     const db = await getDb();
     // Execute deletions in order to avoid foreign key constraint issues
     await db.execAsync(`
-      DELETE FROM transactions;
-      DELETE FROM budgets;
+      DELETE FROM debt_payments;
+      DELETE FROM transaction_tags;
+      DELETE FROM transaction_templates;
+      DELETE FROM debts;
+      DELETE FROM people;
       DELETE FROM recurring_transactions;
+      DELETE FROM savings_deposits;
+      DELETE FROM yield_pocket_settings;
+      DELETE FROM budgets;
+      DELETE FROM transactions;
+      DELETE FROM tags;
       DELETE FROM savings_goals;
       DELETE FROM wallets;
       DELETE FROM categories;

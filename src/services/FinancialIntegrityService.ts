@@ -36,14 +36,19 @@ export class FinancialIntegrityService {
 
     rows.forEach(t => {
       const { type, amount, sourceWalletId, destinationWalletId } = t;
+      const fee = t.fee || 0;
       
       // Update source wallet
       if (expectedBalances.has(sourceWalletId)) {
         let balance = expectedBalances.get(sourceWalletId)!;
         if (type === 'income') {
+          balance += (amount - fee);
+        } else if (type === 'expense') {
+          balance -= (amount + fee);
+        } else if (type === 'transfer') {
+          balance -= (amount + fee);
+        } else if (type === 'adjustment') {
           balance += amount;
-        } else if (type === 'expense' || type === 'transfer') {
-          balance -= amount;
         }
         expectedBalances.set(sourceWalletId, balance);
       }

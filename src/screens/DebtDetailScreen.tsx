@@ -25,7 +25,7 @@ export const DebtDetailScreen = ({ navigation, route }: Props) => {
   if (!debt) {
     return (
       <View style={styles.container}>
-        <CustomHeader title="Debt Not Found" showBackButton />
+        <CustomHeader title="Debt Not Found" showBack={true} />
       </View>
     );
   }
@@ -57,7 +57,7 @@ export const DebtDetailScreen = ({ navigation, route }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title={isLent ? 'Lent Money Details' : 'Borrowed Money Details'} showBackButton />
+      <CustomHeader title={isLent ? 'Lent Money Details' : 'Borrowed Money Details'} showBack={true} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         

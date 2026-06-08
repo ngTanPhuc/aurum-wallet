@@ -42,8 +42,7 @@ export const TransactionService = {
   async addTransaction(tx: Transaction): Promise<void> {
     const db = await getDb();
     
-    await db.execAsync('BEGIN EXCLUSIVE TRANSACTION');
-    try {
+    await db.withExclusiveTransactionAsync(async () => {
       const args = [
         tx.id,
         tx.type,
@@ -85,18 +84,13 @@ export const TransactionService = {
 
       // Apply effect
       await this.applyTransactionEffect(tx);
-      await db.execAsync('COMMIT');
-    } catch (e) {
-      await db.execAsync('ROLLBACK');
-      throw e;
-    }
+    });
   },
 
   async updateTransaction(tx: Transaction): Promise<void> {
     const db = await getDb();
     
-    await db.execAsync('BEGIN EXCLUSIVE TRANSACTION');
-    try {
+    await db.withExclusiveTransactionAsync(async () => {
       // Reverse old effect
       const oldTx = await this.getTransactionById(tx.id);
       if (oldTx) {
@@ -134,28 +128,19 @@ export const TransactionService = {
 
       // Apply new effect
       await this.applyTransactionEffect(tx);
-      await db.execAsync('COMMIT');
-    } catch (e) {
-      await db.execAsync('ROLLBACK');
-      throw e;
-    }
+    });
   },
 
   async deleteTransaction(id: string): Promise<void> {
     const db = await getDb();
     
-    await db.execAsync('BEGIN EXCLUSIVE TRANSACTION');
-    try {
+    await db.withExclusiveTransactionAsync(async () => {
       const oldTx = await this.getTransactionById(id);
       if (oldTx) {
         await this.reverseTransactionEffect(oldTx);
       }
       await db.runAsync('DELETE FROM transactions WHERE id = ?', id);
-      await db.execAsync('COMMIT');
-    } catch (e) {
-      await db.execAsync('ROLLBACK');
-      throw e;
-    }
+    });
   },
 
   async applyTransactionEffect(tx: Transaction): Promise<void> {
@@ -168,7 +153,7 @@ export const TransactionService = {
     } else if (tx.type === 'income') {
       await WalletService.updateWalletBalance(tx.sourceWalletId, tx.amount - fee);
       if (tx.savingsGoalId) {
-        await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, -tx.amount);
+        await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, tx.amount);
       }
     } else if (tx.type === 'transfer') {
       await WalletService.updateWalletBalance(tx.sourceWalletId, -(tx.amount + fee));
@@ -193,7 +178,7 @@ export const TransactionService = {
     } else if (tx.type === 'income') {
       await WalletService.updateWalletBalance(tx.sourceWalletId, -(tx.amount - fee));
       if (tx.savingsGoalId) {
-        await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, tx.amount);
+        await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, -tx.amount);
       }
     } else if (tx.type === 'transfer') {
       await WalletService.updateWalletBalance(tx.sourceWalletId, tx.amount + fee);

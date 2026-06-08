@@ -20,12 +20,14 @@ import { TransactionItem } from '../components/TransactionItem';
 import { MoneyAmount } from '../components/MoneyAmount';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Calendar'>;
 
 export const CalendarScreen = ({ navigation }: Props) => {
   const transactions = useFinanceStore(state => state.transactions);
   const wallets = useFinanceStore(state => state.wallets);
+  const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
   
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -97,7 +99,7 @@ export const CalendarScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Calendar" />
+      <CustomHeader title="Calendar" showBack={true} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentDate(subMonths(currentDate, 1))}>
           <Text style={styles.navBtn}>{'<'}</Text>
@@ -139,11 +141,11 @@ export const CalendarScreen = ({ navigation }: Props) => {
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>Income</Text>
-                <MoneyAmount amount={selectedDayIncome} currency="VND" style={[styles.summaryAmount, { color: '#4caf50' }]} />
+                <MoneyAmount amount={selectedDayIncome} currency={defaultCurrency} style={[styles.summaryAmount, { color: '#4caf50' }]} />
               </View>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>Expense</Text>
-                <MoneyAmount amount={selectedDayExpense} currency="VND" style={[styles.summaryAmount, { color: '#f44336' }]} />
+                <MoneyAmount amount={selectedDayExpense} currency={defaultCurrency} style={[styles.summaryAmount, { color: '#f44336' }]} />
               </View>
             </View>
 

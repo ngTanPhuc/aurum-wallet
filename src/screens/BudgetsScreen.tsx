@@ -32,7 +32,7 @@ export const BudgetsScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Monthly Budgets" />
+      <CustomHeader title="Monthly Budgets" showBack={true} />
       <View style={styles.monthSelector}>
         <TouchableOpacity onPress={handlePrevMonth} style={styles.arrowBtn}>
           <Text style={styles.arrowText}>{"<"}</Text>

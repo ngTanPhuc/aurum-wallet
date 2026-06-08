@@ -108,7 +108,7 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title={direction === 'lent' ? 'I Lent Money' : 'I Borrowed Money'} showBackButton />
+      <CustomHeader title={direction === 'lent' ? 'I Lent Money' : 'I Borrowed Money'} showBack={true} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         

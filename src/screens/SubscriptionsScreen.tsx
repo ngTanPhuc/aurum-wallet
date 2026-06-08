@@ -6,6 +6,7 @@ import { useFinanceStore } from '../store/useFinanceStore';
 import { MoneyAmount } from '../components/MoneyAmount';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Subscriptions'>;
 
@@ -13,6 +14,7 @@ export const SubscriptionsScreen = ({ navigation }: Props) => {
   const recurringTransactions = useFinanceStore(state => state.recurringTransactions);
   const wallets = useFinanceStore(state => state.wallets);
   const categories = useFinanceStore(state => state.categories);
+  const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
 
   const subscriptions = recurringTransactions.filter(rt => rt.isSubscription);
 
@@ -56,7 +58,7 @@ export const SubscriptionsScreen = ({ navigation }: Props) => {
           <Text style={styles.cardTitle}>{item.name}</Text>
           <MoneyAmount 
             amount={item.amount} 
-            currency={wallet?.currency || 'VND'} 
+            currency={wallet?.currency || defaultCurrency} 
             style={[styles.cardAmount, { color: item.type === 'expense' ? '#f44336' : '#4caf50' }]}
           />
         </View>
@@ -87,15 +89,15 @@ export const SubscriptionsScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Subscriptions" />
+      <CustomHeader title="Subscriptions" showBack={true} />
       <View style={styles.summaryContainer}>
         <View style={styles.summaryBox}>
           <Text style={styles.summaryLabel}>Total Monthly Cost</Text>
-          <MoneyAmount amount={monthlyCost} currency="VND" style={styles.summaryValue} />
+          <MoneyAmount amount={monthlyCost} currency={defaultCurrency} style={styles.summaryValue} />
         </View>
         <View style={styles.summaryBox}>
           <Text style={styles.summaryLabel}>Total Yearly Cost</Text>
-          <MoneyAmount amount={yearlyCost} currency="VND" style={styles.summaryValue} />
+          <MoneyAmount amount={yearlyCost} currency={defaultCurrency} style={styles.summaryValue} />
         </View>
       </View>
 

@@ -58,7 +58,7 @@ export const TemplatesScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Templates" />
+      <CustomHeader title="Templates" showBack={true} />
       {templates.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="document-text-outline" size={64} color={theme.colors.textMuted} />

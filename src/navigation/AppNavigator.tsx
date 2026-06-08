@@ -42,6 +42,8 @@ import { CalendarScreen } from '../screens/CalendarScreen';
 import { SavingsDepositsScreen } from '../screens/SavingsDepositsScreen';
 import { SavingsDepositDetailScreen } from '../screens/SavingsDepositDetailScreen';
 import { AddEditSavingsDepositScreen } from '../screens/AddEditSavingsDepositScreen';
+import { YieldPocketsScreen } from '../screens/YieldPocketsScreen';
+import { AddEditYieldPocketScreen } from '../screens/AddEditYieldPocketScreen';
 
 import { DebtDashboardScreen } from '../screens/DebtDashboardScreen';
 import { AddEditDebtScreen } from '../screens/AddEditDebtScreen';
@@ -158,6 +160,11 @@ export const AppNavigator = () => {
             options={{ title: 'Deposit', presentation: 'modal' }} 
           />
           <Stack.Screen 
+            name="AddEditYieldPocket" 
+            component={AddEditYieldPocketScreen} 
+            options={{ title: 'Yield Pocket', presentation: 'modal' }} 
+          />
+          <Stack.Screen 
             name="AddEditDebt" 
             component={AddEditDebtScreen} 
             options={{ title: 'Debt', presentation: 'modal' }} 
@@ -198,6 +205,11 @@ export const AppNavigator = () => {
             name="SavingsDepositDetail" 
             component={SavingsDepositDetailScreen} 
             options={{ title: 'Deposit Details', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="YieldPockets" 
+            component={YieldPocketsScreen} 
+            options={{ title: 'Yield Pockets', headerShown: false }} 
           />
           <Stack.Screen 
             name="RecurringTransactions" 

@@ -9,20 +9,22 @@ interface BudgetProgressCardProps {
   budget: Budget;
 }
 
-export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = ({ budget }) => {
+export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = React.memo(({ budget }) => {
   const transactions = useFinanceStore(state => state.transactions);
   const categories = useFinanceStore(state => state.categories);
   
   const category = categories.find(c => c.id === budget.categoryId);
   
   // Calculate spent amount for this budget
-  const spent = transactions
-    .filter(t => t.categoryId === budget.categoryId && t.type === 'expense')
-    .filter(t => {
-      const d = new Date(t.transactionDate);
-      return d.getMonth() + 1 === budget.month && d.getFullYear() === budget.year;
-    })
-    .reduce((acc, t) => acc + t.amount, 0);
+  const spent = React.useMemo(() => {
+    return transactions
+      .filter(t => t.categoryId === budget.categoryId && t.type === 'expense')
+      .filter(t => {
+        const d = new Date(t.transactionDate);
+        return d.getMonth() + 1 === budget.month && d.getFullYear() === budget.year;
+      })
+      .reduce((acc, t) => acc + t.amount, 0);
+  }, [transactions, budget]);
 
   const percentage = Math.min((spent / budget.amount) * 100, 100);
   
@@ -51,7 +53,7 @@ export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = ({ budget }
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   card: {
