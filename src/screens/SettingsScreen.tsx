@@ -9,6 +9,8 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { RootStackParamList, BottomTabParamList } from '../types';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { PinService } from '../services/PinService';
+import { version } from '../../package.json';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
@@ -19,6 +21,14 @@ export const SettingsScreen = ({ navigation }: Props) => {
   const loadData = useFinanceStore(state => state.loadData);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [isCheckingIntegrity, setIsCheckingIntegrity] = useState(false);
+
+  const handlePinToggle = async () => {
+    if (settings.pinEnabled) {
+      navigation.navigate('PinLock', { mode: 'remove' });
+    } else {
+      navigation.navigate('PinLock', { mode: 'create' });
+    }
+  };
 
   const handleIntegrityCheck = async () => {
     setIsCheckingIntegrity(true);
@@ -113,6 +123,13 @@ export const SettingsScreen = ({ navigation }: Props) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
+        <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
+          <Text style={styles.rowLabel}>PIN Lock</Text>
+          <View style={styles.rowValueContainer}>
+            <Text style={styles.rowValue}>{settings.pinEnabled ? 'Enabled' : 'Disabled'}</Text>
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('Templates')}>
           <Text style={styles.rowLabel}>Transaction Templates</Text>
           <View style={styles.rowValueContainer}>
@@ -158,7 +175,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
         <Text style={styles.sectionTitle}>About</Text>
         <View style={styles.row}>
           <Text style={styles.rowLabel}>App Version</Text>
-          <Text style={styles.rowValue}>1.1.0</Text>
+          <Text style={styles.rowValue}>{version}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.rowLabel}>Developer</Text>

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Wallet, Category, Transaction, Budget, SavingsGoal, RecurringTransaction, Insight, TransactionTemplate, Tag, TransactionFilters, TransactionSort, SavingsDeposit, YieldPocketSettings } from '../types';
+import { Wallet, Category, Transaction, Budget, SavingsGoal, RecurringTransaction, Insight, TransactionTemplate, Tag, TransactionFilters, TransactionSort, SavingsDeposit, YieldPocketSettings, Person, Debt, DebtPayment } from '../types';
 import { WalletService } from '../services/WalletService';
 import { CategoryService } from '../services/CategoryService';
 import { TransactionService } from '../services/TransactionService';

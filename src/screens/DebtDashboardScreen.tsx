@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../types';
+import { RootStackParamList, Debt } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { theme } from '../theme/theme';
@@ -19,10 +19,10 @@ export const DebtDashboardScreen = ({ navigation }: Props) => {
   const { owedToMe, iOwe, dueSoon, overdue, activeDebts, paidDebts } = useMemo(() => {
     let owedToMe = 0;
     let iOwe = 0;
-    const dueSoon = [];
-    const overdue = [];
-    const activeDebts = [];
-    const paidDebts = [];
+    const dueSoon: Debt[] = [];
+    const overdue: Debt[] = [];
+    const activeDebts: Debt[] = [];
+    const paidDebts: Debt[] = [];
 
     debts.forEach(d => {
       if (d.status === 'paid' || d.status === 'cancelled') {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 16 },
   
   actionRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
-  actionBtn: { flex: 1, alignItems: 'center', backgroundColor: theme.colors.surfaceLight, padding: 16, borderRadius: 16, marginHorizontal: 6, borderWidth: 1, borderColor: theme.colors.border },
+  actionBtn: { flex: 1, alignItems: 'center', backgroundColor: theme.colors.surfaceStrong, padding: 16, borderRadius: 16, marginHorizontal: 6, borderWidth: 1, borderColor: theme.colors.border },
   iconWrap: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   actionText: { ...theme.typography.body1, fontWeight: 'bold', color: theme.colors.textPrimary },
   

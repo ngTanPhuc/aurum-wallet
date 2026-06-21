@@ -23,7 +23,7 @@ describe('MetricCard', () => {
     const { getByText } = render(
       <MetricCard title="Total" value="100" icon="i" subtitle="Up" trend="up" />
     );
-    expect(getByText('▲')).toBeTruthy();
+    expect(getByText('trending-up')).toBeTruthy();
     expect(getByText('Up')).toBeTruthy();
   });
 
@@ -31,7 +31,7 @@ describe('MetricCard', () => {
     const { getByText } = render(
       <MetricCard title="Total" value="100" icon="i" subtitle="Down" trend="down" />
     );
-    expect(getByText('▼')).toBeTruthy();
+    expect(getByText('trending-down')).toBeTruthy();
     expect(getByText('Down')).toBeTruthy();
   });
 });

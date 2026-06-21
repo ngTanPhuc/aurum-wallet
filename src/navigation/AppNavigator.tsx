@@ -77,6 +77,13 @@ export const AppNavigator = () => {
   const { settings, isLoading: settingsLoading, loadSettings } = useSettingsStore();
   const { loadData } = useFinanceStore();
   const [dbReady, setDbReady] = React.useState(false);
+  const [pinVerified, setPinVerified] = React.useState(false);
+
+  useEffect(() => {
+    if (!settings.pinEnabled) {
+      setPinVerified(true);
+    }
+  }, [settings.pinEnabled]);
 
   useEffect(() => {
     const initApp = async () => {
@@ -114,12 +121,9 @@ export const AppNavigator = () => {
       <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.background } }}>
         {settings.isFirstRun ? (
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        ) : settings.pinEnabled ? (
-          // In a real app we'd verify PIN before showing HomeTabs. For now:
-          <Stack.Screen name="HomeTabs" component={HomeTabs} />
         ) : (
-          <Stack.Screen name="HomeTabs" component={HomeTabs} />
-        )}
+          <>
+            <Stack.Screen name="HomeTabs" component={HomeTabs} />
 
         <Stack.Group screenOptions={{ presentation: 'modal', headerShown: false }}>
           <Stack.Screen 
@@ -142,11 +146,6 @@ export const AppNavigator = () => {
         component={AddEditBudgetScreen} 
         options={{ title: 'Budget', presentation: 'modal' }}
       />
-          <Stack.Screen 
-            name="PinLock" 
-            component={PinLockScreen} 
-            options={{ title: 'PIN Lock', headerShown: false }} 
-          />
           <Stack.Screen 
             name="AddEditSavingsGoal" 
             component={AddEditSavingsGoalScreen} 
@@ -284,7 +283,14 @@ export const AppNavigator = () => {
             })} 
           />
         </Stack.Group>
-    </Stack.Navigator>
+        </>
+        )}
+        <Stack.Screen
+          name="PinLock"
+          component={PinLockScreen}
+          initialParams={{ mode: 'verify' }}
+        />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

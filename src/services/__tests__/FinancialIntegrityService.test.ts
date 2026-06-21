@@ -23,10 +23,10 @@ describe('FinancialIntegrityService', () => {
   describe('detectInconsistencies', () => {
     it('detects no issues when everything matches', async () => {
       (WalletService.getWallets as jest.Mock).mockResolvedValue([
-        { id: 'w1', name: 'Cash', balance: 100, initialBalance: 0 }
+        { id: 'w1', name: 'Cash', balance: 100, initialBalance: 0, includeInTotal: true, isArchived: false, createdAt: 'date', updatedAt: 'date' }
       ]);
       mockDb.getAllAsync.mockResolvedValue([
-        { type: 'income', amount: 100, walletId: 'w1' }
+        { type: 'income', amount: 100, sourceWalletId: 'w1' }
       ]);
 
       const report = await FinancialIntegrityService.detectInconsistencies();
@@ -37,10 +37,10 @@ describe('FinancialIntegrityService', () => {
 
     it('detects wallet balance discrepancy', async () => {
       (WalletService.getWallets as jest.Mock).mockResolvedValue([
-        { id: 'w1', name: 'Cash', balance: 200, initialBalance: 0 } // DB balance says 200
+        { id: 'w1', name: 'Cash', balance: 200, initialBalance: 0, includeInTotal: true, isArchived: false, createdAt: 'date', updatedAt: 'date' } // DB balance says 200
       ]);
       mockDb.getAllAsync.mockResolvedValue([
-        { type: 'income', amount: 100, walletId: 'w1' } // Transactions say 100
+        { type: 'income', amount: 100, sourceWalletId: 'w1' } // Transactions say 100
       ]);
 
       const report = await FinancialIntegrityService.detectInconsistencies();
@@ -52,11 +52,11 @@ describe('FinancialIntegrityService', () => {
 
     it('handles transfers correctly', async () => {
       (WalletService.getWallets as jest.Mock).mockResolvedValue([
-        { id: 'w1', name: 'Bank', balance: 900, initialBalance: 1000 },
-        { id: 'w2', name: 'Cash', balance: 100, initialBalance: 0 }
+        { id: 'w1', name: 'Bank', balance: 900, initialBalance: 1000, includeInTotal: true, isArchived: false, createdAt: 'date', updatedAt: 'date' },
+        { id: 'w2', name: 'Cash', balance: 100, initialBalance: 0, includeInTotal: true, isArchived: false, createdAt: 'date', updatedAt: 'date' }
       ]);
       mockDb.getAllAsync.mockResolvedValue([
-        { type: 'transfer', amount: 100, walletId: 'w1', destinationWalletId: 'w2' } 
+        { type: 'transfer', amount: 100, sourceWalletId: 'w1', destinationWalletId: 'w2' } 
       ]);
 
       const report = await FinancialIntegrityService.detectInconsistencies();

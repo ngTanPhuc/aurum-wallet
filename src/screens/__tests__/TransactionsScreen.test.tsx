@@ -2,9 +2,14 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { TransactionsScreen } from '../TransactionsScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn(),
+}));
+
+jest.mock('../../store/useSettingsStore', () => ({
+  useSettingsStore: jest.fn(),
 }));
 
 jest.mock('../../components/TransactionItem', () => {
@@ -43,17 +48,25 @@ describe('TransactionsScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useSettingsStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({ settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } });
+    });
   });
 
   const setupStore = (overrides = {}) => {
-    (useFinanceStore as unknown as jest.Mock).mockImplementation(() => ({
-      getFilteredTransactions: () => [],
-      transactionSearchQuery: '',
-      setTransactionSearchQuery: mockSetSearchQuery,
-      transactionFilters: {},
-      transactions: [],
-      ...overrides
-    }));
+    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        getFilteredTransactions: () => [],
+        transactionSearchQuery: '',
+        setTransactionSearchQuery: mockSetSearchQuery,
+        transactionFilters: {},
+        transactions: [],
+        categories: [],
+        wallets: [],
+        ...overrides
+      };
+      return typeof selector === 'function' ? selector(state) : state;
+    });
   };
 
   it('renders empty state correctly', () => {
@@ -61,7 +74,7 @@ describe('TransactionsScreen', () => {
     const { getByText, getByPlaceholderText } = render(<TransactionsScreen navigation={mockNavigation as any} route={{} as any} />);
     expect(getByText('No transactions found.')).toBeTruthy();
     expect(getByPlaceholderText('Search transactions...')).toBeTruthy();
-    expect(getByText('⚪')).toBeTruthy(); // No active filters
+    expect(getByText('filter-outline')).toBeTruthy(); // No active filters
   });
 
   it('renders with transactions', () => {
@@ -100,7 +113,7 @@ describe('TransactionsScreen', () => {
       transactionFilters: { type: 'expense' }
     });
     const { getByText } = render(<TransactionsScreen navigation={mockNavigation as any} route={{} as any} />);
-    expect(getByText('🟣')).toBeTruthy();
+    expect(getByText('filter')).toBeTruthy();
   });
 
   it('opens and closes filter modal', () => {
@@ -110,7 +123,7 @@ describe('TransactionsScreen', () => {
     expect(queryByText('FilterModal Visible')).toBeNull();
     
     // Open modal
-    fireEvent.press(getByText('⚪'));
+    fireEvent.press(getByText('filter-outline'));
     expect(getByText('FilterModal Visible')).toBeTruthy();
 
     // Close modal

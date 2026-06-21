@@ -18,8 +18,7 @@ export const PeopleScreen = ({ navigation }: Props) => {
       <CustomHeader 
         title="People" 
         showBack={true}
-        showBackButton 
-        rightComponent={
+        rightAction={
           <TouchableOpacity onPress={() => navigation.navigate('AddEditPerson', {})}>
             <Ionicons name="add" size={24} color={theme.colors.textPrimary} />
           </TouchableOpacity>

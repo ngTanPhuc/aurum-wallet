@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Text, TouchableOpacity, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../types';
+import { RootStackParamList, Debt } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { theme } from '../theme/theme';
@@ -21,8 +21,8 @@ export const PersonDetailScreen = ({ navigation, route }: Props) => {
   const personDebts = useMemo(() => debts.filter(d => d.personId === personId), [debts, personId]);
   
   const { activeDebts, paidDebts, totalOwedToMe, totalIOwe } = useMemo(() => {
-    const active = [];
-    const paid = [];
+    const active: Debt[] = [];
+    const paid: Debt[] = [];
     let owedToMe = 0;
     let iOwe = 0;
 
@@ -68,7 +68,7 @@ export const PersonDetailScreen = ({ navigation, route }: Props) => {
       <CustomHeader 
         title={person.name} 
         showBack={true} 
-        rightComponent={
+        rightAction={
           <TouchableOpacity onPress={() => navigation.navigate('AddEditPerson', { personId: person.id })}>
             <Ionicons name="pencil" size={20} color={theme.colors.textPrimary} />
           </TouchableOpacity>

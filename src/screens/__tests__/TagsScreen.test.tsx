@@ -2,10 +2,15 @@ import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react-native';
 import { TagsScreen } from '../TagsScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { Alert } from 'react-native';
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
+}));
+
+jest.mock('../../store/useSettingsStore', () => ({
+  useSettingsStore: jest.fn()
 }));
 
 describe('TagsScreen', () => {
@@ -13,11 +18,15 @@ describe('TagsScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useSettingsStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+      const state = { settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } };
+      return typeof selector === 'function' ? selector(state) : state;
+    });
   });
 
   it('renders tags and handles add', async () => {
     const addMock = jest.fn();
-    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector: any) => {
       return selector({ 
         tags: [{ id: 't1', name: 'Important', color: '#ff0000' }], 
         addTag: addMock,
@@ -47,7 +56,7 @@ describe('TagsScreen', () => {
     jest.spyOn(Alert, 'alert').mockImplementation((title, msg, buttons) => {
       if (buttons && buttons[1] && buttons[1].onPress) buttons[1].onPress();
     });
-    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector: any) => {
       return selector({ 
         tags: [{ id: 't1', name: 'Important', color: '#ff0000' }], 
         deleteTag: deleteMock 
@@ -55,7 +64,7 @@ describe('TagsScreen', () => {
     });
 
     const { getByText } = render(<TagsScreen navigation={mockNavigation} route={{} as any} />);
-    fireEvent.press(getByText('🗑️'));
+    fireEvent.press(getByText('trash'));
     expect(deleteMock).toHaveBeenCalledWith('t1');
   });
 });

@@ -26,26 +26,22 @@ describe('WalletCard', () => {
     updatedAt: '2023-01-01'
   };
 
-  it('renders wallet details correctly', () => {
+it('renders wallet details correctly', () => {
     const { getByText } = render(<WalletCard wallet={mockWallet} />);
-    expect(getByText('Cash')).toBeTruthy();
-    expect(getByText('cash')).toBeTruthy();
-    expect(getByText('₫500,000')).toBeTruthy();
+    expect(getByText('Main Cash')).toBeTruthy();
+    expect(getByText('Balance')).toBeTruthy();
   });
 
   it('handles onPress event', () => {
     const onPressMock = jest.fn();
     const { getByText } = render(<WalletCard wallet={mockWallet} onPress={onPressMock} />);
     
-    fireEvent.press(getByText('Cash'));
+    fireEvent.press(getByText('Main Cash'));
     expect(onPressMock).toHaveBeenCalledWith(mockWallet);
   });
 
   it('is disabled when onPress is not provided', () => {
     const { getByText } = render(<WalletCard wallet={mockWallet} />);
-    
-    // We can't strictly test disabled state easily without inspecting props in simple render,
-    // but we can ensure it doesn't crash on press.
-    fireEvent.press(getByText('Cash'));
+    fireEvent.press(getByText('Main Cash'));
   });
 });

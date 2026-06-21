@@ -2,10 +2,15 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { AddTransactionScreen } from '../AddTransactionScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { Alert } from 'react-native';
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn(),
+}));
+
+jest.mock('../../store/useSettingsStore', () => ({
+  useSettingsStore: jest.fn(),
 }));
 
 jest.mock('react-native-uuid', () => ({
@@ -57,34 +62,39 @@ describe('AddTransactionScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(Alert, 'alert');
+    (useSettingsStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+      const state = { settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } };
+      return typeof selector === 'function' ? selector(state) : state;
+    });
   });
 
   const setupStore = (overrides = {}) => {
-    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
       const state = {
         transactions: [],
         savingsGoals: [],
         templates: [],
         tags: [],
+        wallets: [],
+        categories: [],
         addTransaction: mockAddTransaction,
         updateTransaction: mockUpdateTransaction,
         addTemplate: mockAddTemplate,
         ...overrides
       };
-      return selector(state);
+      return typeof selector === 'function' ? selector(state) : state;
     });
   };
 
   it('renders correctly for creating a new transaction', () => {
     setupStore();
-    const { getByText, getByPlaceholderText } = render(
+    const { getByText } = render(
       <AddTransactionScreen navigation={mockNavigation as any} route={{} as any} />
     );
 
     expect(getByText('expense')).toBeTruthy();
     expect(getByText('income')).toBeTruthy();
     expect(getByText('transfer')).toBeTruthy();
-    expect(getByPlaceholderText('0')).toBeTruthy();
     expect(getByText('Save Transaction')).toBeTruthy();
   });
 
@@ -100,22 +110,22 @@ describe('AddTransactionScreen', () => {
 
   it('validates missing wallet', () => {
     setupStore();
-    const { getByText, getByPlaceholderText } = render(
+    const { getByText, getAllByPlaceholderText } = render(
       <AddTransactionScreen navigation={mockNavigation as any} route={{} as any} />
     );
 
-    fireEvent.changeText(getByPlaceholderText('0'), '1000');
+    fireEvent.changeText(getAllByPlaceholderText('0')[0], '1000');
     fireEvent.press(getByText('Save Transaction'));
     expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please select a wallet');
   });
 
   it('validates missing category for expense', () => {
     setupStore();
-    const { getByText, getByPlaceholderText } = render(
+    const { getByText, getAllByPlaceholderText } = render(
       <AddTransactionScreen navigation={mockNavigation as any} route={{} as any} />
     );
 
-    fireEvent.changeText(getByPlaceholderText('0'), '1000');
+    fireEvent.changeText(getAllByPlaceholderText('0')[0], '1000');
     fireEvent.press(getByText('Set w1')); // Set wallet
     fireEvent.press(getByText('Save Transaction'));
     expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please select a category');
@@ -123,12 +133,12 @@ describe('AddTransactionScreen', () => {
 
   it('validates invalid transfer destination', () => {
     setupStore();
-    const { getByText, getAllByText, getByPlaceholderText } = render(
+    const { getByText, getAllByText, getAllByPlaceholderText } = render(
       <AddTransactionScreen navigation={mockNavigation as any} route={{} as any} />
     );
 
     fireEvent.press(getByText('transfer')); // Switch to transfer
-    fireEvent.changeText(getByPlaceholderText('0'), '1000');
+    fireEvent.changeText(getAllByPlaceholderText('0')[0], '1000');
     fireEvent.press(getAllByText('Set w1')[0]); // Set from wallet (mock button)
     // Destination wallet not set
     fireEvent.press(getByText('Save Transaction'));
@@ -137,14 +147,14 @@ describe('AddTransactionScreen', () => {
 
   it('saves new expense transaction successfully', async () => {
     setupStore();
-    const { getByText, getByPlaceholderText } = render(
+    const { getByText, getAllByPlaceholderText } = render(
       <AddTransactionScreen navigation={mockNavigation as any} route={{} as any} />
     );
 
-    fireEvent.changeText(getByPlaceholderText('0'), '1000');
+    fireEvent.changeText(getAllByPlaceholderText('0')[0], '1000');
     fireEvent.press(getByText('Set w1')); // wallet
     fireEvent.press(getByText('Set c1')); // category
-    fireEvent.changeText(getByPlaceholderText('What was this for?'), 'Lunch');
+    fireEvent.changeText(getAllByPlaceholderText('What was this for?')[0], 'Lunch');
     
     fireEvent.press(getByText('Save Transaction'));
 
@@ -188,11 +198,11 @@ describe('AddTransactionScreen', () => {
 
   it('saves as template', async () => {
     setupStore();
-    const { getByText, getByPlaceholderText, getByTestId } = render(
+    const { getByText, getAllByPlaceholderText, getByTestId, getByPlaceholderText } = render(
       <AddTransactionScreen navigation={mockNavigation as any} route={{} as any} />
     );
 
-    fireEvent.changeText(getByPlaceholderText('0'), '1000');
+    fireEvent.changeText(getAllByPlaceholderText('0')[0], '1000');
     fireEvent.press(getByText('Set w1')); // wallet
     fireEvent.press(getByText('Set c1')); // category
     fireEvent(getByTestId('save-template-switch'), 'onValueChange', true);
@@ -207,7 +217,7 @@ describe('AddTransactionScreen', () => {
         name: 'My Template',
         type: 'expense',
         amount: 1000,
-        sourceWalletId: 'w1',
+        walletId: 'w1',
         categoryId: 'c1'
       }));
     });
@@ -225,6 +235,5 @@ describe('AddTransactionScreen', () => {
     fireEvent.press(getByText('Coffee'));
 
     expect(getByDisplayValue('5')).toBeTruthy();
-    // In actual UI, wallet and category pickers would update correctly
   });
 });

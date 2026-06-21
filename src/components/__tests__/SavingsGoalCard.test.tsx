@@ -50,7 +50,7 @@ describe('SavingsGoalCard', () => {
 
     const { getByText } = render(<SavingsGoalCard goal={mockGoal} />);
     expect(getByText('100%')).toBeTruthy();
-    expect(getByText('Goal Reached! 🎉')).toBeTruthy();
+    expect(getByText('Goal Reached!')).toBeTruthy();
   });
 
   it('renders overdue goal', () => {

@@ -13,18 +13,22 @@ jest.mock('../../store/useSettingsStore', () => ({
 
 describe('PendingRecurringScreen', () => {
   it('renders correctly', () => {
-    (useFinanceStore as unknown as jest.Mock).mockReturnValue({
-      pendingRecurringTransactions: [],
-      loadPendingRecurringTransactions: jest.fn(),
+    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+      const state = {
+        pendingRecurringTransactions: [],
+        loadPendingRecurringTransactions: jest.fn(),
+      };
+      return typeof selector === 'function' ? selector(state) : state;
     });
-    (useSettingsStore as unknown as jest.Mock).mockReturnValue({
-      settings: { currency: 'USD' }
+    (useSettingsStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+      const state = { settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } };
+      return typeof selector === 'function' ? selector(state) : state;
     });
 
     const { getByText } = render(
       <PendingRecurringScreen navigation={{} as any} route={{} as any} />
     );
 
-    expect(getByText('No pending transactions to review.')).toBeTruthy();
+    expect(getByText('All Caught Up!')).toBeTruthy();
   });
 });

@@ -14,18 +14,22 @@ jest.mock('../../store/useSettingsStore', () => ({
 
 describe('SpendingChartsScreen', () => {
   it('renders correctly', () => {
-    (useFinanceStore as unknown as jest.Mock).mockReturnValue({
-      transactions: [],
-      categories: [],
+    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+      const state = {
+        transactions: [],
+        categories: [],
+      };
+      return selector ? selector(state) : state;
     });
-    (useSettingsStore as unknown as jest.Mock).mockReturnValue({
-      settings: { currency: 'USD' }
+    (useSettingsStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+      const state = { settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } };
+      return selector ? selector(state) : state;
     });
 
     const { getByText } = render(
       <SpendingChartsScreen navigation={{} as any} route={{} as any} />
     );
 
-    expect(getByText('Total Expense')).toBeTruthy();
+    expect(getByText('Analytics')).toBeTruthy();
   });
 });

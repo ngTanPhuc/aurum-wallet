@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   heroPerson: { ...theme.typography.h2, color: theme.colors.textPrimary, marginVertical: 4 },
   heroAmount: { ...theme.typography.h1, marginVertical: 8 },
   heroSub: { ...theme.typography.body2, color: theme.colors.textMuted },
-  statusBadge: { marginTop: 12, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, backgroundColor: theme.colors.surfaceLight, borderWidth: 1, borderColor: theme.colors.border },
+  statusBadge: { marginTop: 12, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, backgroundColor: theme.colors.surfaceStrong, borderWidth: 1, borderColor: theme.colors.border },
   statusText: { ...theme.typography.body2, color: theme.colors.textPrimary, fontWeight: 'bold', fontSize: 12 },
   
   actionRow: { marginBottom: 12 },
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   actionBtnText: { ...theme.typography.body1, color: '#fff', fontWeight: 'bold' },
   
   actionRowAlt: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
-  altBtn: { flex: 1, padding: 12, borderRadius: 8, alignItems: 'center', backgroundColor: theme.colors.surfaceLight, marginHorizontal: 4, borderWidth: 1, borderColor: theme.colors.border },
+  altBtn: { flex: 1, padding: 12, borderRadius: 8, alignItems: 'center', backgroundColor: theme.colors.surfaceStrong, marginHorizontal: 4, borderWidth: 1, borderColor: theme.colors.border },
   altBtnText: { ...theme.typography.body2, color: theme.colors.textPrimary, fontWeight: 'bold' },
   
   sectionTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, marginBottom: 12, marginLeft: 4 },

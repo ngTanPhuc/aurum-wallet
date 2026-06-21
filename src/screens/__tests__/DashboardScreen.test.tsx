@@ -65,23 +65,28 @@ describe('DashboardScreen', () => {
   });
 
   const setupStore = (overrides = {}) => {
-    (useFinanceStore as unknown as jest.Mock).mockImplementation(() => ({
-      getTotalBalance: () => 5000,
-      transactions: [],
-      savingsGoals: [],
-      pendingRecurringTransactions: [],
-      getSavingsRate: () => ({ rate: 10, trend: 2 }),
-      getCashFlow: () => ({ net: 1000, isPositive: true }),
-      getLargestSpendingCategory: () => null,
-      getInsights: () => [],
-      ...overrides
-    }));
+    (useFinanceStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        getTotalBalance: () => 5000,
+        transactions: [],
+        savingsGoals: [],
+        pendingRecurringTransactions: [],
+        getSavingsRate: () => ({ rate: 10, trend: 2 }),
+        getCashFlow: () => ({ net: 1000, isPositive: true }),
+        getLargestSpendingCategory: () => null,
+        getInsights: () => [],
+        categories: [],
+        wallets: [],
+        ...overrides
+      };
+      return typeof selector === 'function' ? selector(state) : state;
+    });
   };
 
   it('renders correctly with no data', () => {
     setupStore();
     const { getByText, queryByText } = render(<DashboardScreen navigation={mockNavigation as any} route={{} as any} />);
-    expect(getByText('Financial Health')).toBeTruthy();
+    expect(getByText('Home')).toBeTruthy();
     expect(queryByText('Pending Transactions')).toBeNull();
     expect(getByText('No transactions yet.')).toBeTruthy();
   });
@@ -154,6 +159,6 @@ describe('DashboardScreen', () => {
     });
 
     const { getByText } = render(<DashboardScreen navigation={mockNavigation as any} route={{} as any} />);
-    expect(getByText('Financial Health')).toBeTruthy();
+    expect(getByText('Home')).toBeTruthy();
   });
 });

@@ -13,6 +13,7 @@ describe('WalletService', () => {
       getFirstAsync: jest.fn(),
       getAllAsync: jest.fn(),
       runAsync: jest.fn(),
+      withExclusiveTransactionAsync: jest.fn(async (cb) => await cb()),
     };
     (getDb as jest.Mock).mockResolvedValue(mockDb);
     jest.clearAllMocks();
@@ -21,8 +22,8 @@ describe('WalletService', () => {
   describe('getWallets', () => {
     it('should return all wallets ordered by createdAt DESC', async () => {
       const mockWallets = [
-        { id: '1', name: 'Cash', includeInTotal: 1, isArchived: 0 },
-        { id: '2', name: 'Bank', includeInTotal: 0, isArchived: 1 }
+        { id: '1', name: 'Cash', type: 'cash', balance: 100, initialBalance: 0, currency: 'VND', includeInTotal: 1, isArchived: 0, createdAt: '2023', updatedAt: '2023' },
+        { id: '2', name: 'Bank', type: 'bank', balance: 200, initialBalance: 0, currency: 'VND', includeInTotal: 0, isArchived: 1, createdAt: '2023', updatedAt: '2023' }
       ];
       mockDb.getAllAsync.mockResolvedValue(mockWallets);
 
@@ -30,22 +31,22 @@ describe('WalletService', () => {
       
       expect(mockDb.getAllAsync).toHaveBeenCalledWith('SELECT * FROM wallets ORDER BY createdAt DESC');
       expect(result).toEqual([
-        { id: '1', name: 'Cash', includeInTotal: true, isArchived: false, isDefault: false, createdAt: '', updatedAt: '' },
-        { id: '2', name: 'Bank', includeInTotal: false, isArchived: true }
+        { id: '1', name: 'Cash', type: 'cash', balance: 100, initialBalance: 0, currency: 'VND', includeInTotal: true, isArchived: false, createdAt: '2023', updatedAt: '2023' },
+        { id: '2', name: 'Bank', type: 'bank', balance: 200, initialBalance: 0, currency: 'VND', includeInTotal: false, isArchived: true, createdAt: '2023', updatedAt: '2023' }
       ]);
     });
   });
 
   describe('getWalletById', () => {
     it('should return a wallet if found and convert booleans', async () => {
-      const mockWallet = { id: '1', name: 'Cash', includeInTotal: 1, isArchived: 0 };
+      const mockWallet = { id: '1', name: 'Cash', type: 'cash', balance: 100, initialBalance: 0, currency: 'VND', includeInTotal: 1, isArchived: 0, createdAt: '2023', updatedAt: '2023' };
       mockDb.getFirstAsync.mockResolvedValue(mockWallet);
 
       const result = await WalletService.getWalletById('1');
       
       expect(mockDb.getFirstAsync).toHaveBeenCalledWith('SELECT * FROM wallets WHERE id = ?', '1');
       expect(result).toEqual({
-        id: '1', name: 'Cash', includeInTotal: true, isArchived: false
+        id: '1', name: 'Cash', type: 'cash', balance: 100, initialBalance: 0, currency: 'VND', includeInTotal: true, isArchived: false, createdAt: '2023', updatedAt: '2023'
       });
     });
 

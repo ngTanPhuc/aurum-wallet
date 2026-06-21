@@ -131,7 +131,7 @@ describe('FilterModal', () => {
 
   it('calls onClose when close button is pressed', () => {
     const { getByText } = render(<FilterModal visible={true} onClose={onCloseMock} />);
-    const closeBtn = getByText('✕');
+    const closeBtn = getByText('close');
     fireEvent.press(closeBtn);
     expect(onCloseMock).toHaveBeenCalled();
   });

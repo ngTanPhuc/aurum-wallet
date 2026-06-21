@@ -13,6 +13,7 @@ describe('RecurringTransactionService', () => {
   const mockDb = {
     getAllAsync: jest.fn(),
     runAsync: jest.fn(),
+    withExclusiveTransactionAsync: jest.fn(async (cb) => await cb()),
   };
 
   beforeEach(() => {
@@ -95,9 +96,13 @@ describe('RecurringTransactionService', () => {
 
   describe('Processing operations', () => {
     const mockRt: any = {
-      id: '1', type: 'expense', amount: 100, sourceWalletId: 'w1',
+      id: '1', type: 'expense', amount: 100, walletId: 'w1',
       frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00.000Z', isActive: true
     };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
 
     it('skipPendingTransaction increments due date without creating a transaction', async () => {
       // updateRecurringTransaction will be called inside skip

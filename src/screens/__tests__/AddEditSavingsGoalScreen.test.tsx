@@ -8,6 +8,24 @@ jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
 }));
 
+jest.mock('react-native-uuid', () => ({
+  v4: jest.fn().mockReturnValue('test-uuid'),
+}));
+
+jest.mock('react-native-keyboard-aware-scroll-view', () => ({
+  KeyboardAwareScrollView: ({ children }: any) => {
+    const { ScrollView } = require('react-native');
+    return <ScrollView>{children}</ScrollView>;
+  },
+}));
+
+jest.mock('../../components/glass/AmountInput', () => ({
+  AmountInput: (props: any) => {
+    const { TextInput } = require('react-native');
+    return <TextInput {...props} />;
+  },
+}));
+
 describe('AddEditSavingsGoalScreen', () => {
   const mockNavigation: any = { setOptions: jest.fn(), goBack: jest.fn() };
 

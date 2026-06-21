@@ -246,9 +246,9 @@ const styles = StyleSheet.create({
   inputLarge: { ...theme.typography.h1, color: theme.colors.textPrimary, padding: 12, borderWidth: 1, borderColor: theme.colors.border, borderRadius: 8, textAlign: 'center' },
   pickerContainer: { flex: 1, borderWidth: 1, borderColor: theme.colors.border, borderRadius: 8, overflow: 'hidden' },
   picker: { color: theme.colors.textPrimary, backgroundColor: 'transparent' },
-  addBtn: { width: 48, height: 48, borderRadius: 8, backgroundColor: theme.colors.surfaceLight, justifyContent: 'center', alignItems: 'center', marginLeft: 8 },
+  addBtn: { width: 48, height: 48, borderRadius: 8, backgroundColor: theme.colors.surfaceStrong, justifyContent: 'center', alignItems: 'center', marginLeft: 8 },
   
-  previewCard: { padding: 16, marginBottom: 16, backgroundColor: theme.colors.surfaceLight, borderWidth: 1, borderColor: theme.colors.primary + '40' },
+  previewCard: { padding: 16, marginBottom: 16, backgroundColor: theme.colors.surfaceStrong, borderWidth: 1, borderColor: theme.colors.primary + '40' },
   previewTitle: { ...theme.typography.body1, fontWeight: 'bold', color: theme.colors.primary, marginBottom: 12 },
   previewRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   previewLabel: { ...theme.typography.body2, color: theme.colors.textMuted },

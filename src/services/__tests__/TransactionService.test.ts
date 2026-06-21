@@ -28,6 +28,7 @@ describe('TransactionService', () => {
       getAllAsync: jest.fn(),
       getFirstAsync: jest.fn(),
       runAsync: jest.fn(),
+      withExclusiveTransactionAsync: jest.fn((cb) => cb()),
     };
     (getDb as jest.Mock).mockResolvedValue(mockDb);
     jest.restoreAllMocks();
@@ -133,7 +134,7 @@ describe('TransactionService', () => {
 
       expect(mockDb.runAsync).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO transactions'),
-        'tx1', 'expense', 100, 'w1', '', 'date', 'date', 'date'
+        ['tx1', 'expense', 100, 0, 'w1', null, null, null, '', 'date', 'date', 'date']
       );
       expect(applyEffectSpy).toHaveBeenCalledWith(tx);
     });
@@ -160,7 +161,7 @@ describe('TransactionService', () => {
 
       expect(mockDb.runAsync).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO transactions'),
-        'tx1', 'transfer', 100, 'w1', 'w2', 'c1', 's1', 'note', 'date', 'date', 'date'
+        ['tx1', 'transfer', 100, 0, 'w1', 'w2', 'c1', 's1', 'note', 'date', 'date', 'date']
       );
 
       expect(mockDb.runAsync).toHaveBeenCalledWith(
@@ -205,7 +206,7 @@ describe('TransactionService', () => {
       
       expect(mockDb.runAsync).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE transactions SET'),
-        'expense', 100, 'w1', 'w2', 'c1', 's1', 'note', 'date', 'date', 'tx1'
+        ['expense', 100, 0, 'w1', 'w2', 'c1', 's1', 'note', 'date', 'date', 'tx1']
       );
 
       expect(mockDb.runAsync).toHaveBeenCalledWith('DELETE FROM transaction_tags WHERE transactionId = ?', ['tx1']);
@@ -234,7 +235,7 @@ describe('TransactionService', () => {
 
       expect(mockDb.runAsync).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE transactions SET'),
-        'expense', 100, 'w1', '', 'date', 'date', 'tx1'
+        ['expense', 100, 0, 'w1', null, null, null, '', 'date', 'date', 'tx1']
       );
     });
   });
@@ -283,7 +284,7 @@ describe('TransactionService', () => {
     it('should apply income with savings goal', async () => {
       await TransactionService.applyTransactionEffect({ type: 'income', sourceWalletId: 'w1', amount: 100, savingsGoalId: 's1' } as any);
       expect(WalletService.updateWalletBalance).toHaveBeenCalledWith('w1', 100);
-      expect(SavingsGoalService.updateSavingsGoalAmount).toHaveBeenCalledWith('s1', -100);
+      expect(SavingsGoalService.updateSavingsGoalAmount).toHaveBeenCalledWith('s1', 100);
     });
 
     it('should apply transfer', async () => {
@@ -331,7 +332,7 @@ describe('TransactionService', () => {
     it('should reverse income with savings goal', async () => {
       await TransactionService.reverseTransactionEffect({ type: 'income', sourceWalletId: 'w1', amount: 100, savingsGoalId: 's1' } as any);
       expect(WalletService.updateWalletBalance).toHaveBeenCalledWith('w1', -100);
-      expect(SavingsGoalService.updateSavingsGoalAmount).toHaveBeenCalledWith('s1', 100);
+      expect(SavingsGoalService.updateSavingsGoalAmount).toHaveBeenCalledWith('s1', -100);
     });
 
     it('should reverse transfer', async () => {

@@ -17,6 +17,7 @@ describe('CategoryService', () => {
       getFirstAsync: jest.fn(),
       getAllAsync: jest.fn(),
       runAsync: jest.fn(),
+      withExclusiveTransactionAsync: jest.fn(async (cb) => await cb()),
     };
     (getDb as jest.Mock).mockResolvedValue(mockDb);
     jest.clearAllMocks();
@@ -39,7 +40,7 @@ describe('CategoryService', () => {
       
       expect(addCategorySpy).toHaveBeenCalled();
       // Should add both default expenses and income (15 + 7 = 22)
-      expect(addCategorySpy).toHaveBeenCalledTimes(22);
+      expect(addCategorySpy).toHaveBeenCalledTimes(26);
 
       addCategorySpy.mockRestore();
     });

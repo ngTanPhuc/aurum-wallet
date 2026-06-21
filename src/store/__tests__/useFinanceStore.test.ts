@@ -11,7 +11,14 @@ import { TagService } from '../../services/TagService';
 
 jest.mock('../../services/WalletService');
 jest.mock('../../services/CategoryService');
-jest.mock('../../services/TransactionService');
+jest.mock('../../services/TransactionService', () => ({
+  TransactionService: {
+    getTransactions: jest.fn().mockResolvedValue([]),
+    addTransaction: jest.fn().mockResolvedValue(undefined),
+    updateTransaction: jest.fn().mockResolvedValue(undefined),
+    deleteTransaction: jest.fn().mockResolvedValue(undefined),
+  },
+}));
 jest.mock('../../services/BudgetService');
 jest.mock('../../services/SavingsGoalService');
 jest.mock('../../services/RecurringTransactionService');
@@ -32,6 +39,15 @@ describe('useFinanceStore', () => {
       pendingRecurringTransactions: [],
       templates: [],
       tags: [],
+      savingsDeposits: [],
+      yieldPocketSettings: [],
+      people: [],
+      debts: [],
+      debtPayments: [],
+      transactionFilters: {},
+      transactionSearchQuery: '',
+      transactionSort: 'newest',
+      isLoading: true,
     });
   });
 
@@ -155,11 +171,11 @@ describe('useFinanceStore', () => {
       ]
     });
     const store = useFinanceStore.getState();
-    const savings = store.getSavingsRate(5, 2026); // June (month 5 in 0-indexed JS Date)
+    const savings = store.getSavingsRate(6, 2026); // June (month 6 = June in JS where getMonth()+1 is used)
     expect(savings.rate).toBe(60); // 600/1000 * 100
     expect(savings.trend).toBe(40); // 60 - 20
     
-    const cashFlow = store.getCashFlow(5, 2026);
+    const cashFlow = store.getCashFlow(6, 2026);
     expect(cashFlow.net).toBe(600);
     expect(cashFlow.isPositive).toBe(true);
   });
@@ -171,7 +187,7 @@ describe('useFinanceStore', () => {
         { type: 'expense', categoryId: 'c1', amount: 50, transactionDate: '2026-06-15T00:00:00Z' } as any,
       ]
     });
-    const result = useFinanceStore.getState().getLargestSpendingCategory(5, 2026);
+    const result = useFinanceStore.getState().getLargestSpendingCategory(6, 2026);
     expect(result?.categoryName).toBe('Food');
   });
 

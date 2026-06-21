@@ -14,8 +14,8 @@ describe('InsightCard', () => {
 
   it('renders info insight correctly', () => {
     const { getByText } = render(<InsightCard insight={defaultInsight} />);
-    expect(getByText('Info Title')).toBeTruthy();
-    expect(getByText('Info Description')).toBeTruthy();
+    expect(getByText('Test Insight')).toBeTruthy();
+    expect(getByText('This is a test insight description.')).toBeTruthy();
   });
 
   it('renders alert insight with correct colors (implied by type)', () => {
@@ -27,13 +27,13 @@ describe('InsightCard', () => {
   it('renders warning insight correctly', () => {
     const insight: Insight = { ...defaultInsight, type: 'warning' };
     const { getByText } = render(<InsightCard insight={insight} />);
-    expect(getByText('Info Title')).toBeTruthy();
+    expect(getByText('Test Insight')).toBeTruthy();
   });
 
   it('renders success insight correctly', () => {
     const insight: Insight = { ...defaultInsight, type: 'success' };
     const { getByText } = render(<InsightCard insight={insight} />);
-    expect(getByText('Info Title')).toBeTruthy();
+    expect(getByText('Test Insight')).toBeTruthy();
   });
 
   it('renders action button and triggers callback', () => {

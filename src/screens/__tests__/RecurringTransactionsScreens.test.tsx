@@ -4,11 +4,16 @@ import { RecurringTransactionsScreen } from '../RecurringTransactionsScreen';
 import { PendingRecurringScreen } from '../PendingRecurringScreen';
 import { AddEditRecurringTransactionScreen } from '../AddEditRecurringTransactionScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { Alert } from 'react-native';
 
 // Mock the store
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn(),
+}));
+
+jest.mock('../../store/useSettingsStore', () => ({
+  useSettingsStore: jest.fn(),
 }));
 
 jest.mock('react-native-uuid', () => ({
@@ -20,13 +25,17 @@ const mockNavigation: any = { navigate: jest.fn(), goBack: jest.fn() };
 describe('Recurring Transactions UI', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (useSettingsStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+      const state = { settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } };
+      return typeof selector === 'function' ? selector(state) : state;
+    });
   });
 
   describe('RecurringTransactionsScreen', () => {
     it('renders empty state correctly', () => {
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { recurringTransactions: [], wallets: [], categories: [] };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       const { getByText } = render(<RecurringTransactionsScreen navigation={mockNavigation} route={{} as any} />);
@@ -34,16 +43,16 @@ describe('Recurring Transactions UI', () => {
     });
 
     it('renders list of recurring transactions', () => {
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { 
           recurringTransactions: [
-            { id: '1', type: 'expense', amount: 100, sourceWalletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true },
-            { id: '2', type: 'transfer', amount: 50, sourceWalletId: 'w1', destinationWalletId: 'w2', frequency: 'weekly', nextDueDate: '2026-06-01T00:00:00Z', isActive: false }
+            { id: '1', type: 'expense', amount: 100, walletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true },
+            { id: '2', type: 'transfer', amount: 50, walletId: 'w1', destinationWalletId: 'w2', frequency: 'weekly', nextDueDate: '2026-06-01T00:00:00Z', isActive: false }
           ], 
           wallets: [{ id: 'w1', name: 'Cash' }, { id: 'w2', name: 'Bank' }], 
           categories: [] 
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       const { getByText } = render(<RecurringTransactionsScreen navigation={mockNavigation} route={{} as any} />);
@@ -55,9 +64,9 @@ describe('Recurring Transactions UI', () => {
 
   describe('PendingRecurringScreen', () => {
     it('renders empty state', () => {
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
-        const state = { pendingRecurringTransactions: [], wallets: [], categories: [] };
-        return selector(state);
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
+        const state = { pendingRecurringTransactions: [], wallets: [], categories: [], loadPendingRecurringTransactions: jest.fn() };
+        return typeof selector === 'function' ? selector(state) : state;
       });
       const { getByText } = render(<PendingRecurringScreen navigation={mockNavigation} route={{} as any} />);
       expect(getByText('All Caught Up!')).toBeTruthy();
@@ -67,17 +76,18 @@ describe('Recurring Transactions UI', () => {
       const confirmMock = jest.fn();
       const skipMock = jest.fn();
       
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { 
           pendingRecurringTransactions: [
-            { id: 'p1', type: 'expense', amount: 200, sourceWalletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }
+            { id: 'p1', type: 'expense', amount: 200, walletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }
           ], 
           wallets: [{ id: 'w1', name: 'Cash', balance: 500 }], 
           categories: [],
           confirmPendingTransaction: confirmMock,
-          skipPendingTransaction: skipMock
+          skipPendingTransaction: skipMock,
+          loadPendingRecurringTransactions: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       const { getByText } = render(<PendingRecurringScreen navigation={mockNavigation} route={{} as any} />);
@@ -94,16 +104,18 @@ describe('Recurring Transactions UI', () => {
 
     it('shows insufficient funds warning on confirm', async () => {
       jest.spyOn(Alert, 'alert');
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { 
           pendingRecurringTransactions: [
-            { id: 'p1', type: 'expense', amount: 200, sourceWalletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }
+            { id: 'p1', type: 'expense', amount: 200, walletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }
           ], 
           wallets: [{ id: 'w1', name: 'Cash', balance: 100 }], 
           categories: [],
           confirmPendingTransaction: jest.fn(),
+          skipPendingTransaction: jest.fn(),
+          loadPendingRecurringTransactions: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       const { getByText } = render(<PendingRecurringScreen navigation={mockNavigation} route={{} as any} />);
@@ -124,12 +136,12 @@ describe('Recurring Transactions UI', () => {
       jest.spyOn(Alert, 'alert').mockImplementation((title, msg, buttons) => {
         if (buttons && buttons[1] && buttons[1].onPress) buttons[1].onPress();
       });
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { 
-          pendingRecurringTransactions: [{ id: 'p1', type: 'income', amount: 200, sourceWalletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }], 
+          pendingRecurringTransactions: [{ id: 'p1', type: 'income', amount: 200, walletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }], 
           wallets: [], categories: [], skipPendingTransaction: skipMock 
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       const { getByText } = render(<PendingRecurringScreen navigation={mockNavigation} route={{} as any} />);
       fireEvent.press(getByText('Skip'));
@@ -138,12 +150,12 @@ describe('Recurring Transactions UI', () => {
 
     it('handles Edit modal and save', async () => {
       const confirmMock = jest.fn();
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { 
-          pendingRecurringTransactions: [{ id: 'p1', type: 'expense', amount: 200, sourceWalletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }], 
+          pendingRecurringTransactions: [{ id: 'p1', type: 'expense', amount: 200, walletId: 'w1', frequency: 'monthly', nextDueDate: '2026-06-01T00:00:00Z', isActive: true }], 
           wallets: [{ id: 'w1', name: 'Cash', balance: 500 }], categories: [], confirmPendingTransaction: confirmMock 
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       const { getByText, getByDisplayValue } = render(<PendingRecurringScreen navigation={mockNavigation} route={{} as any} />);
       await act(async () => {
@@ -161,7 +173,7 @@ describe('Recurring Transactions UI', () => {
   describe('AddEditRecurringTransactionScreen', () => {
     it('shows error if amount is missing', () => {
       jest.spyOn(Alert, 'alert');
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         return selector({ recurringTransactions: [], wallets: [], categories: [], addRecurringTransaction: jest.fn(), updateRecurringTransaction: jest.fn() });
       });
 
@@ -172,7 +184,7 @@ describe('Recurring Transactions UI', () => {
 
     it('saves successfully', async () => {
       const addMock = jest.fn();
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         return selector({ 
           recurringTransactions: [], 
           wallets: [{ id: 'w1', name: 'Wallet1' }], 
@@ -182,17 +194,17 @@ describe('Recurring Transactions UI', () => {
         });
       });
 
-      const { getByText, getByPlaceholderText } = render(<AddEditRecurringTransactionScreen navigation={mockNavigation} route={{ params: {} } as any} />);
+      const { getByText, getByPlaceholderText, getAllByPlaceholderText } = render(<AddEditRecurringTransactionScreen navigation={mockNavigation} route={{ params: {} } as any} />);
       
-      fireEvent.changeText(getByPlaceholderText('0'), '100');
+      fireEvent.changeText(getAllByPlaceholderText('0')[0], '100');
     });
 
     it('loads and saves in edit mode', async () => {
       const updateMock = jest.fn();
-      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
+      (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         return selector({ 
           recurringTransactions: [{
-            id: 'r1', name: 'Test', type: 'expense', amount: 500, sourceWalletId: 'w1', categoryId: 'c1', note: 'Sub', frequency: 'weekly', startDate: '2026-06-01T00:00:00Z', isActive: true
+            id: 'r1', name: 'Test', type: 'expense', amount: 500, walletId: 'w1', categoryId: 'c1', note: 'Sub', frequency: 'weekly', startDate: '2026-06-01T00:00:00Z', isActive: true
           }], 
           wallets: [{ id: 'w1', name: 'Wallet1' }], 
           categories: [{ id: 'c1', name: 'Cat1', type: 'expense' }], 

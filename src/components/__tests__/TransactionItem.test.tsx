@@ -13,11 +13,11 @@ describe('TransactionItem', () => {
     (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
       return selector({
         wallets: [
-          { id: 'w1', name: 'Cash', currency: 'VND' },
-          { id: 'w2', name: 'Bank', currency: 'USD' }
+          { id: 'w1', name: 'Cash', currency: 'VND', type: 'cash', balance: 0, initialBalance: 0, includeInTotal: true, isArchived: false, createdAt: '', updatedAt: '' },
+          { id: 'w2', name: 'Bank', currency: 'USD', type: 'bank', balance: 0, initialBalance: 0, includeInTotal: true, isArchived: false, createdAt: '', updatedAt: '' }
         ],
         categories: [
-          { id: 'c1', name: 'Food', icon: '🍔' }
+          { id: 'c1', name: 'Food', icon: '🍔', isDefault: false, isArchived: false, type: 'expense', createdAt: '', updatedAt: '' }
         ],
         settings: {
           currency: 'VND',
@@ -64,9 +64,9 @@ describe('TransactionItem', () => {
     };
 
     const { getByText } = render(<TransactionItem transaction={mockTx} />);
-    expect(getByText('⇄')).toBeTruthy();
+    expect(getByText('swap-horizontal')).toBeTruthy();
     expect(getByText('Transfer to Cash')).toBeTruthy();
-    expect(getByText('Oct 02, 2023 • Bank')).toBeTruthy();
+    expect(getByText('Oct 02, 2023 • Bank • Transfer')).toBeTruthy();
   });
 
   it('handles onPress', () => {

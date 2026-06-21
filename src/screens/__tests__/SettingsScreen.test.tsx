@@ -11,11 +11,27 @@ jest.mock('../../services/FinancialIntegrityService', () => ({
   }
 }));
 
+jest.mock('../../store/useSettingsStore', () => ({
+  useSettingsStore: jest.fn(),
+}));
+
+jest.mock('../../store/useFinanceStore', () => ({
+  useFinanceStore: jest.fn(),
+}));
+
 describe('SettingsScreen', () => {
   const mockNavigation: any = { navigate: jest.fn() };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (jest.requireMock('../../store/useSettingsStore').useSettingsStore as jest.Mock).mockReturnValue({
+      settings: { defaultCurrency: 'USD', theme: 'system', pinEnabled: false, isFirstRun: false },
+      updateCurrency: jest.fn(),
+      wipeData: jest.fn(),
+    });
+    (jest.requireMock('../../store/useFinanceStore').useFinanceStore as jest.Mock).mockImplementation((selector: any) => {
+      return selector({ loadData: jest.fn() });
+    });
   });
 
   it('renders settings menu', () => {

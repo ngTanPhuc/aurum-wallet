@@ -63,6 +63,6 @@ describe('WalletsScreen', () => {
     ]);
     const { getByText } = render(<WalletsScreen navigation={mockNavigation as any} route={{} as any} />);
     fireEvent.press(getByText('Wallet w1'));
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('AddEditWallet', { sourceWalletId: 'w1' });
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('AddEditWallet', { walletId: 'w1' });
   });
 });

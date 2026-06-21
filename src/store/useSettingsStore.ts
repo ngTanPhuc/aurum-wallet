@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { AppSettings } from '../types';
 import { SettingsService } from '../services/SettingsService';
+import { PinService } from '../services/PinService';
 
 interface SettingsState {
   settings: AppSettings;
@@ -9,6 +10,7 @@ interface SettingsState {
   updateCurrency: (currency: string) => Promise<void>;
   completeFirstRun: () => Promise<void>;
   wipeData: () => Promise<void>;
+  togglePin: (pin?: string) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -24,11 +26,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     try {
       const isFirstRun = await SettingsService.isFirstRun();
       const defaultCurrency = await SettingsService.getDefaultCurrency();
-      
+      const pinEnabled = await PinService.hasPin();
+
       set({
         settings: {
           defaultCurrency,
-          pinEnabled: false, // For now, no PIN service
+          pinEnabled,
           theme: 'system',
           isFirstRun,
         },
@@ -50,6 +53,20 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set((state) => ({
       settings: { ...state.settings, isFirstRun: false },
     }));
+  },
+  togglePin: async (pin?: string) => {
+    const current = get().settings.pinEnabled;
+    if (current) {
+      await PinService.removePin();
+      set((state) => ({
+        settings: { ...state.settings, pinEnabled: false },
+      }));
+    } else if (pin) {
+      await PinService.setPin(pin);
+      set((state) => ({
+        settings: { ...state.settings, pinEnabled: true },
+      }));
+    }
   },
   wipeData: async () => {
     await SettingsService.wipeAllData();
