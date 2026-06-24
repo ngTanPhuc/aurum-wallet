@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { ActivityIndicator, View, Text, TouchableOpacity } from 'react-native';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -78,6 +78,10 @@ export const AppNavigator = () => {
   const { loadData } = useFinanceStore();
   const [dbReady, setDbReady] = React.useState(false);
   const [pinVerified, setPinVerified] = React.useState(false);
+  const [initError, setInitError] = React.useState<string | null>(null);
+  const [initTimedOut, setInitTimedOut] = React.useState(false);
+
+  const initTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!settings.pinEnabled) {
@@ -85,25 +89,74 @@ export const AppNavigator = () => {
     }
   }, [settings.pinEnabled]);
 
+  const runInit = React.useCallback(async () => {
+    setInitError(null);
+    setInitTimedOut(false);
+    setDbReady(false);
+
+    // Start a 12s timeout; if init doesn't finish, show retry UI
+    initTimeoutRef.current = setTimeout(() => {
+      setInitTimedOut(true);
+    }, 12000);
+
+    try {
+      await initDb();
+      await CategoryService.seedDefaultCategories();
+      setDbReady(true);
+      if (initTimeoutRef.current) clearTimeout(initTimeoutRef.current);
+      await loadSettings();
+      await loadData();
+    } catch (e: any) {
+      console.error('Initialization error:', e);
+      if (initTimeoutRef.current) clearTimeout(initTimeoutRef.current);
+      setInitError(e?.message || e?.toString() || 'Unknown initialization error');
+    }
+  }, [loadSettings, loadData]);
+
   useEffect(() => {
-    const initApp = async () => {
-      try {
-        await initDb();
-        await CategoryService.seedDefaultCategories();
-        setDbReady(true);
-        await loadSettings();
-        await loadData();
-      } catch (e) {
-        console.error('Initialization error:', e);
-      }
-    };
-    initApp();
-  }, []);
+    runInit();
+  }, [runInit]);
 
   if (!dbReady || settingsLoading) {
+    if (initError) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#020C17', padding: 24 }}>
+          <Text style={{ color: '#ef4444', fontSize: 16, marginBottom: 12, textAlign: 'center' }}>
+            Initialization failed
+          </Text>
+          <Text style={{ color: '#94a3b8', fontSize: 13, marginBottom: 24, textAlign: 'center' }}>
+            {initError}
+          </Text>
+          <TouchableOpacity
+            onPress={runInit}
+            style={{ backgroundColor: '#D4AF37', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}
+          >
+            <Text style={{ color: '#020C17', fontWeight: '700', fontSize: 15 }}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    if (initTimedOut) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#020C17', padding: 24 }}>
+          <Text style={{ color: '#fbbf24', fontSize: 16, marginBottom: 12, textAlign: 'center' }}>
+            Taking longer than expected
+          </Text>
+          <Text style={{ color: '#94a3b8', fontSize: 13, marginBottom: 24, textAlign: 'center' }}>
+            The app may still be loading. Check your internet connection.
+          </Text>
+          <TouchableOpacity
+            onPress={runInit}
+            style={{ backgroundColor: '#D4AF37', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}
+          >
+            <Text style={{ color: '#020C17', fontWeight: '700', fontSize: 15 }}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#007bff" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#020C17' }}>
+        <ActivityIndicator size="large" color="#D4AF37" />
       </View>
     );
   }
