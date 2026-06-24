@@ -56,6 +56,8 @@ const MIGRATIONS: Migration[] = [
       await db.execAsync(TRANSACTION_TEMPLATES_TABLE);
       await db.execAsync(TAGS_TABLE);
       await db.execAsync(TRANSACTION_TAGS_TABLE);
+      await db.execAsync('CREATE INDEX IF NOT EXISTS idx_transaction_tags_transaction ON transaction_tags(transactionId);');
+      await db.execAsync('CREATE INDEX IF NOT EXISTS idx_transaction_tags_tag ON transaction_tags(tagId);');
     }
   },
   {
@@ -116,6 +118,8 @@ const MIGRATIONS: Migration[] = [
       await db.execAsync(PEOPLE_TABLE);
       await db.execAsync(DEBTS_TABLE);
       await db.execAsync(DEBT_PAYMENTS_TABLE);
+      await db.execAsync('CREATE INDEX IF NOT EXISTS idx_debts_person ON debts(personId);');
+      await db.execAsync('CREATE INDEX IF NOT EXISTS idx_debt_payments_debt ON debt_payments(debtId);');
     }
   },
   {

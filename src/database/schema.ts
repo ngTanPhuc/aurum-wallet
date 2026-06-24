@@ -263,8 +263,4 @@ export const ALL_INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);',
   'CREATE INDEX IF NOT EXISTS idx_budgets_lookup ON budgets(categoryId, month, year);',
   'CREATE INDEX IF NOT EXISTS idx_recurring_active ON recurring_transactions(isActive, nextDueDate);',
-  'CREATE INDEX IF NOT EXISTS idx_transaction_tags_transaction ON transaction_tags(transactionId);',
-  'CREATE INDEX IF NOT EXISTS idx_transaction_tags_tag ON transaction_tags(tagId);',
-  'CREATE INDEX IF NOT EXISTS idx_debts_person ON debts(personId);',
-  'CREATE INDEX IF NOT EXISTS idx_debt_payments_debt ON debt_payments(debtId);'
 ];
