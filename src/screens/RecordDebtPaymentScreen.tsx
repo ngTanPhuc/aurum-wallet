@@ -7,6 +7,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { theme } from '../theme/theme';
 import { CustomHeader } from '../components/CustomHeader';
 import { GlassCard } from '../components/glass/GlassCard';
+import { AmountInput } from '../components/glass/AmountInput';
 import uuid from 'react-native-uuid';
 import { Picker } from '@react-native-picker/picker';
 
@@ -109,13 +110,11 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
         
         <GlassCard style={styles.card}>
           <Text style={styles.label}>Amount ({defaultCurrency})</Text>
-          <TextInput
+          <AmountInput
             style={styles.inputLarge}
             value={amountStr}
             onChangeText={setAmountStr}
-            keyboardType="numeric"
             placeholder="0"
-            placeholderTextColor={theme.colors.textMuted}
           />
           <Text style={styles.helperText}>Remaining balance: {debt.remainingAmount.toLocaleString()} {defaultCurrency}</Text>
 
