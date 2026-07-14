@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, SavingsGoal } from '../types';
@@ -51,14 +52,14 @@ export const AddEditSavingsGoalScreen = ({ route, navigation }: Props) => {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a goal name');
+      appAlert('Error', 'Please enter a goal name');
       return;
     }
     
     const tRaw = targetAmount.replace(/\./g, '');
     const tAmount = Math.abs(parseFloat(tRaw) || 0);
     if (tAmount <= 0) {
-      Alert.alert('Error', 'Please enter a valid target amount');
+      appAlert('Error', 'Please enter a valid target amount');
       return;
     }
     
@@ -89,7 +90,7 @@ export const AddEditSavingsGoalScreen = ({ route, navigation }: Props) => {
 
   const handleDelete = () => {
     if (existingGoal) {
-      Alert.alert('Delete Goal', 'Are you sure you want to delete this savings goal?', [
+      appAlert('Delete Goal', 'Are you sure you want to delete this savings goal?', [
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Delete', 

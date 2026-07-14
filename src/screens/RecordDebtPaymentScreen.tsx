@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, DebtPayment, Transaction, Debt } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -10,6 +10,7 @@ import { GlassCard } from '../components/glass/GlassCard';
 import { AmountInput } from '../components/glass/AmountInput';
 import uuid from 'react-native-uuid';
 import { Picker } from '@react-native-picker/picker';
+import { appAlert } from '../components/glass/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecordDebtPayment'>;
 
@@ -42,9 +43,9 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
 
   const handleSave = async () => {
     const amount = parseFloat(amountStr);
-    if (!amount || amount <= 0) return Alert.alert('Error', 'Please enter a valid amount.');
-    if (amount > debt.remainingAmount) return Alert.alert('Error', `Amount cannot exceed remaining balance (${debt.remainingAmount}).`);
-    if (!walletId) return Alert.alert('Error', 'Please select a wallet.');
+    if (!amount || amount <= 0) return appAlert('Error', 'Please enter a valid amount.');
+    if (amount > debt.remainingAmount) return appAlert('Error', `Amount cannot exceed remaining balance (${debt.remainingAmount}).`);
+    if (!walletId) return appAlert('Error', 'Please select a wallet.');
 
     const now = new Date().toISOString();
     const transactionId = uuid.v4() as string;
@@ -98,7 +99,7 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
       await recordDebtPayment(payment, tx, updatedDebt);
       navigation.goBack();
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to record payment.');
+      appAlert('Error', e.message || 'Failed to record payment.');
     }
   };
 

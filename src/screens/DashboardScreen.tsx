@@ -52,9 +52,9 @@ export const DashboardScreen = ({ navigation }: Props) => {
   }, [transactions, currentMonth, currentYear]);
 
   // New Metrics
-  const savingsRate = useMemo(() => getSavingsRate(currentMonth, currentYear), [transactions, currentMonth, currentYear, getSavingsRate]);
-  const cashFlow = useMemo(() => getCashFlow(currentMonth, currentYear), [transactions, currentMonth, currentYear, getCashFlow]);
-  const largestCategory = useMemo(() => getLargestSpendingCategory(currentMonth, currentYear), [transactions, currentMonth, currentYear, getLargestSpendingCategory]);
+  const savingsRate = useMemo(() => getSavingsRate(currentMonth + 1, currentYear), [transactions, currentMonth, currentYear, getSavingsRate]);
+  const cashFlow = useMemo(() => getCashFlow(currentMonth + 1, currentYear), [transactions, currentMonth, currentYear, getCashFlow]);
+  const largestCategory = useMemo(() => getLargestSpendingCategory(currentMonth + 1, currentYear), [transactions, currentMonth, currentYear, getLargestSpendingCategory]);
   
   // Smart Insights (Top 3)
   const insights = useMemo(() => getInsights().slice(0, 3), [transactions, getInsights]);
@@ -124,29 +124,42 @@ export const DashboardScreen = ({ navigation }: Props) => {
           >
             <MetricCard 
               title="Savings Rate" 
-              value={`${savingsRate.rate.toFixed(1)}%`} 
+              value={
+                !savingsRate.hasPreviousData 
+                  ? 'N/A' 
+                  : savingsRate.hasIncome 
+                  ? `${savingsRate.rate.toFixed(1)}%` 
+                  : 'N/A'
+              } 
               icon="wallet" 
               color={theme.colors.success}
-
-              subtitle={`${Math.abs(savingsRate.trend).toFixed(1)}% vs last month`}
-              trend={savingsRate.trend >= 0 ? 'up' : 'down'}
+              subtitle={
+                !savingsRate.hasPreviousData
+                  ? 'Keep using for a month to get stats'
+                  : !savingsRate.hasIncome
+                  ? 'No income this month'
+                  : `${Math.abs(savingsRate.trend).toFixed(1)}% vs last month`
+              }
+              trend={
+                savingsRate.hasIncome && savingsRate.hasPreviousData
+                  ? (savingsRate.trend >= 0 ? 'up' : 'down')
+                  : undefined
+              }
             />
             <MetricCard 
               title="Cash Flow" 
-              value={formatCurrency(cashFlow.net)} 
+              value={formatCurrency(Math.abs(cashFlow.net))} 
               icon={cashFlow.isPositive ? 'trending-up' : 'trending-down'} 
               color={cashFlow.isPositive ? theme.colors.info : theme.colors.danger}
               subtitle={cashFlow.isPositive ? 'Positive cash flow' : 'Negative cash flow'}
             />
-            {largestCategory && (
-              <MetricCard 
-                title="Top Expense" 
-                value={largestCategory.categoryName} 
-                icon="flame" 
-                color={theme.colors.warning}
-                subtitle={`${largestCategory.percentage.toFixed(1)}% of spending`}
-              />
-            )}
+            <MetricCard 
+              title="Top Expense" 
+              value={largestCategory ? largestCategory.categoryName : '—'} 
+              icon="flame" 
+              color={theme.colors.warning}
+              subtitle={largestCategory ? `${largestCategory.percentage.toFixed(1)}% of spending` : 'No expenses this month yet'}
+            />
           </ScrollView>
           <View style={{ width: 80, height: 4, backgroundColor: theme.colors.border, alignSelf: 'center', marginTop: 12, borderRadius: 2, overflow: 'hidden' }}>
             <View style={{ width: 40, height: 4, backgroundColor: theme.colors.primary, borderRadius: 2, transform: [{ translateX: metricScroll * 40 }] }} />

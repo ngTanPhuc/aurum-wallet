@@ -7,6 +7,7 @@ import { RootStackParamList, BottomTabParamList } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme/theme';
 import { GlassBottomTab } from '../components/glass/GlassBottomTab';
+import { AppAlert } from '../components/glass/AppAlert';
 
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -37,6 +38,7 @@ import { SpendingChartsScreen } from '../screens/SpendingChartsScreen';
 import { TemplatesScreen } from '../screens/TemplatesScreen';
 import { AddEditTemplateScreen } from '../screens/AddEditTemplateScreen';
 import { TagsScreen } from '../screens/TagsScreen';
+import { CategoriesScreen } from '../screens/CategoriesScreen';
 import { SubscriptionsScreen } from '../screens/SubscriptionsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { SavingsDepositsScreen } from '../screens/SavingsDepositsScreen';
@@ -44,6 +46,7 @@ import { SavingsDepositDetailScreen } from '../screens/SavingsDepositDetailScree
 import { AddEditSavingsDepositScreen } from '../screens/AddEditSavingsDepositScreen';
 import { YieldPocketsScreen } from '../screens/YieldPocketsScreen';
 import { AddEditYieldPocketScreen } from '../screens/AddEditYieldPocketScreen';
+import { YieldPocketDetailScreen } from '../screens/YieldPocketDetailScreen';
 
 import { DebtDashboardScreen } from '../screens/DebtDashboardScreen';
 import { AddEditDebtScreen } from '../screens/AddEditDebtScreen';
@@ -171,6 +174,7 @@ export const AppNavigator = () => {
 
   return (
     <NavigationContainer theme={navTheme}>
+      <AppAlert />
       <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.background } }}>
         {settings.isFirstRun ? (
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
@@ -264,6 +268,11 @@ export const AppNavigator = () => {
             options={{ title: 'Yield Pockets', headerShown: false }} 
           />
           <Stack.Screen 
+            name="YieldPocketDetail" 
+            component={YieldPocketDetailScreen} 
+            options={{ title: 'Yield Pocket Details', headerShown: false }} 
+          />
+          <Stack.Screen 
             name="RecurringTransactions" 
             component={RecurringTransactionsScreen} 
             options={{ title: 'Recurring Transactions', headerShown: false }} 
@@ -295,6 +304,11 @@ export const AppNavigator = () => {
             name="Tags" 
             component={TagsScreen} 
             options={{ title: 'Manage Tags', headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Categories" 
+            component={CategoriesScreen} 
+            options={{ title: 'Manage Categories', headerShown: false }} 
           />
           <Stack.Screen 
             name="Subscriptions" 

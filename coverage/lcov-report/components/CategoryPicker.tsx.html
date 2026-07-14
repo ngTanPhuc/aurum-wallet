@@ -185,26 +185,8 @@
 <a name='L120'></a><a href='#L120'>120</a>
 <a name='L121'></a><a href='#L121'>121</a>
 <a name='L122'></a><a href='#L122'>122</a>
-<a name='L123'></a><a href='#L123'>123</a>
-<a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a>
-<a name='L128'></a><a href='#L128'>128</a>
-<a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a>
-<a name='L131'></a><a href='#L131'>131</a>
-<a name='L132'></a><a href='#L132'>132</a>
-<a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a>
-<a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a>
-<a name='L137'></a><a href='#L137'>137</a>
-<a name='L138'></a><a href='#L138'>138</a>
-<a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a>
-<a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L123'></a><a href='#L123'>123</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -325,30 +307,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
-import { Category } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
+import { theme } from '../theme/theme';
 &nbsp;
 interface CategoryPickerProps {
   value?: string; // categoryId
@@ -401,7 +364,7 @@ export const CategoryPicker: React.FC&lt;CategoryPickerProps&gt; = ({ value, onC
                   }}
                 &gt;
                   &lt;Text style={styles.itemName}&gt;{item.name}&lt;/Text&gt;
-                  {value === item.id &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >&lt;Text style={styles.check}&gt;✓&lt;/Text&gt;}</span>
+                  {value === item.id &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >&lt;Ionicons name="checkmark" size={20} color={theme.colors.primary} style={styles.check} /&gt;}</span>
                 &lt;/TouchableOpacity&gt;
               )}
             /&gt;
@@ -414,75 +377,55 @@ export const CategoryPicker: React.FC&lt;CategoryPickerProps&gt; = ({ value, onC
 &nbsp;
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: theme.spacing.lg,
   },
-  label: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
+  label: { ...theme.typography.body2, color: theme.colors.textMuted,
+    marginBottom: theme.spacing.sm, },
   selector: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: '#fff',
+    borderColor: theme.colors.border,
+    borderRadius: theme.radii.sm,
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
   },
   selectorError: {
-    borderColor: '#f44336',
+    borderColor: theme.colors.danger,
   },
-  selectedText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  placeholderText: {
-    fontSize: 16,
-    color: '#999',
-  },
-  errorText: {
-    color: '#f44336',
-    fontSize: 12,
-    marginTop: 4,
-  },
+  selectedText: { ...theme.typography.body1, color: theme.colors.textPrimary, },
+  placeholderText: { ...theme.typography.body1, color: theme.colors.textMuted, },
+  errorText: { ...theme.typography.caption, color: theme.colors.danger,
+    marginTop: theme.spacing.xs, },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: theme.radii.lg,
+    borderTopRightRadius: theme.radii.lg,
     maxHeight: '70%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: theme.spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: theme.colors.border,
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  closeText: {
-    color: '#007bff',
-    fontSize: 16,
-  },
+  modalTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, },
+  closeText: { ...theme.typography.body1, color: theme.colors.primary, },
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: theme.spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: theme.colors.surfaceStrong,
   },
-  itemName: {
-    fontSize: 16,
-  },
+  itemName: { ...theme.typography.body1, color: theme.colors.textPrimary, },
   check: {
-    color: '#007bff',
+    color: theme.colors.primary,
     fontSize: 16,
   },
 });
@@ -493,7 +436,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-01T07:52:20.043Z
+                at 2026-07-14T04:35:35.267Z
             </div>
         <script src="../prettify.js"></script>
         <script>

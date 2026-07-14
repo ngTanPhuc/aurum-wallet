@@ -1,8 +1,10 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, act } from '@testing-library/react-native';
 import { SettingsScreen } from '../SettingsScreen';
 import { FinancialIntegrityService } from '../../services/FinancialIntegrityService';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../services/FinancialIntegrityService', () => ({
   FinancialIntegrityService: {
@@ -52,7 +54,7 @@ describe('SettingsScreen', () => {
   });
 
   it('handles check data integrity with no issues', async () => {
-    jest.spyOn(Alert, 'alert');
+    
     (FinancialIntegrityService.detectInconsistencies as jest.Mock).mockResolvedValue({
       isHealthy: true,
       issuesCount: 0,
@@ -65,7 +67,7 @@ describe('SettingsScreen', () => {
       fireEvent.press(getByText('Data Integrity Check'));
     });
 
-    expect(Alert.alert).toHaveBeenCalledWith(
+    expect(appAlert).toHaveBeenCalledWith(
       'System Healthy',
       expect.stringContaining('All wallet balances perfectly match your transaction history.')
     );
@@ -83,7 +85,7 @@ describe('SettingsScreen', () => {
     });
 
     // Mock alert to click Repair
-    jest.spyOn(Alert, 'alert').mockImplementation((title, msg, buttons) => {
+    (appAlert as jest.Mock).mockImplementation((title: any, msg: any, buttons: any) => {
       if (buttons && buttons[1] && buttons[1].onPress) buttons[1].onPress();
     });
 

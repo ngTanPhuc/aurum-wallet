@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, SavingsDeposit, SavingsDepositTermUnit, SavingsDepositInterestPayoutType } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -39,31 +40,31 @@ export const AddEditSavingsDepositScreen = ({ route, navigation }: Props) => {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a name');
+      appAlert('Error', 'Please enter a name');
       return;
     }
     
     const pRaw = principalAmount.replace(/\./g, '');
     const pAmount = Math.abs(parseFloat(pRaw) || 0);
     if (pAmount <= 0) {
-      Alert.alert('Error', 'Please enter a valid principal amount');
+      appAlert('Error', 'Please enter a valid principal amount');
       return;
     }
 
     const rate = parseFloat(annualInterestRate);
     if (isNaN(rate) || rate <= 0) {
-      Alert.alert('Error', 'Please enter a valid interest rate');
+      appAlert('Error', 'Please enter a valid interest rate');
       return;
     }
 
     const term = parseInt(termValue, 10);
     if (isNaN(term) || term <= 0) {
-      Alert.alert('Error', 'Please enter a valid term length');
+      appAlert('Error', 'Please enter a valid term length');
       return;
     }
 
     if (!sourceWalletId || !payoutWalletId) {
-      Alert.alert('Error', 'Please select source and payout wallets');
+      appAlert('Error', 'Please select source and payout wallets');
       return;
     }
 
@@ -71,7 +72,7 @@ export const AddEditSavingsDepositScreen = ({ route, navigation }: Props) => {
     if (!existingDeposit) {
       const sourceWallet = wallets.find(w => w.id === sourceWalletId);
       if (sourceWallet && sourceWallet.balance < pAmount) {
-        Alert.alert('Insufficient Funds', 'The source wallet does not have enough balance for this deposit.');
+        appAlert('Insufficient Funds', 'The source wallet does not have enough balance for this deposit.');
         return;
       }
     }
@@ -172,25 +173,24 @@ export const AddEditSavingsDepositScreen = ({ route, navigation }: Props) => {
         <View style={styles.row}>
           <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
             <Text style={styles.label}>Interest Rate (% / yr)</Text>
-            <TextInput
+            <AmountInput
               style={styles.input}
               placeholder="5.5"
               placeholderTextColor={theme.colors.textMuted}
               value={annualInterestRate}
               onChangeText={setAnnualInterestRate}
-              keyboardType="decimal-pad"
+              allowDecimal
               editable={!existingDeposit}
             />
           </View>
           <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
             <Text style={styles.label}>Term Length</Text>
-            <TextInput
+            <AmountInput
               style={styles.input}
               placeholder="6"
               placeholderTextColor={theme.colors.textMuted}
               value={termValue}
               onChangeText={setTermValue}
-              keyboardType="number-pad"
               editable={!existingDeposit}
             />
           </View>

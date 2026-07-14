@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -16,14 +17,10 @@ export const TemplatesScreen = ({ navigation }: Props) => {
   const categories = useFinanceStore(state => state.categories);
 
   const handleDelete = (id: string) => {
-    Alert.alert(
-      'Delete Template',
-      'Are you sure you want to delete this template?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => deleteTemplate(id) }
-      ]
-    );
+    appAlert('Delete Template', 'Are you sure you want to delete this template?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteTemplate(id) }
+    ]);
   };
 
   const formatAmount = (amount: number) => {

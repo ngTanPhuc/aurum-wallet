@@ -1,66 +1,96 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { View, Text, StyleSheet, SectionList, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { BudgetProgressCard } from '../components/BudgetProgressCard';
-import { format, addMonths, subMonths } from 'date-fns';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { GlobalFAB } from '../components/GlobalFAB';
 import { useFocusEffect } from '@react-navigation/native';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { BudgetSummaryRing } from '../components/BudgetSummaryRing';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Budgets'>;
 
 export const BudgetsScreen = ({ navigation }: Props) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
   const budgets = useFinanceStore(state => state.budgets);
-  const loadBudgetsForMonth = useFinanceStore(state => state.loadBudgetsForMonth);
+  const loadBudgets = useFinanceStore(state => state.loadBudgets);
 
-  const month = currentDate.getMonth() + 1;
-  const year = currentDate.getFullYear();
-
-  // Load budgets whenever the month changes
   useFocusEffect(
     useCallback(() => {
-      loadBudgetsForMonth(month, year);
-    }, [month, year, loadBudgetsForMonth])
+      loadBudgets();
+    }, [loadBudgets])
   );
 
-  const handlePrevMonth = () => setCurrentDate(prev => subMonths(prev, 1));
-  const handleNextMonth = () => setCurrentDate(prev => addMonths(prev, 1));
+  const { sections, targetDateIso } = useMemo(() => {
+    const today = new Date();
+    const iso = today.toISOString();
+    
+    const daily = budgets.filter(b => b.recurrence === 'daily');
+    const weekly = budgets.filter(b => b.recurrence === 'weekly');
+    const monthly = budgets.filter(b => b.recurrence === 'monthly');
+    const yearly = budgets.filter(b => b.recurrence === 'yearly');
+
+    const result = [];
+    if (daily.length > 0) {
+      result.push({ title: 'Today', data: daily });
+    }
+    if (weekly.length > 0) {
+      const wStart = startOfWeek(today, { weekStartsOn: 1 });
+      const wEnd = endOfWeek(today, { weekStartsOn: 1 });
+      result.push({ title: `This week (${format(wStart, 'd MMMM')} to ${format(wEnd, 'd MMMM')})`, data: weekly });
+    }
+    if (monthly.length > 0) {
+      result.push({ title: `This ${format(today, 'MMMM')}`, data: monthly });
+    }
+    if (yearly.length > 0) {
+      result.push({ title: `This ${format(today, 'yyyy')}`, data: yearly });
+    }
+    return { sections: result, targetDateIso: iso };
+  }, [budgets]);
 
   return (
     <View style={styles.container}>
-      <CustomHeader title="Monthly Budgets" showBack={true} />
-      <View style={styles.monthSelector}>
-        <TouchableOpacity onPress={handlePrevMonth} style={styles.arrowBtn}>
-          <Text style={styles.arrowText}>{"<"}</Text>
-        </TouchableOpacity>
-        <Text style={styles.monthText}>{format(currentDate, 'MMMM yyyy')}</Text>
-        <TouchableOpacity onPress={handleNextMonth} style={styles.arrowBtn}>
-          <Text style={styles.arrowText}>{">"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={budgets}
+      <CustomHeader title="Budgets" showBack={true} />
+      
+      <SectionList
+        sections={sections}
         keyExtractor={item => item.id}
+        ListHeaderComponent={
+          budgets.length > 0 ? (
+            <BudgetSummaryRing budgets={budgets} targetDate={targetDateIso} />
+          ) : null
+        }
+        renderSectionHeader={({ section: { title } }) => (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeaderText}>{title}</Text>
+          </View>
+        )}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('AddEditBudget', { budgetId: item.id })}>
-            <BudgetProgressCard budget={item} />
+          <TouchableOpacity 
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('AddEditBudget', { budgetId: item.id })}
+            style={styles.cardWrapper}
+          >
+            <BudgetProgressCard budget={item} targetDate={targetDateIso} />
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>No Budgets Set</Text>
-            <Text style={styles.emptyDesc}>Create a budget to start tracking your spending for {format(currentDate, 'MMMM yyyy')}.</Text>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons name="pie-chart-outline" size={48} color={theme.colors.primary} />
+            </View>
+            <Text style={styles.emptyTitle}>No Budgets Yet</Text>
+            <Text style={styles.emptyDesc}>Create a recurring budget to start keeping your spending in check.</Text>
             <TouchableOpacity 
               style={styles.createBtn}
-              onPress={() => navigation.navigate('AddEditBudget', { month, year })}
+              onPress={() => navigation.navigate('AddEditBudget', {})}
             >
-              <Text style={styles.createBtnText}>Create Budget</Text>
+              <Ionicons name="add" size={20} color={theme.colors.background} />
+              <Text style={styles.createBtnText}>New Budget</Text>
             </TouchableOpacity>
           </View>
         }
@@ -72,44 +102,47 @@ export const BudgetsScreen = ({ navigation }: Props) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  monthSelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+  list: { paddingBottom: 100 },
+  sectionHeader: {
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.background,
   },
-  arrowBtn: {
+  sectionHeaderText: {
+    ...theme.typography.h3,
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+  },
+  cardWrapper: {
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
   },
-  arrowText: { ...theme.typography.h2, color: theme.colors.primary, },
-  monthText: { ...theme.typography.h3, color: theme.colors.textPrimary, },
-  list: {
-    padding: theme.spacing.lg,
-    flexGrow: 1,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  emptyContainer: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
     padding: theme.spacing.xl,
     marginTop: 40,
   },
-  emptyTitle: { ...theme.typography.h2, color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.sm, },
-  emptyDesc: { ...theme.typography.body1, color: theme.colors.textMuted,
-    textAlign: 'center',
+  emptyIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: theme.colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: theme.spacing.xl,
-    lineHeight: 24, },
-  createBtn: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: theme.radii.sm,
   },
-  createBtnText: { ...theme.typography.body1, color: theme.colors.background,
-    fontWeight: 'bold', }
+  emptyTitle: { ...theme.typography.h2, color: theme.colors.textPrimary, marginBottom: theme.spacing.sm, fontWeight: 'bold' },
+  emptyDesc: { ...theme.typography.body1, color: theme.colors.textMuted, textAlign: 'center', marginBottom: theme.spacing.xl, lineHeight: 24 },
+  createBtn: { 
+    flexDirection: 'row',
+    backgroundColor: theme.colors.primary, 
+    paddingHorizontal: theme.spacing.xl, 
+    paddingVertical: theme.spacing.lg, 
+    borderRadius: theme.radii.round,
+    alignItems: 'center',
+    gap: 8,
+    ...theme.shadows.medium,
+  },
+  createBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },
 });

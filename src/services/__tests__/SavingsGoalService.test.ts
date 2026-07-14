@@ -163,4 +163,39 @@ describe('SavingsGoalService', () => {
       expect(mockDb.runAsync).toHaveBeenCalledWith('DELETE FROM savings_goals WHERE id = ?', '1');
     });
   });
+
+  describe('updateSavingsGoalAmount — edge cases', () => {
+    it('should allow currentAmount to exceed targetAmount (overshoot) and mark as completed', async () => {
+      const mockGoal = { id: '1', currentAmount: 1900, targetAmount: 2000 };
+      mockDb.getFirstAsync.mockResolvedValue(mockGoal);
+
+      // Adding 200 pushes it to 2100, over the 2000 target
+      await SavingsGoalService.updateSavingsGoalAmount('1', 200);
+
+      expect(mockDb.runAsync).toHaveBeenCalledWith(
+        'UPDATE savings_goals SET currentAmount = ?, isCompleted = ?, updatedAt = ? WHERE id = ?',
+        2100, // NOT clamped to targetAmount — raw amount stored
+        1,    // isCompleted = true because 2100 >= 2000
+        expect.any(String),
+        '1'
+      );
+    });
+
+    it('should mark goal with targetAmount=0 as immediately completed', async () => {
+      // A goal with targetAmount=0: 0 >= 0 is true => isCompleted = true
+      const mockGoal = { id: '1', currentAmount: 0, targetAmount: 0 };
+      mockDb.getFirstAsync.mockResolvedValue(mockGoal);
+
+      await SavingsGoalService.updateSavingsGoalAmount('1', 0);
+
+      expect(mockDb.runAsync).toHaveBeenCalledWith(
+        'UPDATE savings_goals SET currentAmount = ?, isCompleted = ?, updatedAt = ? WHERE id = ?',
+        0,
+        1, // isCompleted = true (0 >= 0)
+        expect.any(String),
+        '1'
+      );
+    });
+  });
 });
+

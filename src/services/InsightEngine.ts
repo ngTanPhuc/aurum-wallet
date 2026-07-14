@@ -50,18 +50,34 @@ export class InsightEngine {
           icon: 'trending-down'
         });
       }
+    } else if (currentExpense > 0) {
+      // No income recorded but there are expenses → always negative cash flow
+      insights.push({
+        id: 'savings_rate_negative',
+        type: 'warning',
+        title: 'Negative Cash Flow',
+        description: `You have expenses this month but no income recorded.`,
+        priority: 90,
+        icon: 'trending-down'
+      });
     }
 
     // 2. Budget Utilization
-    const currentBudgets = budgets.filter(b => b.month === currentMonth + 1 && b.year === currentYear);
+    const currentBudgets = budgets;
     currentBudgets.forEach(budget => {
-      const spent = currentMonthTxs
-        .filter(t => t.type === 'expense' && t.categoryId === budget.categoryId)
-        .reduce((sum, t) => sum + t.amount, 0);
+      let spent = 0;
+      if (budget.targetType === 'category') {
+        spent = currentMonthTxs
+          .filter(t => t.type === 'expense' && t.categoryId === budget.targetId)
+          .reduce((sum, t) => sum + t.amount, 0);
+      } else {
+        spent = currentMonthTxs
+          .filter(t => t.type === 'expense' && t.tags?.some(tag => tag.id === budget.targetId))
+          .reduce((sum, t) => sum + t.amount, 0);
+      }
       
       const percentage = budget.amount > 0 ? (spent / budget.amount) * 100 : 0;
-      const category = categories.find(c => c.id === budget.categoryId);
-      const categoryName = category ? category.name : 'Unknown';
+      const categoryName = budget.name;
 
       if (percentage >= 100) {
         insights.push({

@@ -7,46 +7,60 @@ type KeypadConfig = {
   onChange: (val: string) => void;
   maxLength?: number;
   inputRef?: React.RefObject<View | null>;
+  allowDecimal?: boolean;
 };
 
 interface KeypadContextProps {
   showKeypad: (config: KeypadConfig) => void;
   hideKeypad: () => void;
   isKeypadVisible: boolean;
+  appTranslateY: Animated.Value;
 }
 
 const KeypadContext = createContext<KeypadContextProps | undefined>(undefined);
 
 export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const appTranslateY = useRef(new Animated.Value(0)).current;
+  const currentShift = useRef(0);
 
   const [isVisible, setIsVisible] = useState(false);
   const [value, setValue] = useState('');
   const [onChangeCallback, setOnChangeCallback] = useState<(val: string) => void>(() => () => {});
   const [maxLength, setMaxLength] = useState<number | undefined>();
+  const [allowDecimal, setAllowDecimal] = useState<boolean>(false);
 
   const showKeypad = (config: KeypadConfig) => {
     setValue(config.initialValue);
     setOnChangeCallback(() => config.onChange);
     setMaxLength(config.maxLength);
+    setAllowDecimal(config.allowDecimal ?? false);
     setIsVisible(true);
 
     if (config.inputRef && config.inputRef.current) {
       setTimeout(() => {
-        config.inputRef?.current?.measureInWindow((x, y, width, height) => {
+        config.inputRef?.current?.measure((x, y, width, height, pageX, pageY) => {
+          if (pageY === undefined) return;
+          
           const keypadHeight = 420; // Safe height
           const screenHeight = Dimensions.get('window').height;
-          const bottomOfInput = y + height;
+          
+          // pageY is the current on-screen position.
+          // To find the absolute position in the scroll view, we add back the current shift.
+          const unshiftedY = pageY + currentShift.current;
+          const bottomOfInput = unshiftedY + height;
           const topOfKeypad = screenHeight - keypadHeight;
           
+          let newShift = 0;
           if (bottomOfInput > topOfKeypad) {
-            const shift = bottomOfInput - topOfKeypad + 40; // extra padding
-            Animated.timing(appTranslateY, {
-              toValue: -shift,
-              duration: 250,
-              useNativeDriver: true
-            }).start();
+            newShift = bottomOfInput - topOfKeypad + 95; // adjusted padding
           }
+          
+          currentShift.current = newShift;
+          Animated.timing(appTranslateY, {
+            toValue: -newShift,
+            duration: 250,
+            useNativeDriver: true
+          }).start();
         });
       }, 50); // slight delay to ensure layout is stable
     }
@@ -54,6 +68,7 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const hideKeypad = () => {
     setIsVisible(false);
+    currentShift.current = 0;
     Animated.timing(appTranslateY, {
       toValue: 0,
       duration: 250,
@@ -74,6 +89,7 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // handled by Aurum Wallet's inputs usually strip non-digits or manage formatting internally.
       // However, we send raw characters and let the caller component format them, 
       // or we handle raw string construction here.
+      if (key === '.' && newValue.includes('.')) return;
       if (maxLength && newValue.length >= maxLength) return;
       newValue = newValue + key;
     }
@@ -83,7 +99,7 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <KeypadContext.Provider value={{ showKeypad, hideKeypad, isKeypadVisible: isVisible }}>
+    <KeypadContext.Provider value={{ showKeypad, hideKeypad, isKeypadVisible: isVisible, appTranslateY }}>
       <Animated.View style={{ flex: 1, transform: [{ translateY: appTranslateY }] }}>
         {children}
       </Animated.View>
@@ -91,6 +107,7 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isVisible={isVisible} 
         onKeyPress={handleKeyPress} 
         onClose={hideKeypad} 
+        allowDecimal={allowDecimal}
       />
     </KeypadContext.Provider>
   );

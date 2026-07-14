@@ -8,15 +8,7 @@ jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
 }));
 
-const mockBudget: Budget = {
-  id: 'b1',
-  categoryId: 'c1',
-  amount: 500,
-  month: 6,
-  year: 2023,
-  createdAt: '2023-01-01',
-  updatedAt: '2023-01-01'
-};
+const mockBudget: Budget = { id: 'b1', name: 'Test Budget', amount: 500, targetType: 'category', targetId: 'c1', recurrence: 'monthly', startDate: '2023-06-01T00:00:00.000Z', createdAt: '2023-01-01', updatedAt: '2023-01-01' };
 
 describe('BudgetProgressCard', () => {
   const mockCategories = [
@@ -42,7 +34,7 @@ describe('BudgetProgressCard', () => {
       return selector(state);
     });
 
-    const { getByText } = render(<BudgetProgressCard budget={mockBudget} />);
+    const { getByText } = render(<BudgetProgressCard budget={mockBudget} targetDate="2023-06-15T00:00:00.000Z" />);
     
     // Category Name
     expect(getByText('Food')).toBeTruthy();
@@ -61,7 +53,7 @@ describe('BudgetProgressCard', () => {
       return selector(state);
     });
 
-    const { getByText } = render(<BudgetProgressCard budget={mockBudget} />);
+    const { getByText } = render(<BudgetProgressCard budget={mockBudget} targetDate="2023-06-15T00:00:00.000Z" />);
     expect(getByText('Food')).toBeTruthy();
   });
 
@@ -76,7 +68,7 @@ describe('BudgetProgressCard', () => {
       return selector(state);
     });
 
-    const { getByText } = render(<BudgetProgressCard budget={mockBudget} />);
+    const { getByText } = render(<BudgetProgressCard budget={mockBudget} targetDate="2023-06-15T00:00:00.000Z" />);
     expect(getByText('Food')).toBeTruthy();
   });
 
@@ -89,7 +81,7 @@ describe('BudgetProgressCard', () => {
       return selector(state);
     });
 
-    const { getByText } = render(<BudgetProgressCard budget={mockBudget} />);
+    const { getByText } = render(<BudgetProgressCard budget={mockBudget} targetDate="2023-06-15T00:00:00.000Z" />);
     expect(getByText('Unknown')).toBeTruthy();
   });
 });

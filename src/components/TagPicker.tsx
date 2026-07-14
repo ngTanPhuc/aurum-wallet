@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView } from 'react-native';
+import { appAlert } from './glass/AppAlert';
 import { Tag } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { theme } from '../theme/theme';
@@ -30,7 +31,7 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) => {
     if (!name) return;
 
     if (tags.some(t => t.name.toLowerCase() === name.toLowerCase())) {
-      Alert.alert('Error', 'A tag with this name already exists.');
+      appAlert('Error', 'A tag with this name already exists.');
       return;
     }
 
@@ -38,7 +39,7 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) => {
       await addTag({ name, color: theme.colors.primary });
       setNewTagName('');
     } catch (e) {
-      Alert.alert('Error', 'Failed to create tag.');
+      appAlert('Error', 'Failed to create tag.');
     }
   };
 

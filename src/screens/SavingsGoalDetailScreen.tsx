@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -12,6 +12,7 @@ import uuid from 'react-native-uuid';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
 import { AmountInput } from '../components/glass/AmountInput';
+import { appAlert } from '../components/glass/AppAlert';
 
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SavingsGoalDetail'>;
@@ -88,7 +89,7 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
 
   const handleAdjust = async (type: 'add' | 'subtract') => {
     if (!selectedWalletId) {
-      Alert.alert('Error', 'Please select a wallet first.');
+      appAlert('Error', 'Please select a wallet first.');
       return;
     }
 
@@ -97,8 +98,16 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
     if (adj <= 0) return;
 
     if (type === 'subtract' && adj > goal.currentAmount) {
-      Alert.alert('Error', 'Cannot subtract more than the current goal amount.');
+      appAlert('Error', 'Cannot subtract more than the current goal amount.');
       return;
+    }
+
+    if (type === 'add') {
+      const pocketSetting = store.yieldPocketSettings.find(s => s.walletId === selectedWalletId);
+      if (pocketSetting && !pocketSetting.allowSpendingDirectly) {
+        appAlert('Error', 'This Yield Pocket does not allow direct spending. Please select another wallet or transfer funds first.');
+        return;
+      }
     }
 
     const txType = type === 'add' ? 'expense' : 'income';
@@ -119,9 +128,9 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
     try {
       await store.addTransaction(newTx as any);
       setAdjustAmount('');
-      Alert.alert('Success', `Funds successfully ${type === 'add' ? 'added to' : 'subtracted from'} your goal.`);
+      appAlert('Success', `Funds successfully ${type === 'add' ? 'added to' : 'subtracted from'} your goal.`);
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to manage funds.');
+      appAlert('Error', e.message || 'Failed to manage funds.');
     }
   };
 

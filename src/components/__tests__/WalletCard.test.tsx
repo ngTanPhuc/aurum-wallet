@@ -4,11 +4,17 @@ import { WalletCard } from '../WalletCard';
 import { Wallet } from '../../types';
 
 jest.mock('../../store/useFinanceStore', () => ({
-  useFinanceStore: () => ({
-    settings: {
-      currency: 'VND',
-      hideBalances: false
-    }
+  useFinanceStore: jest.fn((selector) => {
+    const state = {
+      settings: {
+        currency: 'VND',
+        hideBalances: false
+      },
+      wallets: [{ id: '1' }], 
+      transactions: [],
+      yieldPocketSettings: [] 
+    };
+    return selector ? selector(state) : state;
   })
 }));
 

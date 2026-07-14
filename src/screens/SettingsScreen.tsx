@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, Alert, ScrollView, Modal, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, FlatList, ActivityIndicator } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { FinancialIntegrityService, IntegrityReport } from '../services/FinancialIntegrityService';
@@ -36,10 +37,10 @@ export const SettingsScreen = ({ navigation }: Props) => {
       const report = await FinancialIntegrityService.detectInconsistencies();
       
       if (report.isHealthy) {
-        Alert.alert('System Healthy', 'All wallet balances perfectly match your transaction history.');
+        appAlert('System Healthy', 'All wallet balances perfectly match your transaction history.');
       } else {
         const details = report.details.join('\n\n');
-        Alert.alert(
+        appAlert(
           'Inconsistencies Detected',
           `Found ${report.issuesCount} issue(s) with your wallet balances.\n\n${details}\n\nWould you like to repair them automatically based on the transaction history?`,
           [
@@ -49,21 +50,21 @@ export const SettingsScreen = ({ navigation }: Props) => {
               onPress: async () => {
                 await FinancialIntegrityService.repairBalances(report.discrepancies);
                 await loadData();
-                Alert.alert('Repaired', 'Wallet balances have been successfully restored.');
+                appAlert('Repaired', 'Wallet balances have been successfully restored.');
               }
             }
           ]
         );
       }
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Failed to check data integrity.');
+      appAlert('Error', e?.message || 'Failed to check data integrity.');
     } finally {
       setIsCheckingIntegrity(false);
     }
   };
 
   const handleWipeData = () => {
-    Alert.alert(
+    appAlert(
       'Wipe All Data',
       'Are you absolutely sure you want to delete all wallets, transactions, budgets, and savings goals? This action CANNOT be undone.',
       [
@@ -73,7 +74,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
           style: 'destructive',
           onPress: async () => {
             await wipeData();
-            Alert.alert(
+            appAlert(
               'Success', 
               'All app data has been wiped clean.',
               [{ text: 'OK', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] }) }]
@@ -138,6 +139,12 @@ export const SettingsScreen = ({ navigation }: Props) => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('Tags')}>
           <Text style={styles.rowLabel}>Manage Tags</Text>
+          <View style={styles.rowValueContainer}>
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('Categories')}>
+          <Text style={styles.rowLabel}>Manage Categories</Text>
           <View style={styles.rowValueContainer}>
             <Text style={styles.chevron}>›</Text>
           </View>

@@ -5,15 +5,9 @@ import uuid from 'react-native-uuid';
 import { CategoryService } from './CategoryService';
 
 export const BudgetService = {
-
-
-  async getBudgets(month: number, year: number): Promise<Budget[]> {
+  async getBudgets(): Promise<Budget[]> {
     const db = await getDb();
-    return await db.getAllAsync<Budget>(
-      'SELECT * FROM budgets WHERE month = ? AND year = ?',
-      month, 
-      year
-    );
+    return await db.getAllAsync<Budget>('SELECT * FROM budgets');
   },
 
   async getBudgetById(id: string): Promise<Budget | null> {
@@ -25,13 +19,15 @@ export const BudgetService = {
   async addBudget(budget: Budget): Promise<void> {
     const db = await getDb();
     await db.runAsync(
-      `INSERT INTO budgets (id, categoryId, amount, month, year, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO budgets (id, name, amount, targetType, targetId, recurrence, startDate, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       budget.id,
-      budget.categoryId,
+      budget.name,
       budget.amount,
-      budget.month,
-      budget.year,
+      budget.targetType,
+      budget.targetId,
+      budget.recurrence,
+      budget.startDate,
       budget.createdAt,
       budget.updatedAt
     );
@@ -41,12 +37,14 @@ export const BudgetService = {
     const db = await getDb();
     await db.runAsync(
       `UPDATE budgets SET 
-        categoryId = ?, amount = ?, month = ?, year = ?, updatedAt = ?
+        name = ?, amount = ?, targetType = ?, targetId = ?, recurrence = ?, startDate = ?, updatedAt = ?
        WHERE id = ?`,
-      budget.categoryId,
+      budget.name,
       budget.amount,
-      budget.month,
-      budget.year,
+      budget.targetType,
+      budget.targetId,
+      budget.recurrence,
+      budget.startDate,
       budget.updatedAt,
       budget.id
     );

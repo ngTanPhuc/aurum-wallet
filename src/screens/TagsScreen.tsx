@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Tag } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -37,7 +38,7 @@ export const TagsScreen = ({ navigation }: Props) => {
     // Check for duplicates
     const isDuplicate = tags.some(t => t.name.toLowerCase() === name.toLowerCase() && t.id !== editingTag?.id);
     if (isDuplicate) {
-      Alert.alert('Error', 'A tag with this name already exists.');
+      appAlert('Error', 'A tag with this name already exists.');
       return;
     }
 
@@ -49,12 +50,12 @@ export const TagsScreen = ({ navigation }: Props) => {
       }
       setModalVisible(false);
     } catch (e) {
-      Alert.alert('Error', 'Failed to save tag.');
+      appAlert('Error', 'Failed to save tag.');
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert(
+    appAlert(
       'Delete Tag',
       'Are you sure you want to delete this tag? It will be removed from all associated transactions.',
       [

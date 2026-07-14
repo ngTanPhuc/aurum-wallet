@@ -12,13 +12,26 @@ interface WalletPickerProps {
   onChange: (walletId: string) => void;
   error?: string;
   excludeWalletId?: string; // For transfers, to not select the same wallet
+  requireSpendingEnabled?: boolean;
 }
 
-export const WalletPicker: React.FC<WalletPickerProps> = ({ label, value, onChange, error, excludeWalletId }) => {
+export const WalletPicker: React.FC<WalletPickerProps> = ({ label, value, onChange, error, excludeWalletId, requireSpendingEnabled }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const wallets = useFinanceStore(state => state.wallets);
+  const yieldPocketSettings = useFinanceStore(state => state.yieldPocketSettings);
 
-  const availableWallets = wallets.filter(w => !w.isArchived && w.id !== excludeWalletId);
+  const availableWallets = wallets.filter(w => {
+    if (w.isArchived || w.id === excludeWalletId) return false;
+    
+    if (requireSpendingEnabled) {
+      const pocketSetting = yieldPocketSettings.find(s => s.walletId === w.id);
+      if (pocketSetting && !pocketSetting.allowSpendingDirectly) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
   const selectedWallet = wallets.find(w => w.id === value);
 
   return (

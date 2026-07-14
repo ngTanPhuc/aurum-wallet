@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -41,7 +42,7 @@ export const OnboardingScreen = ({ navigation }: Props) => {
 
   const handleComplete = async () => {
     if (!walletName.trim()) {
-      Alert.alert('Error', 'Please enter a wallet name');
+      appAlert('Error', 'Please enter a wallet name');
       return;
     }
 
@@ -72,7 +73,7 @@ export const OnboardingScreen = ({ navigation }: Props) => {
       await completeFirstRun();
     } catch (e: any) {
       console.error('Error in Onboarding handleComplete:', e);
-      Alert.alert('Error', e?.message || 'Something went wrong while saving.');
+      appAlert('Error', e?.message || 'Something went wrong while saving.');
     }
   };
 
@@ -80,7 +81,7 @@ export const OnboardingScreen = ({ navigation }: Props) => {
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <KeyboardAwareScrollView 
         style={[styles.container, { paddingTop: insets.top + 24 }]} 
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
         enableOnAndroid={true} 
         keyboardShouldPersistTaps="handled" 
         extraScrollHeight={20}

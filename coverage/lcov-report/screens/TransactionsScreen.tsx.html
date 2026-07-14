@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -134,7 +134,15 @@
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -166,6 +174,8 @@
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -206,6 +216,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { View, StyleSheet, FlatList, Text, TouchableOpacity, TextInput } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -215,6 +226,8 @@ import { useFinanceStore } from '../store/useFinanceStore';
 import { TransactionItem } from '../components/TransactionItem';
 import { GlobalFAB } from '../components/GlobalFAB';
 import { FilterModal } from '../components/FilterModal';
+import { CustomHeader } from '../components/CustomHeader';
+import { theme } from '../theme/theme';
 &nbsp;
 type Props = CompositeScreenProps&lt;
   BottomTabScreenProps&lt;BottomTabParamList, 'Transactions'&gt;,
@@ -238,15 +251,17 @@ export const TransactionsScreen = ({ navigation }: Props) =&gt; {
 &nbsp;
   return (
     &lt;View style={styles.container}&gt;
+      &lt;CustomHeader title="Transactions" /&gt;
       &lt;View style={styles.headerRow}&gt;
         &lt;TextInput
           style={styles.searchInput}
           placeholder="Search transactions..."
+          placeholderTextColor={theme.colors.textMuted}
           value={transactionSearchQuery}
           onChangeText={setTransactionSearchQuery}
         /&gt;
         &lt;TouchableOpacity style={styles.filterBtn} onPress={() =&gt; setFilterVisible(true)}&gt;
-          &lt;Text style={{ fontSize: 20 }}&gt;{hasActiveFilters ? '🟣' : '⚪'}&lt;/Text&gt;
+          &lt;Ionicons name={hasActiveFilters ? "filter" : "filter-outline"} size={20} color={hasActiveFilters ? theme.colors.primary : theme.colors.textPrimary} /&gt;
         &lt;/TouchableOpacity&gt;
       &lt;/View&gt;
 &nbsp;
@@ -269,12 +284,12 @@ export const TransactionsScreen = ({ navigation }: Props) =&gt; {
 };
 &nbsp;
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  headerRow: { flexDirection: 'row', padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center' },
-  searchInput: { flex: 1, backgroundColor: '#f0f0f0', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, fontSize: 16, marginRight: 12 },
-  filterBtn: { padding: 8, backgroundColor: '#f0f0f0', borderRadius: 20 },
-  list: { padding: 16 },
-  empty: { textAlign: 'center', color: '#888', marginTop: 32 },
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  headerRow: { flexDirection: 'row', padding: theme.spacing.lg, backgroundColor: theme.colors.surface, borderBottomWidth: 1, borderBottomColor: theme.colors.border, alignItems: 'center' },
+  searchInput: { flex: 1, backgroundColor: theme.colors.background, paddingHorizontal: theme.spacing.lg, paddingVertical: 10, borderRadius: theme.radii.round, fontSize: 16, marginRight: theme.spacing.md, color: theme.colors.textPrimary },
+  filterBtn: { padding: theme.spacing.sm, backgroundColor: theme.colors.background, borderRadius: theme.radii.round },
+  list: { padding: theme.spacing.lg },
+  empty: { ...theme.typography.body1, textAlign: 'center', color: theme.colors.textMuted, marginTop: theme.spacing.xxl },
 });
 &nbsp;</pre></td></tr></table></pre>
 
@@ -283,7 +298,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-01T07:52:20.043Z
+                at 2026-07-14T04:35:35.267Z
             </div>
         <script src="../prettify.js"></script>
         <script>

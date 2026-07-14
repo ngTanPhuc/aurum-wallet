@@ -1,9 +1,11 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, act } from '@testing-library/react-native';
 import { TagsScreen } from '../TagsScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
@@ -53,7 +55,7 @@ describe('TagsScreen', () => {
 
   it('handles delete', () => {
     const deleteMock = jest.fn();
-    jest.spyOn(Alert, 'alert').mockImplementation((title, msg, buttons) => {
+    (appAlert as jest.Mock).mockImplementation((title: any, msg: any, buttons: any) => {
       if (buttons && buttons[1] && buttons[1].onPress) buttons[1].onPress();
     });
     (useFinanceStore as unknown as jest.Mock).mockImplementation((selector: any) => {

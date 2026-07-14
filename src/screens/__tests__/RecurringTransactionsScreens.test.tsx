@@ -1,11 +1,13 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { RecurringTransactionsScreen } from '../RecurringTransactionsScreen';
 import { PendingRecurringScreen } from '../PendingRecurringScreen';
 import { AddEditRecurringTransactionScreen } from '../AddEditRecurringTransactionScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { Alert } from 'react-native';
+
 
 // Mock the store
 jest.mock('../../store/useFinanceStore', () => ({
@@ -103,7 +105,7 @@ describe('Recurring Transactions UI', () => {
     });
 
     it('shows insufficient funds warning on confirm', async () => {
-      jest.spyOn(Alert, 'alert');
+      
       (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { 
           pendingRecurringTransactions: [
@@ -124,7 +126,7 @@ describe('Recurring Transactions UI', () => {
         fireEvent.press(confirmBtn);
       });
 
-      expect(Alert.alert).toHaveBeenCalledWith(
+      expect(appAlert).toHaveBeenCalledWith(
         'Insufficient Funds',
         expect.any(String),
         expect.any(Array)
@@ -133,7 +135,7 @@ describe('Recurring Transactions UI', () => {
 
     it('handles Skip action', async () => {
       const skipMock = jest.fn();
-      jest.spyOn(Alert, 'alert').mockImplementation((title, msg, buttons) => {
+      (appAlert as jest.Mock).mockImplementation((title: any, msg: any, buttons: any) => {
         if (buttons && buttons[1] && buttons[1].onPress) buttons[1].onPress();
       });
       (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
@@ -172,14 +174,14 @@ describe('Recurring Transactions UI', () => {
 
   describe('AddEditRecurringTransactionScreen', () => {
     it('shows error if amount is missing', () => {
-      jest.spyOn(Alert, 'alert');
+      
       (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         return selector({ recurringTransactions: [], wallets: [], categories: [], addRecurringTransaction: jest.fn(), updateRecurringTransaction: jest.fn() });
       });
 
       const { getByText } = render(<AddEditRecurringTransactionScreen navigation={mockNavigation} route={{ params: {} } as any} />);
       fireEvent.press(getByText('Create Recurring'));
-      expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please enter a name');
+      expect(appAlert).toHaveBeenCalledWith('Error', 'Please enter a name');
     });
 
     it('saves successfully', async () => {
@@ -190,7 +192,8 @@ describe('Recurring Transactions UI', () => {
           wallets: [{ id: 'w1', name: 'Wallet1' }], 
           categories: [{ id: 'c1', name: 'Cat1', type: 'expense' }], 
           addRecurringTransaction: addMock, 
-          updateRecurringTransaction: jest.fn() 
+          updateRecurringTransaction: jest.fn(),
+          yieldPocketSettings: [] 
         });
       });
 
@@ -209,7 +212,8 @@ describe('Recurring Transactions UI', () => {
           wallets: [{ id: 'w1', name: 'Wallet1' }], 
           categories: [{ id: 'c1', name: 'Cat1', type: 'expense' }], 
           addRecurringTransaction: jest.fn(), 
-          updateRecurringTransaction: updateMock 
+          updateRecurringTransaction: updateMock,
+          yieldPocketSettings: [] 
         });
       });
 

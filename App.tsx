@@ -7,8 +7,10 @@ import { useFonts, HankenGrotesk_400Regular, HankenGrotesk_600SemiBold, HankenGr
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { JetBrainsMono_400Regular, JetBrainsMono_700Bold } from '@expo-google-fonts/jetbrains-mono';
 import { View, ActivityIndicator, Text } from 'react-native';
+import { useYieldProcessor } from './src/hooks/useYieldProcessor';
 
 export default function App() {
+  useYieldProcessor();
   let [fontsLoaded, fontError] = useFonts({
     HankenGrotesk_400Regular,
     HankenGrotesk_600SemiBold,

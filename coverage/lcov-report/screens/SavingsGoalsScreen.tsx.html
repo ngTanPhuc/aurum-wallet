@@ -144,13 +144,10 @@
 <a name='L79'></a><a href='#L79'>79</a>
 <a name='L80'></a><a href='#L80'>80</a>
 <a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L82'></a><a href='#L82'>82</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -164,6 +161,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -227,23 +225,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { SavingsGoalCard } from '../components/SavingsGoalCard';
 import { GlobalFAB } from '../components/GlobalFAB';
+import { CustomHeader } from '../components/CustomHeader';
+import { theme } from '../theme/theme';
 &nbsp;
 type Props = NativeStackScreenProps&lt;RootStackParamList, 'SavingsGoals'&gt;;
 &nbsp;
@@ -252,6 +243,7 @@ export const SavingsGoalsScreen = <span class="cstat-no" title="statement not co
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View style={styles.container}&gt;
+      &lt;CustomHeader title="Savings Goals" showBack={true} /&gt;
       &lt;FlatList
         data={savingsGoals}
         keyExtractor={<span class="fstat-no" title="function not covered" >it</span>em =&gt; <span class="cstat-no" title="statement not covered" >item.id}</span>
@@ -263,7 +255,7 @@ export const SavingsGoalsScreen = <span class="cstat-no" title="statement not co
         )}
         ListEmptyComponent={
           &lt;View style={styles.emptyContainer}&gt;
-            &lt;Text style={styles.emptyIcon}&gt;🎯&lt;/Text&gt;
+            &lt;Ionicons name="flag-outline" size={48} color={theme.colors.textMuted} style={styles.emptyIcon} /&gt;
             &lt;Text style={styles.emptyTitle}&gt;No Savings Goals Yet&lt;/Text&gt;
             &lt;Text style={styles.emptyDesc}&gt;Set a target to save for a vacation, emergency fund, or a new gadget!&lt;/Text&gt;
             &lt;TouchableOpacity 
@@ -283,46 +275,36 @@ export const SavingsGoalsScreen = <span class="cstat-no" title="statement not co
 const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   listContainer: {
-    padding: 16,
+    padding: theme.spacing.lg,
     paddingBottom: 80, // Space for FAB
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
+    padding: theme.spacing.xl,
     marginTop: 64,
   },
   emptyIcon: {
     fontSize: 64,
-    marginBottom: 16,
+    marginBottom: theme.spacing.lg,
   },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptyDesc: {
-    fontSize: 14,
-    color: '#666',
+  emptyTitle: { ...theme.typography.h2, color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.sm, },
+  emptyDesc: { ...theme.typography.body2, color: theme.colors.textMuted,
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
-  },
+    marginBottom: theme.spacing.xl,
+    lineHeight: 20, },
   createBtn: {
-    backgroundColor: '#007bff',
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: theme.radii.sm,
   },
-  createBtnText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  }
+  createBtnText: { ...theme.typography.body1, color: theme.colors.background,
+    fontWeight: '600', }
 });
 &nbsp;</pre></td></tr></table></pre>
 
@@ -331,7 +313,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-01T07:52:20.043Z
+                at 2026-07-14T04:35:35.267Z
             </div>
         <script src="../prettify.js"></script>
         <script>

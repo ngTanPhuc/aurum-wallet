@@ -9,6 +9,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
 import { AmountInput } from '../components/glass/AmountInput';
+import { ArchiveWalletModal, ArchiveDependencies, ArchiveResolutions } from '../components/glass/ArchiveWalletModal';
 
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditWallet'>;
@@ -20,6 +21,11 @@ export const AddEditWalletScreen = ({ route, navigation }: Props) => {
   const wallets = useFinanceStore(state => state.wallets);
   const addWallet = useFinanceStore(state => state.addWallet);
   const updateWallet = useFinanceStore(state => state.updateWallet);
+  const archiveWallet = useFinanceStore(state => state.archiveWallet);
+  const unarchiveWallet = useFinanceStore(state => state.unarchiveWallet);
+  const recurringTransactions = useFinanceStore(state => state.recurringTransactions);
+  const yieldPocketSettings = useFinanceStore(state => state.yieldPocketSettings);
+  const savingsGoals = useFinanceStore(state => state.savingsGoals);
   const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
 
   const [name, setName] = useState('');
@@ -27,6 +33,10 @@ export const AddEditWalletScreen = ({ route, navigation }: Props) => {
   const [balance, setBalance] = useState('');
   const [currency, setCurrency] = useState(defaultCurrency);
   const [color, setColor] = useState('#4caf50');
+  const [isWalletArchived, setIsWalletArchived] = useState(false);
+  
+  const [archiveModalVisible, setArchiveModalVisible] = useState(false);
+  const [archiveDeps, setArchiveDeps] = useState<ArchiveDependencies>({ recurringCount: 0, hasYieldPocket: false, savingsGoalsCount: 0 });
 
   const WALLET_COLORS = [
     '#4caf50', '#2196f3', '#9c27b0', '#ff9800', 
@@ -52,10 +62,38 @@ export const AddEditWalletScreen = ({ route, navigation }: Props) => {
         setType(w.type);
         setBalance(w.balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
         setCurrency(w.currency);
+        setIsWalletArchived(w.isArchived);
         if (w.color) setColor(w.color);
       }
     }
   }, [walletId, isEditing, wallets]);
+
+  const handleArchivePress = () => {
+    if (!walletId) return;
+    const rCount = recurringTransactions.filter(r => (r.walletId === walletId || r.destinationWalletId === walletId) && r.isActive).length;
+    const hasYield = yieldPocketSettings.some(y => y.walletId === walletId);
+    const sgCount = savingsGoals.filter(s => s.linkedWalletId === walletId && !s.isCompleted).length;
+    
+    setArchiveDeps({
+      recurringCount: rCount,
+      hasYieldPocket: hasYield,
+      savingsGoalsCount: sgCount
+    });
+    setArchiveModalVisible(true);
+  };
+
+  const confirmArchive = async (resolutions: ArchiveResolutions) => {
+    if (!walletId) return;
+    await archiveWallet(walletId, resolutions);
+    setArchiveModalVisible(false);
+    navigation.goBack();
+  };
+
+  const handleUnarchive = async () => {
+    if (!walletId) return;
+    await unarchiveWallet(walletId);
+    navigation.goBack();
+  };
 
   const handleSave = async () => {
     if (!name.trim() || !balance.trim()) return;
@@ -165,7 +203,26 @@ export const AddEditWalletScreen = ({ route, navigation }: Props) => {
         <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
           <Text style={styles.saveBtnText}>{isEditing ? 'Save Changes' : 'Create Wallet'}</Text>
         </TouchableOpacity>
+
+        {isEditing && (
+          <TouchableOpacity 
+            style={[styles.archiveBtn, isWalletArchived && styles.unarchiveBtn]} 
+            onPress={isWalletArchived ? handleUnarchive : handleArchivePress}
+          >
+            <Text style={[styles.archiveBtnText, isWalletArchived && styles.unarchiveBtnText]}>
+              {isWalletArchived ? 'Unarchive Wallet' : 'Archive Wallet'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </KeyboardAwareScrollView>
+
+      <ArchiveWalletModal
+        visible={archiveModalVisible}
+        walletName={name}
+        dependencies={archiveDeps}
+        onConfirm={confirmArchive}
+        onCancel={() => setArchiveModalVisible(false)}
+      />
     </View>
   );
 };
@@ -186,4 +243,8 @@ const styles = StyleSheet.create({
   colorCircleActive: { borderColor: theme.colors.textPrimary, transform: [{ scale: 1.1 }] },
   saveBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: 32 },
   saveBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },
+  archiveBtn: { backgroundColor: 'transparent', padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: 16, borderWidth: 1, borderColor: theme.colors.danger },
+  archiveBtnText: { ...theme.typography.body1, color: theme.colors.danger, fontWeight: 'bold' },
+  unarchiveBtn: { borderColor: theme.colors.primary },
+  unarchiveBtnText: { color: theme.colors.primary },
 });

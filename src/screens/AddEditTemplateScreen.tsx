@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TransactionType } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -58,22 +59,22 @@ export const AddEditTemplateScreen = ({ route, navigation }: Props) => {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Validation Error', 'Please enter a template name.');
+      appAlert('Validation Error', 'Please enter a template name.');
       return;
     }
     
     if (!amount) {
-      Alert.alert('Validation Error', 'Please enter an amount.');
+      appAlert('Validation Error', 'Please enter an amount.');
       return;
     }
     
     if (!sourceWalletId) {
-      Alert.alert('Validation Error', 'Please select a wallet.');
+      appAlert('Validation Error', 'Please select a wallet.');
       return;
     }
 
     if (type !== 'transfer' && !categoryId) {
-      Alert.alert('Validation Error', 'Please select a category.');
+      appAlert('Validation Error', 'Please select a category.');
       return;
     }
 
@@ -112,7 +113,7 @@ export const AddEditTemplateScreen = ({ route, navigation }: Props) => {
       navigation.goBack();
     } catch (e: any) {
       console.error('Error saving template:', e);
-      Alert.alert('Error', 'Could not save template.');
+      appAlert('Error', 'Could not save template.');
     }
   };
 
@@ -124,7 +125,7 @@ export const AddEditTemplateScreen = ({ route, navigation }: Props) => {
       <KeyboardAwareScrollView enableOnAndroid={true} keyboardShouldPersistTaps="handled" extraScrollHeight={20}  contentContainerStyle={styles.scroll}>
         
         <Text style={styles.label}>Template Name</Text>
-        <TextInput 
+        <AmountInput 
           style={styles.input} 
           value={name} 
           onChangeText={setName} 
@@ -166,15 +167,16 @@ export const AddEditTemplateScreen = ({ route, navigation }: Props) => {
             if (!trimmed) { setFee(''); return; }
             setFee(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
           }} 
-          keyboardType="numeric" 
+           
           placeholder="0" 
           placeholderTextColor={theme.colors.textMuted}
         />
 
         <WalletPicker 
-          label={type === 'transfer' ? 'From Wallet' : 'Wallet'}
+          label="Wallet"
           value={sourceWalletId} 
           onChange={setSourceWalletId} 
+          requireSpendingEnabled={type === 'expense'}
         />
 
         {type !== 'transfer' && (

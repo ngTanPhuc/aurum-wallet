@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, RecurringTransaction } from '../types';
@@ -31,7 +32,7 @@ export const PendingRecurringScreen = ({ navigation }: Props) => {
       const wallet = wallets.find(w => w.id === item.walletId);
       const amt = customAmount !== undefined ? customAmount : item.amount;
       if (wallet && wallet.balance < amt) {
-        return Alert.alert(
+        return appAlert(
           'Insufficient Funds',
           `Your ${wallet.name} balance (${wallet.balance.toLocaleString()}) is lower than the transaction amount (${amt.toLocaleString()}). Are you sure you want to proceed and go into negative balance?`,
           [
@@ -52,7 +53,7 @@ export const PendingRecurringScreen = ({ navigation }: Props) => {
   };
 
   const handleSkip = (item: RecurringTransaction) => {
-    Alert.alert(
+    appAlert(
       'Skip Transaction',
       'This will push the due date to the next cycle without creating a transaction. Continue?',
       [
@@ -79,7 +80,7 @@ export const PendingRecurringScreen = ({ navigation }: Props) => {
     const rawValue = editAmount.replace(/\./g, '');
     const amtNum = Math.abs(parseFloat(rawValue) || 0);
     if (amtNum <= 0) {
-      Alert.alert('Error', 'Invalid amount');
+      appAlert('Error', 'Invalid amount');
       return;
     }
     await handleConfirm(editingItem, amtNum, editNote);
@@ -163,7 +164,7 @@ export const PendingRecurringScreen = ({ navigation }: Props) => {
             <Text style={styles.modalDesc}>Change the amount or note for this specific transaction only. The recurring template will not be changed.</Text>
             
             <Text style={styles.label}>Amount</Text>
-            <TextInput 
+            <AmountInput 
               style={styles.input} 
               value={editAmount} 
               onChangeText={(text) => {
@@ -172,7 +173,7 @@ export const PendingRecurringScreen = ({ navigation }: Props) => {
                 if (!trimmed) return setEditAmount('');
                 setEditAmount(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
               }}
-              keyboardType="numeric" 
+               
             />
 
             <Text style={styles.label}>Note (optional)</Text>

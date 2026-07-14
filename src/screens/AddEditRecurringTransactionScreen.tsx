@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TransactionType, RecurringFrequency, RecurringTransaction } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -71,15 +72,15 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a name');
+      appAlert('Error', 'Please enter a name');
       return;
     }
     if (!amount) {
-      Alert.alert('Error', 'Please enter an amount');
+      appAlert('Error', 'Please enter an amount');
       return;
     }
     if (!walletId) {
-      Alert.alert('Error', 'Please select a wallet');
+      appAlert('Error', 'Please select a wallet');
       return;
     }
 
@@ -90,23 +91,23 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
     const feeNum = amtNum > 0 ? (amtNum * feePercentage) / 100 : 0;
     
     if (type === 'transfer' && (!destinationWalletId || walletId === destinationWalletId)) {
-      Alert.alert('Error', 'Please select a valid destination wallet');
+      appAlert('Error', 'Please select a valid destination wallet');
       return;
     }
     if ((type === 'expense' || type === 'income') && !categoryId) {
-      Alert.alert('Error', 'Please select a category');
+      appAlert('Error', 'Please select a category');
       return;
     }
 
     // Basic date validation
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(startDate)) {
-      Alert.alert('Error', 'Please enter a valid date in YYYY-MM-DD format');
+      appAlert('Error', 'Please enter a valid date in YYYY-MM-DD format');
       return;
     }
     const parsedDate = new Date(startDate);
     if (isNaN(parsedDate.getTime())) {
-      Alert.alert('Error', 'Invalid date');
+      appAlert('Error', 'Invalid date');
       return;
     }
     // We store ISO strings
@@ -158,7 +159,7 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
       navigation.goBack();
     } catch (e: any) {
       console.error('Error saving recurring transaction:', e);
-      Alert.alert('Error', e?.message || 'Failed to save recurring transaction');
+      appAlert('Error', e?.message || 'Failed to save recurring transaction');
     }
   };
 
@@ -181,7 +182,7 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
         </View>
 
         <Text style={styles.label}>Name</Text>
-        <TextInput 
+        <AmountInput 
           style={styles.input} 
           value={name} 
           onChangeText={setName} 
@@ -209,15 +210,16 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
             if (!trimmed) { setFee(''); return; }
             setFee(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
           }} 
-          keyboardType="numeric" 
+           
           placeholder="0" 
           placeholderTextColor={theme.colors.textMuted}
         />
 
         <WalletPicker 
-          label={type === 'income' ? 'To Wallet' : 'From Wallet'}
+          label={type === 'transfer' ? 'From Wallet' : 'Wallet'}
           value={walletId} 
           onChange={setWalletId} 
+          requireSpendingEnabled={type === 'expense'}
         />
 
         {type === 'transfer' && (

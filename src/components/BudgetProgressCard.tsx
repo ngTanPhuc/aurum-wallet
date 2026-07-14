@@ -4,39 +4,41 @@ import { Budget } from '../types';
 import { MoneyAmount } from './MoneyAmount';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { theme } from '../theme/theme';
+import { GlassCard } from './glass/GlassCard';
 
 interface BudgetProgressCardProps {
   budget: Budget;
+  targetDate: string;
 }
 
-export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = React.memo(({ budget }) => {
+export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = React.memo(({ budget, targetDate }) => {
+  const getBudgetProgress = useFinanceStore(state => state.getBudgetProgress);
   const transactions = useFinanceStore(state => state.transactions);
-  const categories = useFinanceStore(state => state.categories);
   
-  const category = categories.find(c => c.id === budget.categoryId);
-  
-  // Calculate spent amount for this budget
-  const spent = React.useMemo(() => {
-    return transactions
-      .filter(t => t.categoryId === budget.categoryId && t.type === 'expense')
-      .filter(t => {
-        const d = new Date(t.transactionDate);
-        return d.getMonth() + 1 === budget.month && d.getFullYear() === budget.year;
-      })
-      .reduce((acc, t) => acc + t.amount, 0);
-  }, [transactions, budget]);
+  const progress = React.useMemo(() => {
+    return getBudgetProgress(budget.id, targetDate);
+  }, [getBudgetProgress, budget.id, targetDate, transactions]);
 
-  const percentage = Math.min((spent / budget.amount) * 100, 100);
+  const { spent, budgeted, remaining, percentage } = progress;
   
   let progressColor = theme.colors.success;
   if (percentage >= 100) progressColor = theme.colors.danger;
   else if (percentage >= 80) progressColor = theme.colors.warning;
+  else if (percentage > 0) progressColor = theme.colors.primary;
 
   return (
-    <View style={styles.card}>
+    <GlassCard style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.categoryName}>{category?.name || 'Unknown'}</Text>
-        <MoneyAmount amount={budget.amount} style={styles.budgetAmount} colorType="neutral" />
+        <View>
+          <View style={styles.titleRow}>
+            <Text style={styles.categoryName}>{budget.name}</Text>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{budget.recurrence}</Text>
+            </View>
+          </View>
+          <Text style={styles.budgetAmountLabel}>Total Budget</Text>
+        </View>
+        <MoneyAmount amount={budgeted} style={styles.budgetAmount} colorType="neutral" />
       </View>
       
       <View style={styles.progressBarBg}>
@@ -44,51 +46,89 @@ export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = React.memo(
       </View>
       
       <View style={styles.footer}>
-        <Text style={styles.spentText}>
-          Spent: <MoneyAmount amount={spent} style={styles.spentAmount} colorType="neutral" />
-        </Text>
-        <Text style={styles.remainingText}>
-          Left: <MoneyAmount amount={budget.amount - spent} style={styles.remainingAmount} colorType={budget.amount - spent < 0 ? 'negative' : 'positive'} />
-        </Text>
+        <View>
+          <Text style={styles.footerLabel}>Spent</Text>
+          <MoneyAmount amount={spent} style={styles.spentAmount} colorType="neutral" />
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={styles.footerLabel}>Left</Text>
+          <MoneyAmount amount={remaining} style={styles.remainingAmount} colorType={remaining < 0 ? 'negative' : 'positive'} />
+        </View>
       </View>
-    </View>
+    </GlassCard>
   );
 });
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.lg,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
-    ...theme.shadows.subtle,
+    padding: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    alignItems: 'flex-start',
+    marginBottom: theme.spacing.xl,
   },
-  categoryName: { ...theme.typography.body1, fontWeight: '600',
-    color: theme.colors.textPrimary, },
-  budgetAmount: { ...theme.typography.body1, fontWeight: 'bold',
-    color: theme.colors.textMuted, },
-  progressBarBg: {
-    height: 8,
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  categoryName: { 
+    ...theme.typography.h3, 
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary, 
+  },
+  badge: {
     backgroundColor: theme.colors.surfaceStrong,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  badgeText: {
+    ...theme.typography.caption,
+    color: theme.colors.textMuted,
+    textTransform: 'capitalize',
+    fontWeight: '600',
+  },
+  budgetAmountLabel: {
+    ...theme.typography.caption,
+    color: theme.colors.textMuted,
+  },
+  budgetAmount: { 
+    ...theme.typography.h3, 
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary, 
+  },
+  progressBarBg: {
+    height: 12,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 6,
     overflow: 'hidden',
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.xl,
   },
   progressBarFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 6,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  spentText: { ...theme.typography.caption, color: theme.colors.textMuted, },
-  spentAmount: { ...theme.typography.caption, fontWeight: '600', },
-  remainingText: { ...theme.typography.caption, color: theme.colors.textMuted, },
-  remainingAmount: { ...theme.typography.caption, fontWeight: '600', },
+  footerLabel: { 
+    ...theme.typography.caption, 
+    color: theme.colors.textMuted, 
+    marginBottom: 2,
+  },
+  spentAmount: { 
+    ...theme.typography.body1, 
+    fontWeight: 'bold',
+    color: theme.colors.textPrimary,
+  },
+  remainingAmount: { 
+    ...theme.typography.body1, 
+    fontWeight: 'bold', 
+  },
 });

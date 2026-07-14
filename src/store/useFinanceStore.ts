@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { Wallet, Category, Transaction, Budget, SavingsGoal, RecurringTransaction, Insight, TransactionTemplate, Tag, TransactionFilters, TransactionSort, SavingsDeposit, YieldPocketSettings, Person, Debt, DebtPayment } from '../types';
 import { WalletService } from '../services/WalletService';
 import { CategoryService } from '../services/CategoryService';
@@ -38,15 +39,21 @@ interface FinanceState {
   addWallet: (wallet: Wallet) => Promise<void>;
   updateWallet: (wallet: Wallet) => Promise<void>;
   addCategory: (category: Category) => Promise<void>;
+  updateCategory: (category: Category) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   addTransaction: (tx: Transaction) => Promise<void>;
   updateTransaction: (tx: Transaction) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
 
   addBudget: (budget: Budget) => Promise<void>;
   updateBudget: (budget: Budget) => Promise<void>;
+  deleteWallet: (id: string) => Promise<void>;
+  archiveWallet: (id: string, resolutions: { cancelRecurring: boolean; stopYieldPocket: boolean; unlinkGoals: boolean; }) => Promise<void>;
+  unarchiveWallet: (id: string) => Promise<void>;
+  updateWalletBalance: (id: string, amountChange: number) => Promise<void>;
   deleteBudget: (id: string) => Promise<void>;
-  loadBudgetsForMonth: (month: number, year: number) => Promise<void>;
-  getBudgetProgress: (categoryId: string, month: number, year: number) => { spent: number; budgeted: number; remaining: number; percentage: number };
+  loadBudgets: () => Promise<void>;
+  getBudgetProgress: (budgetId: string, targetDate: string) => { spent: number; budgeted: number; remaining: number; percentage: number; cycleStart: string; cycleEnd: string };
   getTotalBalance: () => number;
 
   addSavingsGoal: (goal: SavingsGoal) => Promise<void>;
@@ -60,8 +67,8 @@ interface FinanceState {
   confirmPendingTransaction: (rt: RecurringTransaction, txData?: Partial<Transaction>) => Promise<void>;
   skipPendingTransaction: (rt: RecurringTransaction) => Promise<void>;
 
-  getSavingsRate: (month: number, year: number) => { rate: number; trend: number };
-  getCashFlow: (month: number, year: number) => { net: number; isPositive: boolean };
+  getSavingsRate: (month: number, year: number) => { rate: number; trend: number; hasIncome: boolean; hasPreviousData: boolean };
+  getCashFlow: (month: number, year: number) => { net: number; isPositive: boolean }; // net is signed: negative when expenses > income
   getLargestSpendingCategory: (month: number, year: number) => { categoryName: string; amount: number; percentage: number } | null;
   getInsights: () => Insight[];
 
@@ -78,6 +85,7 @@ interface FinanceState {
   matureSavingsDeposit: (deposit: SavingsDeposit) => Promise<void>;
   closeSavingsDepositEarly: (deposit: SavingsDeposit) => Promise<void>;
   saveYieldPocketSettings: (settings: YieldPocketSettings) => Promise<void>;
+  deleteYieldPocketSettings: (walletId: string) => Promise<void>;
 
   setTransactionFilters: (filters: TransactionFilters) => void;
   setTransactionSearchQuery: (query: string) => void;
@@ -116,28 +124,25 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   loadData: async () => {
     set({ isLoading: true });
     try {
-      const [
-        wallets, categories, transactions, savingsGoals, 
-        recurringTransactions, pendingRecurringTransactions, 
-        templates, tags, savingsDeposits, yieldPocketSettings,
-        people, debts, debtPayments
-      ] = await Promise.all([
-        WalletService.getWallets(),
-        CategoryService.getCategories(),
-        TransactionService.getTransactions(),
-        SavingsGoalService.getSavingsGoals(),
-        RecurringTransactionService.getRecurringTransactions(),
-        RecurringTransactionService.getPendingTransactions(),
-        TransactionTemplateService.getTemplates(),
-        TagService.getTags(),
-        SavingsDepositService.getSavingsDeposits(),
-        YieldPocketService.getSettings(),
-        PersonService.getPeople(),
-        DebtService.getDebts(),
-        DebtService.getDebtPayments()
-      ]);
-      
-      set({ wallets, categories, transactions, savingsGoals, recurringTransactions, pendingRecurringTransactions, templates, tags, savingsDeposits, yieldPocketSettings, people, debts, debtPayments, isLoading: false });
+      // Sequential awaits instead of Promise.all — concurrent prepareAsync calls on
+      // the same expo-sqlite connection corrupt each other's native statement handles,
+      // causing "2nd argument cannot be cast to NativeStatement" crashes.
+      const wallets = await WalletService.getWallets();
+      const categories = await CategoryService.getCategories();
+      const transactions = await TransactionService.getTransactions();
+      const savingsGoals = await SavingsGoalService.getSavingsGoals();
+      const recurringTransactions = await RecurringTransactionService.getRecurringTransactions();
+      const pendingRecurringTransactions = await RecurringTransactionService.getPendingTransactions();
+      const templates = await TransactionTemplateService.getTemplates();
+      const tags = await TagService.getTags();
+      const savingsDeposits = await SavingsDepositService.getSavingsDeposits();
+      const yieldPocketSettings = await YieldPocketService.getSettings();
+      const people = await PersonService.getPeople();
+      const debts = await DebtService.getDebts();
+      const debtPayments = await DebtService.getDebtPayments();
+      const budgets = await BudgetService.getBudgets();
+
+      set({ wallets, categories, transactions, savingsGoals, recurringTransactions, pendingRecurringTransactions, templates, tags, savingsDeposits, yieldPocketSettings, people, debts, debtPayments, budgets, isLoading: false });
     } catch (error) {
       console.error('Error loading finance data', error);
       set({ isLoading: false });
@@ -162,6 +167,18 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     set({ categories });
   },
 
+  updateCategory: async (category: Category) => {
+    await CategoryService.updateCategory(category);
+    const categories = await CategoryService.getCategories();
+    set({ categories });
+  },
+
+  deleteCategory: async (id: string) => {
+    await CategoryService.deleteCategory(id);
+    const categories = await CategoryService.getCategories();
+    set({ categories });
+  },
+
   addTransaction: async (tx: Transaction) => {
     const { wallets, savingsGoals, transactions } = get();
 
@@ -175,7 +192,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: g.currentAmount + tx.amount } : g);
       }
     } else if (tx.type === 'income') {
-      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount } : w);
+      // Subtract fee from income: net gain to wallet is amount - fee
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount - (tx.fee || 0) } : w);
       if (tx.savingsGoalId) {
         updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: Math.max(0, g.currentAmount - tx.amount) } : g);
       }
@@ -238,7 +256,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: g.currentAmount + tx.amount } : g);
       }
     } else if (tx.type === 'income') {
-      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount } : w);
+      // Subtract fee from income: net gain to wallet is amount - fee
+      updatedWallets = updatedWallets.map(w => w.id === tx.sourceWalletId ? { ...w, balance: w.balance + tx.amount - (tx.fee || 0) } : w);
       if (tx.savingsGoalId) {
         updatedGoals = updatedGoals.map(g => g.id === tx.savingsGoalId ? { ...g, currentAmount: Math.max(0, g.currentAmount - tx.amount) } : g);
       }
@@ -309,8 +328,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     });
   },
 
-  loadBudgetsForMonth: async (month: number, year: number) => {
-    const budgets = await BudgetService.getBudgets(month, year);
+  loadBudgets: async () => {
+    const budgets = await BudgetService.getBudgets();
     set({ budgets });
   },
 
@@ -326,10 +345,26 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }));
   },
 
+  deleteWallet: async (id: string) => {
+    await WalletService.deleteWallet(id);
+    await get().loadData();
+  },
+  archiveWallet: async (id: string, resolutions) => {
+    await WalletService.archiveWalletWithDependencies(id, resolutions);
+    await get().loadData();
+  },
+  unarchiveWallet: async (id: string) => {
+    await WalletService.unarchiveWallet(id);
+    await get().loadData();
+  },
+  updateWalletBalance: async (id: string, amountChange: number) => {
+    await WalletService.updateWalletBalance(id, amountChange);
+    await get().loadData();
+  },
+
   deleteBudget: async (id: string) => {
     await BudgetService.deleteBudget(id);
-    const now = new Date();
-    await get().loadBudgetsForMonth(now.getMonth() + 1, now.getFullYear());
+    await get().loadBudgets();
   },
 
   addSavingsGoal: async (goal: SavingsGoal) => {
@@ -393,26 +428,71 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     set({ pendingRecurringTransactions, recurringTransactions });
   },
 
-  getBudgetProgress: (categoryId: string, month: number, year: number) => {
+  getBudgetProgress: (budgetId: string, targetDate: string) => {
     const state = get();
-    const budget = state.budgets.find(b => b.categoryId === categoryId && b.month === month && b.year === year);
+    const budget = state.budgets.find(b => b.id === budgetId);
     
-    // Calculate total spent for this category in the given month
+    if (!budget) {
+      return { spent: 0, budgeted: 0, remaining: 0, percentage: 0, cycleStart: '', cycleEnd: '' };
+    }
+
+    const targetDateObj = new Date(targetDate);
+    let cycleStart: Date;
+    let cycleEnd: Date;
+
+    switch (budget.recurrence) {
+      case 'daily':
+        cycleStart = startOfDay(targetDateObj);
+        cycleEnd = endOfDay(targetDateObj);
+        break;
+      case 'weekly':
+        cycleStart = startOfWeek(targetDateObj, { weekStartsOn: 1 }); // Monday
+        cycleEnd = endOfWeek(targetDateObj, { weekStartsOn: 1 });
+        break;
+      case 'monthly':
+        cycleStart = startOfMonth(targetDateObj);
+        cycleEnd = endOfMonth(targetDateObj);
+        break;
+      case 'yearly':
+        cycleStart = startOfYear(targetDateObj);
+        cycleEnd = endOfYear(targetDateObj);
+        break;
+      default:
+        cycleStart = startOfMonth(targetDateObj);
+        cycleEnd = endOfMonth(targetDateObj);
+    }
+
+    const cycleStartMs = cycleStart.getTime();
+    const cycleEndMs = cycleEnd.getTime();
+
+    // Calculate total spent for this budget in the current cycle
     const spent = state.transactions
       .filter(t => {
-        const d = new Date(t.transactionDate);
-        return t.type === 'expense' && 
-               t.categoryId === categoryId && 
-               d.getMonth() + 1 === month && 
-               d.getFullYear() === year;
+        const d = new Date(t.transactionDate).getTime();
+        if (d < cycleStartMs || d > cycleEndMs) return false;
+        if (t.type !== 'expense') return false;
+
+        if (budget.targetType === 'category') {
+          return t.categoryId === budget.targetId;
+        } else if (budget.targetType === 'tag') {
+          return t.tags?.some(tag => tag.id === budget.targetId);
+        }
+        return false;
       })
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const budgeted = budget ? budget.amount : 0;
+    const budgeted = budget.amount;
     const remaining = budgeted - spent;
     const percentage = budgeted > 0 ? Math.min(100, Math.max(0, (spent / budgeted) * 100)) : 0;
 
-    return { spent, budgeted, remaining, percentage };
+    return { 
+      spent, 
+      budgeted, 
+      remaining, 
+      percentage,
+      cycleStart: cycleStart.toISOString(),
+      cycleEnd: cycleEnd.toISOString()
+    };
   },
 
   getTotalBalance: () => {
@@ -441,10 +521,19 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const previousIncome = previousMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const previousExpense = previousMonthTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
 
-    const currentRate = currentIncome > 0 ? ((currentIncome - currentExpense) / currentIncome) * 100 : 0;
-    const previousRate = previousIncome > 0 ? ((previousIncome - previousExpense) / previousIncome) * 100 : 0;
+    // hasIncome=false means no income this month; UI should display N/A instead of 0%
+    const hasIncome = currentIncome > 0;
+    const currentRate = hasIncome ? ((currentIncome - currentExpense) / currentIncome) * 100 : 0;
 
-    return { rate: currentRate, trend: currentRate - previousRate };
+    // hasPreviousData=false means no transactions last month (first month of use).
+    // Without prior data, trend = currentRate - 0 is a meaningless fake number.
+    const hasPreviousData = previousMonthTxs.length > 0;
+    const previousRate = hasPreviousData && previousIncome > 0
+      ? ((previousIncome - previousExpense) / previousIncome) * 100
+      : 0;
+    const trend = hasPreviousData ? currentRate - previousRate : 0;
+
+    return { rate: currentRate, trend, hasIncome, hasPreviousData };
   },
 
   getCashFlow: (month: number, year: number) => {
@@ -456,9 +545,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
     const currentIncome = currentMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const currentExpense = currentMonthTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    // net is signed: positive = surplus, negative = deficit
     const net = currentIncome - currentExpense;
 
-    return { net: Math.abs(net), isPositive: net >= 0 };
+    return { net, isPositive: net >= 0 };
   },
 
   getLargestSpendingCategory: (month: number, year: number) => {
@@ -567,6 +657,11 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
   saveYieldPocketSettings: async (settings) => {
     await YieldPocketService.saveSettings(settings);
+    const yieldPocketSettings = await YieldPocketService.getSettings();
+    set({ yieldPocketSettings });
+  },
+  deleteYieldPocketSettings: async (walletId) => {
+    await YieldPocketService.deleteSettings(walletId);
     const yieldPocketSettings = await YieldPocketService.getSettings();
     set({ yieldPocketSettings });
   },

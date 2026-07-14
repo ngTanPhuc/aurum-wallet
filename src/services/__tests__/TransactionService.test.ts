@@ -360,3 +360,56 @@ describe('TransactionService', () => {
     });
   });
 });
+
+// Additional fee-specific tests for income transactions
+describe('TransactionService — income with fees', () => {
+  let mockDb: any;
+
+  beforeEach(() => {
+    mockDb = {
+      getAllAsync: jest.fn(),
+      getFirstAsync: jest.fn(),
+      runAsync: jest.fn(),
+      withExclusiveTransactionAsync: jest.fn((cb) => cb()),
+    };
+    const { getDb } = require('../../database/db');
+    (getDb as jest.Mock).mockResolvedValue(mockDb);
+    jest.clearAllMocks();
+  });
+
+  describe('applyTransactionEffect — income with fee', () => {
+    it('should apply income with fee: net = amount - fee', async () => {
+      await TransactionService.applyTransactionEffect({ type: 'income', sourceWalletId: 'w1', amount: 100, fee: 10 } as any);
+      // net income to wallet = 100 - 10 = 90
+      const { WalletService } = require('../WalletService');
+      expect(WalletService.updateWalletBalance).toHaveBeenCalledWith('w1', 90);
+    });
+
+    it('should apply income with fee and savings goal', async () => {
+      await TransactionService.applyTransactionEffect({ type: 'income', sourceWalletId: 'w1', amount: 100, fee: 10, savingsGoalId: 's1' } as any);
+      const { WalletService } = require('../WalletService');
+      const { SavingsGoalService } = require('../SavingsGoalService');
+      expect(WalletService.updateWalletBalance).toHaveBeenCalledWith('w1', 90);
+      // Savings goal amount is the gross amount (before fee)
+      expect(SavingsGoalService.updateSavingsGoalAmount).toHaveBeenCalledWith('s1', 100);
+    });
+  });
+
+  describe('reverseTransactionEffect — income with fee', () => {
+    it('should reverse income with fee: undo = -(amount - fee)', async () => {
+      await TransactionService.reverseTransactionEffect({ type: 'income', sourceWalletId: 'w1', amount: 100, fee: 10 } as any);
+      // Reversal: -(100 - 10) = -90
+      const { WalletService } = require('../WalletService');
+      expect(WalletService.updateWalletBalance).toHaveBeenCalledWith('w1', -90);
+    });
+
+    it('should reverse income with fee and savings goal', async () => {
+      await TransactionService.reverseTransactionEffect({ type: 'income', sourceWalletId: 'w1', amount: 100, fee: 10, savingsGoalId: 's1' } as any);
+      const { WalletService } = require('../WalletService');
+      const { SavingsGoalService } = require('../SavingsGoalService');
+      expect(WalletService.updateWalletBalance).toHaveBeenCalledWith('w1', -90);
+      expect(SavingsGoalService.updateSavingsGoalAmount).toHaveBeenCalledWith('s1', -100);
+    });
+  });
+});
+

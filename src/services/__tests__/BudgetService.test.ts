@@ -35,9 +35,9 @@ describe('BudgetService', () => {
       const mockBudgets = [{ id: '1', amount: 100 }];
       mockDb.getAllAsync.mockResolvedValue(mockBudgets);
 
-      const result = await BudgetService.getBudgets(6, 2023);
+      const result = await BudgetService.getBudgets();
       
-      expect(mockDb.getAllAsync).toHaveBeenCalledWith('SELECT * FROM budgets WHERE month = ? AND year = ?', 6, 2023);
+      expect(mockDb.getAllAsync).toHaveBeenCalledWith('SELECT * FROM budgets');
       expect(result).toEqual(mockBudgets);
     });
   });

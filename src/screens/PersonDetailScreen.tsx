@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList, Debt } from '../types';
@@ -51,10 +52,10 @@ export const PersonDetailScreen = ({ navigation, route }: Props) => {
 
   const handleDelete = () => {
     if (personDebts.length > 0) {
-      Alert.alert('Cannot Delete', 'This person has associated debts. Please delete or archive the debts first.');
+      appAlert('Cannot Delete', 'This person has associated debts. Please delete or archive the debts first.');
       return;
     }
-    Alert.alert('Delete Person', 'Are you sure you want to delete this person?', [
+    appAlert('Delete Person', `Are you sure you want to delete ${person.name}?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: async () => {
         await deletePerson(person.id);

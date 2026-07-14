@@ -84,7 +84,7 @@ describe('useFinanceStore', () => {
   it('budget actions', async () => {
     useFinanceStore.setState({ budgets: [] });
     const store = useFinanceStore.getState();
-    await store.loadBudgetsForMonth(1, 2026);
+    await store.loadBudgets();
     expect(BudgetService.getBudgets).toHaveBeenCalled();
     await store.addBudget({ id: '1' } as any);
     expect(BudgetService.addBudget).toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe('useFinanceStore', () => {
         { type: 'expense', categoryId: 'c1', transactionDate: '2026-01-10T10:00:00Z', amount: 20 } as any
       ]
     });
-    const result = useFinanceStore.getState().getBudgetProgress('c1', 1, 2026);
+    const result = useFinanceStore.getState().getBudgetProgress('c1', '2026-06-15T00:00:00.000Z');
     expect(result.budgeted).toBe(100);
     expect(result.spent).toBe(20);
     expect(result.percentage).toBe(20);
@@ -174,11 +174,29 @@ describe('useFinanceStore', () => {
     const savings = store.getSavingsRate(6, 2026); // June (month 6 = June in JS where getMonth()+1 is used)
     expect(savings.rate).toBe(60); // 600/1000 * 100
     expect(savings.trend).toBe(40); // 60 - 20
+    expect(savings.hasIncome).toBe(true);
+    expect(savings.hasPreviousData).toBe(true);
     
     const cashFlow = store.getCashFlow(6, 2026);
     expect(cashFlow.net).toBe(600);
     expect(cashFlow.isPositive).toBe(true);
   });
+
+  it('getSavingsRate shows hasPreviousData=false and trend=0 on first month', () => {
+    useFinanceStore.setState({
+      transactions: [
+        // Only current month — no previous month data at all
+        { type: 'income', amount: 1000, transactionDate: '2026-06-15T00:00:00Z' } as any,
+        { type: 'expense', amount: 400, transactionDate: '2026-06-16T00:00:00Z' } as any,
+      ]
+    });
+    const savings = useFinanceStore.getState().getSavingsRate(6, 2026);
+    expect(savings.rate).toBe(60);
+    expect(savings.hasIncome).toBe(true);
+    expect(savings.hasPreviousData).toBe(false); // no last month transactions
+    expect(savings.trend).toBe(0);              // trend zeroed out — not a real comparison
+  });
+
 
   it('getLargestSpendingCategory', () => {
     useFinanceStore.setState({
@@ -219,4 +237,102 @@ describe('useFinanceStore', () => {
     const filtered3 = store.getFilteredTransactions();
     expect(filtered3.length).toBe(0);
   });
+
+  it('getSavingsRate returns hasIncome=false when there is no income', () => {
+    useFinanceStore.setState({
+      transactions: [
+        { type: 'expense', amount: 500, transactionDate: '2026-06-15T00:00:00Z' } as any,
+      ]
+    });
+    const result = useFinanceStore.getState().getSavingsRate(6, 2026);
+    expect(result.hasIncome).toBe(false);
+    expect(result.rate).toBe(0);
+  });
+
+  it('getSavingsRate handles January wrap-around to December of previous year', () => {
+    useFinanceStore.setState({
+      transactions: [
+        // January income + expense
+        { type: 'income', amount: 2000, transactionDate: '2026-01-15T00:00:00Z' } as any,
+        { type: 'expense', amount: 500, transactionDate: '2026-01-15T00:00:00Z' } as any,
+        // December of previous year
+        { type: 'income', amount: 2000, transactionDate: '2025-12-15T00:00:00Z' } as any,
+        { type: 'expense', amount: 1000, transactionDate: '2025-12-15T00:00:00Z' } as any,
+      ]
+    });
+    const result = useFinanceStore.getState().getSavingsRate(1, 2026);
+    expect(result.hasIncome).toBe(true);
+    expect(result.rate).toBeCloseTo(75, 1); // (2000-500)/2000 * 100 = 75%
+    expect(result.trend).toBeCloseTo(25, 1); // 75 - 50 = 25% better than Dec
+  });
+
+  it('getCashFlow returns signed negative net when expenses exceed income', () => {
+    useFinanceStore.setState({
+      transactions: [
+        { type: 'income', amount: 500, transactionDate: '2026-06-15T00:00:00Z' } as any,
+        { type: 'expense', amount: 1000, transactionDate: '2026-06-15T00:00:00Z' } as any,
+      ]
+    });
+    const result = useFinanceStore.getState().getCashFlow(6, 2026);
+    expect(result.net).toBe(-500); // signed negative
+    expect(result.isPositive).toBe(false);
+  });
+
+  it('getLargestSpendingCategory handles expenses with no categoryId gracefully', () => {
+    useFinanceStore.setState({
+      categories: [{ id: 'c1', name: 'Food' } as any],
+      transactions: [
+        // Uncategorized expenses should not break the calculation
+        { type: 'expense', categoryId: null, amount: 200, transactionDate: '2026-06-15T00:00:00Z' } as any,
+        { type: 'expense', categoryId: 'c1', amount: 50, transactionDate: '2026-06-15T00:00:00Z' } as any,
+      ]
+    });
+    const result = useFinanceStore.getState().getLargestSpendingCategory(6, 2026);
+    // Only categorized expenses are counted
+    expect(result?.categoryName).toBe('Food');
+    expect(result?.amount).toBe(50);
+  });
+
+  it('getTotalBalance excludes archived wallets', () => {
+    useFinanceStore.setState({
+      wallets: [
+        { includeInTotal: true, isArchived: false, balance: 100 } as any,
+        { includeInTotal: true, isArchived: true, balance: 5000 } as any, // archived — must be excluded
+      ]
+    });
+    expect(useFinanceStore.getState().getTotalBalance()).toBe(100);
+  });
+
+  it('getBudgetProgress returns 0s when no budget is set for the category', () => {
+    useFinanceStore.setState({ budgets: [], transactions: [] });
+    const result = useFinanceStore.getState().getBudgetProgress('no-category', '2026-06-15T00:00:00.000Z');
+    expect(result.budgeted).toBe(0);
+    expect(result.spent).toBe(0);
+    expect(result.remaining).toBe(0);
+    expect(result.percentage).toBe(0);
+  });
+
+  it('addTransaction optimistic update subtracts fee for income transactions', () => {
+    useFinanceStore.setState({
+      wallets: [{ id: 'w1', balance: 1000, includeInTotal: true, isArchived: false } as any],
+      savingsGoals: [],
+      transactions: [],
+    });
+
+    useFinanceStore.getState().addTransaction({
+      id: 'tx1',
+      type: 'income',
+      amount: 500,
+      fee: 20,
+      sourceWalletId: 'w1',
+      transactionDate: '2026-06-15',
+      createdAt: '',
+      updatedAt: '',
+    } as any);
+
+    // Net income = 500 - 20 = 480. Balance should be 1000 + 480 = 1480
+    const wallet = useFinanceStore.getState().wallets.find(w => w.id === 'w1');
+    expect(wallet?.balance).toBe(1480);
+  });
 });
+

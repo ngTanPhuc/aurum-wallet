@@ -1,8 +1,10 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { AddEditBudgetScreen } from '../AddEditBudgetScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn(),
@@ -32,7 +34,7 @@ describe('AddEditBudgetScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(Alert, 'alert');
+    
   });
 
   const setupStore = (overrides = {}) => {
@@ -85,7 +87,7 @@ describe('AddEditBudgetScreen', () => {
     fireEvent.changeText(getByPlaceholderText('0'), 'abc');
     fireEvent.press(getByText('Save Budget'));
 
-    expect(Alert.alert).toHaveBeenCalledWith('Invalid Amount', 'Please enter a valid budget amount.');
+    expect(appAlert).toHaveBeenCalledWith('Invalid Amount', 'Please enter a valid budget amount.');
   });
 
   it('validates duplicate budget', () => {
@@ -101,7 +103,7 @@ describe('AddEditBudgetScreen', () => {
     fireEvent.press(getByText('Set C1'));
     fireEvent.press(getByText('Save Budget'));
 
-    expect(Alert.alert).toHaveBeenCalledWith('Duplicate Budget', 'A budget for this category already exists in this month.');
+    expect(appAlert).toHaveBeenCalledWith('Duplicate Budget', 'A budget for this category already exists in this month.');
   });
 
   it('saves new budget successfully', async () => {
@@ -159,7 +161,7 @@ describe('AddEditBudgetScreen', () => {
     fireEvent.press(getByText('Delete'));
 
     // Find delete in alert buttons
-    const alertCall = (Alert.alert as any).mock.calls[0];
+    const alertCall = (appAlert as any).mock.calls[0];
     expect(alertCall[0]).toBe('Delete Budget');
     
     // Call the delete onPress

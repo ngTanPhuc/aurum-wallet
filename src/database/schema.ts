@@ -53,13 +53,14 @@ CREATE TABLE IF NOT EXISTS transactions (
 export const BUDGETS_TABLE = `
 CREATE TABLE IF NOT EXISTS budgets (
   id TEXT PRIMARY KEY,
-  categoryId TEXT NOT NULL,
+  name TEXT NOT NULL,
   amount REAL NOT NULL,
-  month INTEGER NOT NULL,
-  year INTEGER NOT NULL,
+  targetType TEXT NOT NULL,
+  targetId TEXT NOT NULL,
+  recurrence TEXT NOT NULL,
+  startDate TEXT NOT NULL,
   createdAt TEXT NOT NULL,
-  updatedAt TEXT NOT NULL,
-  FOREIGN KEY (categoryId) REFERENCES categories (id)
+  updatedAt TEXT NOT NULL
 );
 `;
 
@@ -175,12 +176,17 @@ CREATE TABLE IF NOT EXISTS savings_deposits (
 export const YIELD_POCKET_SETTINGS_TABLE = `
 CREATE TABLE IF NOT EXISTS yield_pocket_settings (
   walletId TEXT PRIMARY KEY,
-  annualYieldRate REAL NOT NULL,
+  yieldRule TEXT NOT NULL,
+  currentApy REAL NOT NULL,
   yieldFrequency TEXT NOT NULL,
   postingMode TEXT NOT NULL,
   lastYieldCalculatedAt TEXT,
   nextYieldDate TEXT,
   allowSpendingDirectly INTEGER NOT NULL DEFAULT 1,
+  interestBearingBalance REAL NOT NULL DEFAULT 0,
+  pendingDeposit REAL NOT NULL DEFAULT 0,
+  lastRolloverDate TEXT,
+  lastSyncDate TEXT,
   createdAt TEXT NOT NULL,
   updatedAt TEXT NOT NULL,
   FOREIGN KEY (walletId) REFERENCES wallets (id) ON DELETE CASCADE
@@ -261,6 +267,6 @@ export const ALL_INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(categoryId);',
   'CREATE INDEX IF NOT EXISTS idx_transactions_source_wallet ON transactions(sourceWalletId);',
   'CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);',
-  'CREATE INDEX IF NOT EXISTS idx_budgets_lookup ON budgets(categoryId, month, year);',
+  'CREATE INDEX IF NOT EXISTS idx_budgets_target ON budgets(targetType, targetId);',
   'CREATE INDEX IF NOT EXISTS idx_recurring_active ON recurring_transactions(isActive, nextDueDate);',
 ];

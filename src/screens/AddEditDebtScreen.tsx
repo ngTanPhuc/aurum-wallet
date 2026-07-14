@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList, DebtDirection, InterestType, Debt, Transaction } from '../types';
@@ -11,7 +11,9 @@ import { GlassCard } from '../components/glass/GlassCard';
 import { AmountInput } from '../components/glass/AmountInput';
 import { DebtService } from '../services/DebtService';
 import uuid from 'react-native-uuid';
-import { Picker } from '@react-native-picker/picker';
+import { WalletPicker } from '../components/WalletPicker';
+import { GlassSelect } from '../components/glass/GlassSelect';
+import { appAlert } from '../components/glass/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditDebt'>;
 
@@ -51,9 +53,9 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
   const totalExpected = DebtService.calculateTotalExpectedAmount(principal, interestAmount);
 
   const handleSave = async () => {
-    if (!personId) return Alert.alert('Error', 'Please select a person.');
-    if (principal <= 0) return Alert.alert('Error', 'Amount must be greater than 0.');
-    if (!walletId) return Alert.alert('Error', 'Please select a wallet.');
+    if (!personId) return appAlert('Error', 'Please select a person.');
+    if (principal <= 0) return appAlert('Error', 'Amount must be greater than 0.');
+    if (!walletId) return appAlert('Error', 'Please select a wallet.');
     
     // Determine category
     const isLent = direction === 'lent';
@@ -103,7 +105,7 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
       await addDebt(debt, tx);
       navigation.goBack();
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to save debt.');
+      appAlert('Error', e.message || 'Failed to save debt.');
     }
   };
 
@@ -114,22 +116,17 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <GlassCard style={styles.card}>
-          <Text style={styles.label}>Person</Text>
           <View style={styles.row}>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={personId}
-                onValueChange={(val) => setPersonId(val)}
-                dropdownIconColor={theme.colors.textPrimary}
-                style={styles.picker}
-              >
-                <Picker.Item label="Select person..." value="" color={theme.colors.textMuted} />
-                {people.map(p => (
-                  <Picker.Item key={p.id} label={p.name} value={p.id} color={theme.colors.textPrimary} />
-                ))}
-              </Picker>
+            <View style={{ flex: 1 }}>
+              <GlassSelect
+                label="Person"
+                value={personId}
+                onChange={setPersonId}
+                placeholder="Select person..."
+                options={people.map(p => ({ label: p.name, value: p.id }))}
+              />
             </View>
-            <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('AddEditPerson', {})}>
+            <TouchableOpacity style={[styles.addBtn, { marginTop: 12 }]} onPress={() => navigation.navigate('AddEditPerson', {})}>
               <Ionicons name="add" size={24} color={theme.colors.textPrimary} />
             </TouchableOpacity>
           </View>
@@ -144,44 +141,36 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
             placeholder="0"
           />
 
-          <Text style={[styles.label, { marginTop: 16 }]}>From Wallet</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={walletId}
-              onValueChange={setWalletId}
-              dropdownIconColor={theme.colors.textPrimary}
-              style={styles.picker}
-            >
-              {wallets.map(w => (
-                <Picker.Item key={w.id} label={`${w.name} (${w.balance})`} value={w.id} color={theme.colors.textPrimary} />
-              ))}
-            </Picker>
+          <View style={{ marginTop: 16 }}>
+            <WalletPicker
+              label="From Wallet"
+              value={walletId}
+              onChange={setWalletId}
+              requireSpendingEnabled={direction === 'lent'}
+            />
           </View>
         </GlassCard>
 
         <GlassCard style={styles.card}>
-          <Text style={styles.label}>Interest Type</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={interestType}
-              onValueChange={(val) => setInterestType(val as InterestType)}
-              dropdownIconColor={theme.colors.textPrimary}
-              style={styles.picker}
-            >
-              <Picker.Item label="None" value="none" color={theme.colors.textPrimary} />
-              <Picker.Item label="Flat Rate (%)" value="flat" color={theme.colors.textPrimary} />
-              <Picker.Item label="Simple Annual (%)" value="simple_annual" color={theme.colors.textPrimary} />
-            </Picker>
-          </View>
+          <GlassSelect
+            label="Interest Type"
+            value={interestType}
+            onChange={(val) => setInterestType(val as InterestType)}
+            options={[
+              { label: 'None', value: 'none' },
+              { label: 'Flat Rate (%)', value: 'flat' },
+              { label: 'Simple Annual (%)', value: 'simple_annual' },
+            ]}
+          />
 
           {interestType !== 'none' && (
             <>
               <Text style={[styles.label, { marginTop: 16 }]}>Interest Rate (%)</Text>
-              <TextInput
+              <AmountInput
                 style={styles.input}
                 value={interestRateStr}
                 onChangeText={setInterestRateStr}
-                keyboardType="numeric"
+                allowDecimal
                 placeholder="e.g. 5"
                 placeholderTextColor={theme.colors.textMuted}
               />

@@ -1,14 +1,16 @@
 import React from 'react';
+import { appAlert } from '../glass/AppAlert';
+jest.mock('../glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { TagPicker } from '../TagPicker';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn(),
 }));
 
-jest.spyOn(Alert, 'alert');
+
 
 describe('TagPicker', () => {
   const addTagMock = jest.fn();
@@ -97,7 +99,7 @@ describe('TagPicker', () => {
     
     fireEvent.press(getByText('Create'));
     
-    expect(Alert.alert).toHaveBeenCalledWith('Error', 'A tag with this name already exists.');
+    expect(appAlert).toHaveBeenCalledWith('Error', 'A tag with this name already exists.');
     expect(addTagMock).not.toHaveBeenCalled();
   });
 
@@ -112,7 +114,7 @@ describe('TagPicker', () => {
     fireEvent.press(getByText('Create'));
     
     await waitFor(() => {
-      expect(Alert.alert).toHaveBeenCalledWith('Error', 'Failed to create tag.');
+      expect(appAlert).toHaveBeenCalledWith('Error', 'Failed to create tag.');
     });
   });
 

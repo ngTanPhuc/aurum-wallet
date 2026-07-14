@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, TextInput, TouchableOpacity } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Person } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -34,7 +35,7 @@ export const AddEditPersonScreen = ({ navigation, route }: Props) => {
   const [avatarColor, setAvatarColor] = useState(existingPerson?.avatarColor || COLORS[0]);
 
   const handleSave = async () => {
-    if (!name.trim()) return Alert.alert('Error', 'Name is required.');
+    if (!name.trim()) return appAlert('Error', 'Name is required.');
 
     const now = new Date().toISOString();
     

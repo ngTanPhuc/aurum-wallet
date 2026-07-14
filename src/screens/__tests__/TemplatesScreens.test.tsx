@@ -1,10 +1,12 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, act } from '@testing-library/react-native';
 import { TemplatesScreen } from '../TemplatesScreen';
 import { AddEditTemplateScreen } from '../AddEditTemplateScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
@@ -63,7 +65,7 @@ describe('Templates UI', () => {
 
     it('renders templates and handles delete', () => {
       const deleteMock = jest.fn();
-      jest.spyOn(Alert, 'alert').mockImplementation((title, msg, buttons) => {
+      (appAlert as jest.Mock).mockImplementation((title: any, msg: any, buttons: any) => {
         if (buttons && buttons[1] && buttons[1].onPress) buttons[1].onPress();
       });
       (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
@@ -113,7 +115,7 @@ describe('Templates UI', () => {
     });
 
     it('fails to save if name missing', async () => {
-      jest.spyOn(Alert, 'alert');
+      
       (useFinanceStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
         const state = { templates: [], wallets: [], categories: [], addTemplate: jest.fn() };
         return typeof selector === 'function' ? selector(state) : state;
@@ -122,7 +124,7 @@ describe('Templates UI', () => {
       await act(async () => {
         fireEvent.press(getByText('Save Template'));
       });
-      expect(Alert.alert).toHaveBeenCalledWith('Validation Error', 'Please enter a template name.');
+      expect(appAlert).toHaveBeenCalledWith('Validation Error', 'Please enter a template name.');
     });
   });
 });

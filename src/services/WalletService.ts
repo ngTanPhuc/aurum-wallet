@@ -76,5 +76,47 @@ export const WalletService = {
       new Date().toISOString(),
       id
     );
+  },
+
+  async archiveWalletWithDependencies(id: string, resolutions: {
+    cancelRecurring: boolean;
+    stopYieldPocket: boolean;
+    unlinkGoals: boolean;
+  }): Promise<void> {
+    const db = await getDb();
+    const now = new Date().toISOString();
+    
+    await db.withExclusiveTransactionAsync(async (txn) => {
+      await txn.runAsync(
+        'UPDATE wallets SET isArchived = 1, includeInTotal = 0, updatedAt = ? WHERE id = ?',
+        now, id
+      );
+      
+      if (resolutions.cancelRecurring) {
+        await txn.runAsync(
+          'UPDATE recurring_transactions SET isActive = 0, updatedAt = ? WHERE walletId = ? OR destinationWalletId = ?',
+          now, id, id
+        );
+      }
+      
+      if (resolutions.stopYieldPocket) {
+        await txn.runAsync('DELETE FROM yield_pocket_settings WHERE walletId = ?', id);
+      }
+      
+      if (resolutions.unlinkGoals) {
+        await txn.runAsync(
+          'UPDATE savings_goals SET linkedWalletId = NULL, updatedAt = ? WHERE linkedWalletId = ?',
+          now, id
+        );
+      }
+    });
+  },
+
+  async unarchiveWallet(id: string): Promise<void> {
+    const db = await getDb();
+    await db.runAsync(
+      'UPDATE wallets SET isArchived = 0, includeInTotal = 1, updatedAt = ? WHERE id = ?',
+      new Date().toISOString(), id
+    );
   }
 };

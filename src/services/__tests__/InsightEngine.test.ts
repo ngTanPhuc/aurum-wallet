@@ -15,7 +15,7 @@ describe('InsightEngine', () => {
   ];
 
   const budgets: Budget[] = [
-    { id: 'b1', categoryId: 'c1', amount: 1000, month: 6, year: 2023, createdAt: '', updatedAt: '', }
+    { id: 'b1', name: 'Test Budget', amount: 1000, targetType: 'category' as any, targetId: 'c1', recurrence: 'monthly' as any, startDate: '2023-06-01T00:00:00.000Z', createdAt: '', updatedAt: '' }
   ];
 
   it('should generate savings rate good insight', () => {
@@ -114,7 +114,7 @@ describe('InsightEngine', () => {
 
   it('should handle missing category for budget', () => {
     const badBudgets = [
-      { id: 'b2', categoryId: 'c-unknown', amount: 1000, month: 6, year: 2023, createdAt: '', updatedAt: '', }
+      { id: 'b2', name: 'Test Budget', amount: 1000, targetType: 'category' as any, targetId: 'c-unknown', recurrence: 'monthly' as any, startDate: '2023-06-01T00:00:00.000Z', createdAt: '', updatedAt: '' }
     ];
     const transactions: Transaction[] = [
       { id: '1', amount: 1200, type: 'expense', categoryId: 'c-unknown', transactionDate: '2023-06-15', sourceWalletId: 'w1', createdAt: '', updatedAt: '', note: '', },
@@ -142,4 +142,65 @@ describe('InsightEngine', () => {
     
     expect(spendInsight).toBeDefined();
   });
+
+  it('should show negative cash flow when there is expense but NO income', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2023-06-20T12:00:00Z'));
+
+    const transactions: Transaction[] = [
+      { id: '1', amount: 500, type: 'expense', categoryId: 'c1', transactionDate: '2023-06-10', sourceWalletId: 'w1', createdAt: '', updatedAt: '', note: '' },
+    ];
+
+    const insights = InsightEngine.generateInsights(transactions, [], [], categories);
+    const cashFlowInsight = insights.find(i => i.id === 'savings_rate_negative');
+
+    expect(cashFlowInsight).toBeDefined();
+    expect(cashFlowInsight?.description).toContain('no income recorded');
+  });
+
+  it('should NOT generate savings rate insight when rate is between 0% and 20%', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2023-06-20T12:00:00Z'));
+
+    // 15% savings rate: income 1000, expense 850
+    const transactions: Transaction[] = [
+      { id: '1', amount: 1000, type: 'income', categoryId: 'c2', transactionDate: '2023-06-10', sourceWalletId: 'w1', createdAt: '', updatedAt: '', note: '' },
+      { id: '2', amount: 850, type: 'expense', categoryId: 'c1', transactionDate: '2023-06-11', sourceWalletId: 'w1', createdAt: '', updatedAt: '', note: '' },
+    ];
+
+    const insights = InsightEngine.generateInsights(transactions, [], [], categories);
+    expect(insights.find(i => i.id === 'savings_rate_good')).toBeUndefined();
+    expect(insights.find(i => i.id === 'savings_rate_negative')).toBeUndefined();
+  });
+
+  it('should not show spending comparison on the first day of the month (day <= 15 guard)', () => {
+    // Simulate day 5 of the month
+    jest.useFakeTimers().setSystemTime(new Date('2023-06-05T12:00:00Z'));
+
+    const transactions: Transaction[] = [
+      { id: '1', amount: 2000, type: 'expense', categoryId: 'c1', transactionDate: '2023-06-01', sourceWalletId: 'w1', createdAt: '', updatedAt: '', note: '' },
+      { id: '2', amount: 1000, type: 'expense', categoryId: 'c1', transactionDate: '2023-05-15', sourceWalletId: 'w1', createdAt: '', updatedAt: '', note: '' },
+    ];
+
+    const insights = InsightEngine.generateInsights(transactions, [], [], categories);
+    expect(insights.find(i => i.id === 'spending_increase')).toBeUndefined();
+    expect(insights.find(i => i.id === 'spending_decrease')).toBeUndefined();
+  });
+
+  it('should handle budget with zero amount without dividing by zero', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2023-06-20T12:00:00Z'));
+
+    const zeroBudgets = [
+      { id: 'bz', name: 'Test Budget', amount: 0, targetType: 'category' as any, targetId: 'c1', recurrence: 'monthly' as any, startDate: '2023-06-01T00:00:00.000Z', createdAt: '', updatedAt: '' }
+    ];
+    const transactions: Transaction[] = [
+      { id: '1', amount: 100, type: 'expense', categoryId: 'c1', transactionDate: '2023-06-15', sourceWalletId: 'w1', createdAt: '', updatedAt: '', note: '' },
+    ];
+
+    // Should not throw, should not generate a budget insight for a 0-amount budget
+    expect(() => InsightEngine.generateInsights(transactions, zeroBudgets, [], categories)).not.toThrow();
+    const insight = InsightEngine.generateInsights(transactions, zeroBudgets, [], categories);
+    // 0/0 would be NaN — the guard `budget.amount > 0 ? ... : 0` returns 0 → no insight expected
+    expect(insight.find(i => i.id === 'budget_exceeded_bz')).toBeUndefined();
+    expect(insight.find(i => i.id === 'budget_warning_bz')).toBeUndefined();
+  });
 });
+

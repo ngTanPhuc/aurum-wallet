@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch, TextInput } from 'react-native';
+import { AmountInput } from '../components/glass/AmountInput';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, TextInput } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, YieldPocketSettings } from '../types';
@@ -7,6 +9,7 @@ import { useFinanceStore } from '../store/useFinanceStore';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
 import { WalletPicker } from '../components/WalletPicker';
+import { YieldPocketService } from '../services/YieldPocketService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditYieldPocket'>;
 
@@ -22,14 +25,16 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
   const [annualYieldRate, setAnnualYieldRate] = useState('5.0');
   const [yieldFrequency, setYieldFrequency] = useState<'daily' | 'monthly'>('daily');
   const [allowSpendingDirectly, setAllowSpendingDirectly] = useState(true);
+  const [postingMode, setPostingMode] = useState<'auto' | 'manual'>('auto');
 
   useEffect(() => {
     if (isEditing && walletId) {
       const existing = yieldPocketSettings.find(s => s.walletId === walletId);
       if (existing) {
-        setAnnualYieldRate(existing.annualYieldRate.toString());
+        setAnnualYieldRate(existing.currentApy.toString());
         setYieldFrequency(existing.yieldFrequency);
         setAllowSpendingDirectly(existing.allowSpendingDirectly);
+        setPostingMode(existing.postingMode || 'auto');
       }
     }
   }, [walletId, isEditing, yieldPocketSettings]);
@@ -43,43 +48,68 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
 
   const handleSave = async () => {
     if (!selectedWalletId) {
-      Alert.alert('Error', 'Please select a wallet.');
+      appAlert('Error', 'Please select a wallet.');
       return;
     }
 
     if (!isWalletAvailable(selectedWalletId)) {
-      Alert.alert('Error', 'This wallet already has a Yield Pocket configured.');
+      appAlert('Error', 'This wallet already has a Yield Pocket configured.');
       return;
     }
 
     const rateNum = parseFloat(annualYieldRate);
     if (isNaN(rateNum) || rateNum <= 0) {
-      Alert.alert('Error', 'Please enter a valid positive yield rate.');
+      appAlert('Error', 'Please enter a valid positive yield rate.');
       return;
     }
 
     const now = new Date().toISOString();
     let existing = yieldPocketSettings.find(s => s.walletId === selectedWalletId);
 
+    const wallet = wallets.find(w => w.id === selectedWalletId);
+    const initialBalance = wallet ? wallet.balance : 0;
+
+    // For new pockets: initial balance goes into pendingDeposit (T+1 applies from day one).
+    // First yield is scheduled for tomorrow so the processor doesn't fire instantly on creation.
+    const firstYieldDate = existing?.nextYieldDate
+      || YieldPocketService.getNextYieldDate(now, yieldFrequency);
+
     const settings: YieldPocketSettings = {
       walletId: selectedWalletId,
-      annualYieldRate: rateNum,
+      yieldRule: existing?.yieldRule || 'T1_FUND',
+      currentApy: rateNum,
       yieldFrequency,
-      postingMode: 'auto', // Default to auto for simplicity
+      postingMode,
       allowSpendingDirectly,
       lastYieldCalculatedAt: existing?.lastYieldCalculatedAt,
-      nextYieldDate: existing?.nextYieldDate,
+      nextYieldDate: firstYieldDate,
+      interestBearingBalance: existing ? existing.interestBearingBalance : 0,
+      pendingDeposit: existing ? existing.pendingDeposit : initialBalance,
+      lastRolloverDate: existing?.lastRolloverDate,
+      lastSyncDate: existing?.lastSyncDate,
       createdAt: existing?.createdAt || now,
       updatedAt: now,
     };
 
     try {
-      await saveYieldPocketSettings(settings);
+      await useFinanceStore.getState().saveYieldPocketSettings(settings);
       navigation.goBack();
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Failed to save yield pocket settings.');
+      appAlert('Error', 'Failed to save yield pocket settings.');
     }
+  };
+
+  const handleDelete = () => {
+    appAlert('Delete Yield Pocket', 'Are you sure you want to remove this yield pocket? Your wallet will not be deleted.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        if (selectedWalletId) {
+          await useFinanceStore.getState().deleteYieldPocketSettings(selectedWalletId);
+          navigation.goBack();
+        }
+      }}
+    ]);
   };
 
   return (
@@ -102,11 +132,11 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
         </View>
 
         <Text style={[styles.label, { marginTop: 8 }]}>Annual Yield Rate (APY %)</Text>
-        <TextInput 
-          style={styles.input} 
-          value={annualYieldRate} 
-          onChangeText={setAnnualYieldRate} 
-          keyboardType="decimal-pad"
+        <AmountInput
+          style={styles.input}
+          value={annualYieldRate}
+          onChangeText={setAnnualYieldRate}
+          allowDecimal
           placeholder="e.g. 5.5" 
           placeholderTextColor={theme.colors.textMuted}
         />
@@ -120,6 +150,21 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
               onPress={() => setYieldFrequency(f as 'daily' | 'monthly')}
             >
               <Text style={[styles.typeText, yieldFrequency === f && styles.typeTextActive]}>
+                {f}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        <Text style={styles.label}>Posting Mode</Text>
+        <View style={styles.typeRow}>
+          {['auto', 'manual'].map(f => (
+            <TouchableOpacity 
+              key={f}
+              style={[styles.typeBtn, postingMode === f && styles.typeBtnActive]}
+              onPress={() => setPostingMode(f as 'auto' | 'manual')}
+            >
+              <Text style={[styles.typeText, postingMode === f && styles.typeTextActive]}>
                 {f}
               </Text>
             </TouchableOpacity>
@@ -141,6 +186,12 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
         <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
           <Text style={styles.saveBtnText}>{isEditing ? 'Save Changes' : 'Create Yield Pocket'}</Text>
         </TouchableOpacity>
+        
+        {isEditing && (
+          <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete}>
+            <Text style={styles.deleteBtnText}>Delete Yield Pocket</Text>
+          </TouchableOpacity>
+        )}
       </KeyboardAwareScrollView>
     </View>
   );
@@ -165,4 +216,6 @@ const styles = StyleSheet.create({
 
   saveBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: 32 },
   saveBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },
+  deleteBtn: { padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: 16 },
+  deleteBtnText: { ...theme.typography.body1, color: theme.colors.danger, fontWeight: 'bold' },
 });

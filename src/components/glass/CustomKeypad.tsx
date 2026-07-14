@@ -7,9 +7,10 @@ interface CustomKeypadProps {
   isVisible: boolean;
   onKeyPress: (key: string) => void;
   onClose: () => void;
+  allowDecimal?: boolean;
 }
 
-export const CustomKeypad: React.FC<CustomKeypadProps> = ({ isVisible, onKeyPress, onClose }) => {
+export const CustomKeypad: React.FC<CustomKeypadProps> = ({ isVisible, onKeyPress, onClose, allowDecimal }) => {
   const renderButton = (key: string, label?: React.ReactNode, flex = 1) => (
     <TouchableOpacity 
       style={[styles.keyButton, { flex }]} 
@@ -47,7 +48,7 @@ export const CustomKeypad: React.FC<CustomKeypadProps> = ({ isVisible, onKeyPres
           {renderButton('9')}
         </View>
         <View style={styles.row}>
-          {renderButton('000')}
+          {allowDecimal ? renderButton('.') : renderButton('000')}
           {renderButton('0')}
           {renderButton('BACKSPACE', <Ionicons name="backspace-outline" size={24} color={theme.colors.textPrimary} />)}
         </View>

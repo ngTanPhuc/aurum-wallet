@@ -8,6 +8,8 @@ let _dbInstance: SQLite.SQLiteDatabase | null = null;
 export const getDb = async () => {
   if (!_dbInstance) {
     _dbInstance = await SQLite.openDatabaseAsync(DATABASE_NAME);
+    // WAL mode allows concurrent readers without corrupting prepared statement handles
+    await _dbInstance.execAsync('PRAGMA journal_mode = WAL;');
     await _dbInstance.execAsync('PRAGMA foreign_keys = ON;');
     await _dbInstance.execAsync('PRAGMA busy_timeout = 5000;');
   }
@@ -128,6 +130,94 @@ const MIGRATIONS: Migration[] = [
     up: async (db) => {
       for (const indexSql of ALL_INDEXES) {
         await db.execAsync(indexSql);
+      }
+    }
+  },
+  {
+    id: 11,
+    name: 'upgrade_yield_pockets_v2',
+    up: async (db) => {
+      // Check if columns exist first (idempotent setup just in case)
+      try {
+        await db.execAsync(`
+          ALTER TABLE yield_pocket_settings ADD COLUMN interestBearingBalance REAL NOT NULL DEFAULT 0;
+          ALTER TABLE yield_pocket_settings ADD COLUMN pendingDeposit REAL NOT NULL DEFAULT 0;
+          ALTER TABLE yield_pocket_settings ADD COLUMN lastRolloverDate TEXT;
+        `);
+        // Backfill data for existing yield pockets
+        await db.execAsync(`
+          UPDATE yield_pocket_settings 
+          SET interestBearingBalance = (SELECT balance FROM wallets WHERE wallets.id = yield_pocket_settings.walletId),
+              lastRolloverDate = updatedAt;
+        `);
+      } catch (e: any) {
+        // If column already exists, this throws. Safe to ignore.
+        if (!e.message?.includes('duplicate column name')) {
+          console.log('[Migration 11] Error adding columns (might already exist):', e.message);
+        }
+      }
+    }
+  },
+  {
+    id: 12,
+    name: 'yield_pockets_smart_sync',
+    up: async (db) => {
+      try {
+        await db.execAsync(`
+          ALTER TABLE yield_pocket_settings ADD COLUMN yieldRule TEXT NOT NULL DEFAULT 'T1_FUND';
+          ALTER TABLE yield_pocket_settings ADD COLUMN currentApy REAL NOT NULL DEFAULT 0;
+          ALTER TABLE yield_pocket_settings ADD COLUMN lastSyncDate TEXT;
+        `);
+        // Backfill currentApy from annualYieldRate if it exists
+        // SQLite doesn't let us drop columns easily, so we just ignore annualYieldRate from now on
+        await db.execAsync(`
+          UPDATE yield_pocket_settings 
+          SET currentApy = annualYieldRate, yieldRule = 'T1_FUND', lastSyncDate = updatedAt;
+        `);
+      } catch (e: any) {
+        if (!e.message?.includes('duplicate column name')) {
+          console.log('[Migration 12] Error adding columns:', e.message);
+        }
+      }
+    }
+  },
+  {
+    id: 13,
+    name: 'budgets_rework',
+    up: async (db) => {
+      try {
+        await db.execAsync(`
+          CREATE TABLE IF NOT EXISTS new_budgets (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            amount REAL NOT NULL,
+            targetType TEXT NOT NULL,
+            targetId TEXT NOT NULL,
+            recurrence TEXT NOT NULL,
+            startDate TEXT NOT NULL,
+            createdAt TEXT NOT NULL,
+            updatedAt TEXT NOT NULL
+          );
+          
+          INSERT INTO new_budgets (id, name, amount, targetType, targetId, recurrence, startDate, createdAt, updatedAt)
+          SELECT 
+            b.id,
+            IFNULL(c.name, 'Budget') as name,
+            b.amount,
+            'category' as targetType,
+            b.categoryId as targetId,
+            'monthly' as recurrence,
+            printf('%04d-%02d-01T00:00:00.000Z', b.year, b.month) as startDate,
+            b.createdAt,
+            b.updatedAt
+          FROM budgets b
+          LEFT JOIN categories c ON b.categoryId = c.id;
+
+          DROP TABLE budgets;
+          ALTER TABLE new_budgets RENAME TO budgets;
+        `);
+      } catch (e: any) {
+        console.log('[Migration 13] Error reworking budgets:', e.message);
       }
     }
   }

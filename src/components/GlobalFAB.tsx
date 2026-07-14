@@ -24,7 +24,7 @@ export const GlobalFAB = () => {
     } else if (screen === 'AddEditWallet') {
       navigation.navigate('AddEditWallet', {});
     } else if (screen === 'AddEditBudget') {
-      navigation.navigate('AddEditBudget', { month: new Date().getMonth() + 1, year: new Date().getFullYear() });
+      navigation.navigate('AddEditBudget', {});
     } else {
       navigation.navigate('AddEditSavingsGoal', {});
     }

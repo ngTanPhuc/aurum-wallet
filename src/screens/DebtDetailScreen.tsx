@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../types';
@@ -33,7 +34,7 @@ export const DebtDetailScreen = ({ navigation, route }: Props) => {
   const formatCurrency = (val: number) => `${val.toLocaleString()} ${defaultCurrency}`;
 
   const handleMarkPaid = () => {
-    Alert.alert('Mark as Paid', 'Are you sure you want to mark this debt as paid? No transaction will be created for the remaining amount.', [
+    appAlert('Mark as Paid', 'Are you sure you want to mark this debt as paid? No transaction will be created for the remaining amount.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Mark Paid', style: 'default', onPress: () => {
         updateDebtStatus(debt.id, 'paid');
@@ -43,7 +44,7 @@ export const DebtDetailScreen = ({ navigation, route }: Props) => {
   };
 
   const handleCancel = () => {
-    Alert.alert('Cancel Debt', 'Are you sure you want to cancel this debt?', [
+    appAlert('Cancel Debt', 'Are you sure you want to cancel this debt?', [
       { text: 'Keep', style: 'cancel' },
       { text: 'Cancel Debt', style: 'destructive', onPress: () => {
         updateDebtStatus(debt.id, 'cancelled');

@@ -242,15 +242,9 @@
 <a name='L177'></a><a href='#L177'>177</a>
 <a name='L178'></a><a href='#L178'>178</a>
 <a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L180'></a><a href='#L180'>180</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -427,21 +421,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { theme } from '../theme/theme';
 &nbsp;
 type NavigationProp = NativeStackNavigationProp&lt;RootStackParamList&gt;;
 &nbsp;
@@ -481,7 +467,7 @@ export const GlobalFAB = () =&gt; {
                     style={styles.actionBtn} 
                     onPress={() =&gt; handleAction('AddEditSavingsGoal')}
                   &gt;
-                    &lt;Text style={styles.actionIcon}&gt;💰&lt;/Text&gt;
+                    &lt;Ionicons name="flag" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} /&gt;
                   &lt;/TouchableOpacity&gt;
                 &lt;/View&gt;
 &nbsp;
@@ -491,7 +477,7 @@ export const GlobalFAB = () =&gt; {
                     style={styles.actionBtn} 
                     onPress={() =&gt; handleAction('AddEditBudget')}
                   &gt;
-                    &lt;Text style={styles.actionIcon}&gt;🎯&lt;/Text&gt;
+                    &lt;Ionicons name="pie-chart" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} /&gt;
                   &lt;/TouchableOpacity&gt;
                 &lt;/View&gt;
 &nbsp;
@@ -504,7 +490,7 @@ export const GlobalFAB = () =&gt; {
                       navigation.navigate('AddEditRecurringTransaction', {});
                     }}
                   &gt;
-                    &lt;Text style={styles.actionIcon}&gt;🔁&lt;/Text&gt;
+                    &lt;Ionicons name="repeat" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} /&gt;
                   &lt;/TouchableOpacity&gt;
                 &lt;/View&gt;
 &nbsp;
@@ -514,7 +500,7 @@ export const GlobalFAB = () =&gt; {
                     style={styles.actionBtn} 
                     onPress={() =&gt; handleAction('AddEditWallet')}
                   &gt;
-                    &lt;Text style={styles.actionIcon}&gt;💳&lt;/Text&gt;
+                    &lt;Ionicons name="wallet" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} /&gt;
                   &lt;/TouchableOpacity&gt;
                 &lt;/View&gt;
 &nbsp;
@@ -524,7 +510,7 @@ export const GlobalFAB = () =&gt; {
                     style={styles.actionBtn} 
                     onPress={() =&gt; handleAction('AddEditTransaction')}
                   &gt;
-                    &lt;Text style={styles.actionIcon}&gt;📝&lt;/Text&gt;
+                    &lt;Ionicons name="add" size={20} color={theme.colors.primary} style={{ marginTop: -2 }} /&gt;
                   &lt;/TouchableOpacity&gt;
                 &lt;/View&gt;
                 
@@ -538,7 +524,7 @@ export const GlobalFAB = () =&gt; {
         style={[styles.fab, isOpen &amp;&amp; styles.fabOpen]}
         onPress={toggleMenu}
       &gt;
-        &lt;Text style={[styles.fabIcon, isOpen &amp;&amp; styles.fabIconOpen]}&gt;{isOpen ? '×' : '+'}&lt;/Text&gt;
+        &lt;Ionicons name={isOpen ? "close" : "add"} size={32} color={isOpen ? theme.colors.primary : theme.colors.background} style={{ marginTop: -2 }} /&gt;
       &lt;/TouchableOpacity&gt;
     &lt;/&gt;
   );
@@ -552,22 +538,18 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#007bff',
+    backgroundColor: theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    ...theme.shadows.medium,
     zIndex: 100, // Make sure it sits on top
   },
   fabOpen: {
-    backgroundColor: '#333',
+    backgroundColor: theme.colors.surfaceStrong,
   },
   fabIcon: { 
     fontSize: 32, 
-    color: '#fff', 
+    color: theme.colors.background, 
     lineHeight: 34 
   },
   fabIconOpen: {
@@ -577,7 +559,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)', // theme.colors.background with opacity
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
     paddingRight: 90,
@@ -592,33 +574,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  actionLabel: {
-    backgroundColor: '#fff',
+  actionLabel: { 
+    ...theme.typography.body2, 
+    backgroundColor: theme.colors.surfaceStrong,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: theme.colors.textPrimary,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: theme.colors.glassBorder,
   },
   actionBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.surfaceStrong,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: theme.colors.glassBorder,
   },
   actionIcon: {
     fontSize: 20,
@@ -631,7 +607,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-01T07:52:20.043Z
+                at 2026-07-14T04:35:35.267Z
             </div>
         <script src="../prettify.js"></script>
         <script>

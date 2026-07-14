@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TransactionType, TransactionTemplate } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -11,6 +12,7 @@ import { TagPicker } from '../components/TagPicker';
 import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
 import { AmountInput } from '../components/glass/AmountInput';
+import { GlassAlert } from '../components/glass/GlassAlert';
 
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditTransaction'>;
@@ -21,6 +23,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
 
   const transactions = useFinanceStore(state => state.transactions);
   const wallets = useFinanceStore(state => state.wallets);
+  const categories = useFinanceStore(state => state.categories);
   const savingsGoals = useFinanceStore(state => state.savingsGoals);
   const addTransaction = useFinanceStore(state => state.addTransaction);
   const updateTransaction = useFinanceStore(state => state.updateTransaction);
@@ -40,6 +43,17 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
   const [templateName, setTemplateName] = useState('');
   const [tagIds, setTagIds] = useState<string[]>([]);
   const tags = useFinanceStore(state => state.tags);
+
+  const [debtAlertVisible, setDebtAlertVisible] = useState(false);
+
+  const handleCategoryChange = (id: string) => {
+    const selectedCat = categories.find(c => c.id === id);
+    if (selectedCat && ['Lending', 'Debt Payment', 'Borrowed Money', 'Debt Repayment'].includes(selectedCat.name)) {
+      setDebtAlertVisible(true);
+    } else {
+      setCategoryId(id);
+    }
+  };
 
   const targetGoal = savingsGoals.find(g => g.id === savingsGoalId);
 
@@ -83,11 +97,11 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
 
   const handleSave = async () => {
     if (!amount) {
-      Alert.alert('Error', 'Please enter an amount');
+      appAlert('Error', 'Please enter an amount');
       return;
     }
     if (!sourceWalletId) {
-      Alert.alert('Error', 'Please select a wallet');
+      appAlert('Error', 'Please select a wallet');
       return;
     }
 
@@ -99,11 +113,11 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
     const feeNum = amtNum > 0 ? (amtNum * feePercentage) / 100 : 0;
     
     if (type === 'transfer' && (!destinationWalletId || sourceWalletId === destinationWalletId)) {
-      Alert.alert('Error', 'Please select a valid destination wallet');
+      appAlert('Error', 'Please select a valid destination wallet');
       return;
     }
     if ((type === 'expense' || type === 'income') && !categoryId) {
-      Alert.alert('Error', 'Please select a category');
+      appAlert('Error', 'Please select a category');
       return;
     }
 
@@ -151,7 +165,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
         navigation.goBack();
       } catch (e: any) {
         console.error('Error saving transaction:', e);
-        Alert.alert('Error', e?.message || 'Failed to save transaction');
+        appAlert('Error', e?.message || 'Failed to save transaction');
       }
     };
 
@@ -168,7 +182,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
 
       const totalAmount = amtNum + feeNum;
       if (wallet && availableBalance < totalAmount) {
-        Alert.alert(
+        appAlert(
           'Insufficient Funds',
           'This wallet does not have enough balance for this transaction.',
           [
@@ -230,7 +244,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
         />
 
         <Text style={styles.label}>Fee (%) (optional)</Text>
-        <TextInput 
+        <AmountInput 
           style={styles.input} 
           value={fee} 
           onChangeText={(text) => {
@@ -239,7 +253,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
             if (!trimmed) { setFee(''); return; }
             setFee(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
           }} 
-          keyboardType="numeric" 
+           
           placeholder="0" 
           placeholderTextColor={theme.colors.textMuted}
         />
@@ -248,6 +262,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
           label={type === 'income' ? 'To Wallet' : 'From Wallet'}
           value={sourceWalletId} 
           onChange={setSourceWalletId} 
+          requireSpendingEnabled={type === 'expense'}
         />
 
         {type === 'transfer' && (
@@ -262,7 +277,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
         {(type === 'expense' || type === 'income') && (
           <CategoryPicker 
             value={categoryId} 
-            onChange={setCategoryId} 
+            onChange={handleCategoryChange} 
             typeFilter={type}
           />
         )}
@@ -300,6 +315,22 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
           <Text style={styles.saveBtnText}>{isEditing ? 'Save Changes' : 'Save Transaction'}</Text>
         </TouchableOpacity>
       </KeyboardAwareScrollView>
+
+      <GlassAlert
+        visible={debtAlertVisible}
+        title="Debt & Lending"
+        message="Do you want to switch to the Debt & Lending screen to manage this?"
+        primaryButtonText="Yes"
+        secondaryButtonText="No"
+        onPrimaryPress={() => {
+          setDebtAlertVisible(false);
+          navigation.navigate('DebtDashboard');
+        }}
+        onSecondaryPress={() => {
+          setDebtAlertVisible(false);
+          setCategoryId(''); // Reset category
+        }}
+      />
     </View>
   );
 };

@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">74.07% </span>
+                <span class="strong">74.28% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>20/27</span>
+                <span class='fraction'>26/35</span>
             </div>
         
             
@@ -200,7 +200,10 @@
 <a name='L135'></a><a href='#L135'>135</a>
 <a name='L136'></a><a href='#L136'>136</a>
 <a name='L137'></a><a href='#L137'>137</a>
-<a name='L138'></a><a href='#L138'>138</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -225,8 +228,8 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
@@ -242,7 +245,7 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,6 +260,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -288,19 +295,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -338,18 +340,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Transaction } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { MoneyAmount } from './MoneyAmount';
 import { format } from 'date-fns';
+import { theme } from '../theme/theme';
 &nbsp;
 interface TransactionItemProps {
   transaction: Transaction;
   onPress?: (transaction: Transaction) =&gt; void;
 }
 &nbsp;
-export const TransactionItem: React.FC&lt;TransactionItemProps&gt; = ({ transaction, onPress }) =&gt; {
+export const TransactionItem: React.FC&lt;TransactionItemProps&gt; = React.memo(({ transaction, onPress }) =&gt; {
   const wallets = useFinanceStore(state =&gt; state.wallets);
   const categories = useFinanceStore(state =&gt; state.categories);
 &nbsp;
@@ -362,8 +366,8 @@ export const TransactionItem: React.FC&lt;TransactionItemProps&gt; = ({ transact
   const isTransfer = transaction.type === 'transfer';
 &nbsp;
   const getIcon = () =&gt; {
-    if (isTransfer) return '⇄';
-    return category?.icon || (isExpense ? <span class="branch-0 cbranch-no" title="branch not covered" >'💸' </span>: '💰');
+    if (isTransfer) return 'swap-horizontal';
+    return category?.icon || (isExpense ? <span class="branch-0 cbranch-no" title="branch not covered" >'cash-outline' </span>: 'wallet-outline');
   };
 &nbsp;
   const getTitle = () =&gt; {
@@ -378,7 +382,7 @@ export const TransactionItem: React.FC&lt;TransactionItemProps&gt; = ({ transact
     <span class="missing-if-branch" title="else path not taken" >E</span>if (sourceWallet) {
       parts.push(sourceWallet.name);
     }
-    if (transaction.note) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (transaction.note) {
       parts.push(transaction.note);
     }
     return parts.join(' • ');
@@ -396,8 +400,12 @@ export const TransactionItem: React.FC&lt;TransactionItemProps&gt; = ({ transact
       onPress={() =&gt; onPress?.(transaction)}
       disabled={!onPress}
     &gt;
-      &lt;View style={[styles.iconContainer, { backgroundColor: category?.color || '#f0f0f0' }]}&gt;
-        &lt;Text style={styles.icon}&gt;{getIcon()}&lt;/Text&gt;
+      &lt;View style={[styles.iconContainer, { backgroundColor: category?.color || theme.colors.surfaceStrong }]}&gt;
+        {(!getIcon() || /^[a-z0-9-]+$/.test(getIcon())) ? (
+          &lt;Ionicons name={getIcon() as any} size={24} color={theme.colors.textPrimary} /&gt;
+        ) : (
+          &lt;Text style={{ fontSize: 24 }}&gt;{getIcon()}&lt;/Text&gt;
+        )}
       &lt;/View&gt;
       
       &lt;View style={styles.content}&gt;
@@ -414,30 +422,33 @@ export const TransactionItem: React.FC&lt;TransactionItemProps&gt; = ({ transact
         )}
       &lt;/View&gt;
 &nbsp;
-      &lt;MoneyAmount 
-        amount={transaction.amount}
-        currency={sourceWallet?.currency}
-        colorType={getAmountColorType()}
-        showSign={true}
-        style={styles.amount}
-      /&gt;
+      &lt;View style={{ alignItems: 'flex-end' }}&gt;
+        &lt;MoneyAmount 
+          amount={transaction.amount}
+          currency={sourceWallet?.currency}
+          colorType={getAmountColorType()}
+          showSign={true}
+          style={styles.amount}
+        /&gt;
+        {(transaction.fee || 0) &gt; 0 &amp;&amp; (
+<span class="branch-1 cbranch-no" title="branch not covered" >          &lt;Text style={styles.feeText}&gt;</span>
+            + Fee: {transaction.fee?.toLocaleString()}
+          &lt;/Text&gt;
+        )}
+      &lt;/View&gt;
     &lt;/TouchableOpacity&gt;
   );
-};
+});
 &nbsp;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radii.lg,
+    marginBottom: theme.spacing.sm,
+    ...theme.shadows.subtle,
   },
   iconContainer: {
     width: 48,
@@ -454,25 +465,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 4,
-    textTransform: 'capitalize',
-  },
-  subtitle: {
-    fontSize: 12,
-    color: '#888',
-  },
-  amount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 16,
-  },
+  title: { ...theme.typography.body1, fontWeight: '500',
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.xs,
+    textTransform: 'capitalize', },
+  subtitle: { ...theme.typography.caption, color: theme.colors.textMuted, },
+  amount: { ...theme.typography.body1, fontWeight: 'bold',
+    marginLeft: theme.spacing.lg, },
   tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
-  tagBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 },
-  tagText: { fontSize: 10, color: '#fff', fontWeight: 'bold' },
+  tagBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: theme.radii.sm },
+  tagText: { ...theme.typography.caption, color: theme.colors.background, fontWeight: 'bold' },
+  feeText: { ...theme.typography.caption, color: theme.colors.textMuted, marginTop: 2 },
 });
 &nbsp;</pre></td></tr></table></pre>
 
@@ -481,7 +484,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-01T07:52:20.043Z
+                at 2026-07-14T04:35:35.267Z
             </div>
         <script src="../prettify.js"></script>
         <script>

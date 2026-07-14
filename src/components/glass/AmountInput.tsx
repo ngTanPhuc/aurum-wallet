@@ -9,6 +9,7 @@ interface AmountInputProps extends Omit<TextInputProps, 'style'> {
   style?: StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
   maxLength?: number;
+  allowDecimal?: boolean;
 }
 
 export const AmountInput: React.FC<AmountInputProps> = ({ 
@@ -17,6 +18,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   style, 
   containerStyle, 
   maxLength,
+  allowDecimal,
   ...props 
 }) => {
   const { showKeypad } = useKeypad();
@@ -27,6 +29,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
       initialValue: value,
       onChange: onChangeText,
       maxLength,
+      allowDecimal,
       inputRef: viewRef
     });
   };
@@ -42,7 +45,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   };
 
   return (
-    <View ref={viewRef} style={[styles.container, margins, containerStyle]}>
+    <View ref={viewRef} collapsable={false} style={[styles.container, margins, containerStyle]}>
       <TextInput
         style={[styles.input, inputStyle]}
         value={value}

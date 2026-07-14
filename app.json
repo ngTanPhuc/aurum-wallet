@@ -2,17 +2,18 @@
   "expo": {
     "name": "Aurum",
     "slug": "aurum-wallet",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#020C17",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ngtanphuc.aurumwallet"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#020C17",
+        "backgroundColor": "#001B3D",
         "foregroundImage": "./assets/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -20,7 +21,7 @@
       "package": "com.ngtanphuc.aurumwallet"
     },
     "web": {
-      "favicon": "./assets/logo.png"
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-sqlite",

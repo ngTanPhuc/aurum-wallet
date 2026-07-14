@@ -1,9 +1,11 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { AddTransactionScreen } from '../AddTransactionScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn(),
@@ -61,7 +63,7 @@ describe('AddTransactionScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(Alert, 'alert');
+    
     (useSettingsStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
       const state = { settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } };
       return typeof selector === 'function' ? selector(state) : state;
@@ -105,7 +107,7 @@ describe('AddTransactionScreen', () => {
     );
 
     fireEvent.press(getByText('Save Transaction'));
-    expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please enter an amount');
+    expect(appAlert).toHaveBeenCalledWith('Error', 'Please enter an amount');
   });
 
   it('validates missing wallet', () => {
@@ -116,7 +118,7 @@ describe('AddTransactionScreen', () => {
 
     fireEvent.changeText(getAllByPlaceholderText('0')[0], '1000');
     fireEvent.press(getByText('Save Transaction'));
-    expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please select a wallet');
+    expect(appAlert).toHaveBeenCalledWith('Error', 'Please select a wallet');
   });
 
   it('validates missing category for expense', () => {
@@ -128,7 +130,7 @@ describe('AddTransactionScreen', () => {
     fireEvent.changeText(getAllByPlaceholderText('0')[0], '1000');
     fireEvent.press(getByText('Set w1')); // Set wallet
     fireEvent.press(getByText('Save Transaction'));
-    expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please select a category');
+    expect(appAlert).toHaveBeenCalledWith('Error', 'Please select a category');
   });
 
   it('validates invalid transfer destination', () => {
@@ -142,7 +144,7 @@ describe('AddTransactionScreen', () => {
     fireEvent.press(getAllByText('Set w1')[0]); // Set from wallet (mock button)
     // Destination wallet not set
     fireEvent.press(getByText('Save Transaction'));
-    expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please select a valid destination wallet');
+    expect(appAlert).toHaveBeenCalledWith('Error', 'Please select a valid destination wallet');
   });
 
   it('saves new expense transaction successfully', async () => {

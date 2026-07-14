@@ -1,9 +1,11 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, act } from '@testing-library/react-native';
 import { SavingsGoalDetailScreen } from '../SavingsGoalDetailScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
@@ -19,7 +21,7 @@ describe('SavingsGoalDetailScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(Alert, 'alert');
+    
     (useSettingsStore as unknown as jest.Mock).mockImplementation((selector?: any) => {
       const state = { settings: { defaultCurrency: 'USD', pinEnabled: false, theme: 'system', isFirstRun: false } };
       return typeof selector === 'function' ? selector(state) : state;
@@ -68,6 +70,6 @@ describe('SavingsGoalDetailScreen', () => {
     });
 
     expect(addTxMock).toHaveBeenCalled();
-    expect(Alert.alert).toHaveBeenCalledWith('Success', 'Funds successfully added to your goal.');
+    expect(appAlert).toHaveBeenCalledWith('Success', 'Funds successfully added to your goal.');
   });
 });

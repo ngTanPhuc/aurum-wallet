@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -9,6 +9,7 @@ import { theme } from '../theme/theme';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { Ionicons } from '@expo/vector-icons';
 import { SavingsDepositService } from '../services/SavingsDepositService';
+import { appAlert } from '../components/glass/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SavingsDepositDetail'>;
 
@@ -37,7 +38,7 @@ export const SavingsDepositDetailScreen = ({ route, navigation }: Props) => {
   const daysRemaining = Math.max(0, Math.ceil((new Date(deposit.maturityDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24)));
 
   const handleMature = () => {
-    Alert.alert(
+    appAlert(
       'Confirm Maturity Payout',
       `This will return the principal of ${formatCurrency(deposit.principalAmount, settings.defaultCurrency)} and add interest of ${formatCurrency(deposit.expectedInterestAmount, settings.defaultCurrency)} to your ${payoutWallet?.name || 'Payout Wallet'}.`,
       [
@@ -54,7 +55,7 @@ export const SavingsDepositDetailScreen = ({ route, navigation }: Props) => {
   };
 
   const handleCloseEarly = () => {
-    Alert.alert(
+    appAlert(
       'Close Early',
       `Are you sure you want to close this deposit early? You will only receive the principal of ${formatCurrency(deposit.principalAmount, settings.defaultCurrency)}. You will forfeit the estimated interest.`,
       [

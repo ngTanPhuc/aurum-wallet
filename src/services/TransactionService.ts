@@ -2,6 +2,7 @@ import { getDb } from '../database/db';
 import { Transaction } from '../types';
 import { WalletService } from './WalletService';
 import { SavingsGoalService } from './SavingsGoalService';
+import { YieldPocketService } from './YieldPocketService';
 
 export const TransactionService = {
   async getTransactions(): Promise<Transaction[]> {
@@ -145,51 +146,93 @@ export const TransactionService = {
 
   async applyTransactionEffect(tx: Transaction): Promise<void> {
     const fee = tx.fee || 0;
+    // Savings deposit/payout transactions should not affect the yield pocket ledger.
+    // The funds are being locked into a fixed-term product, not spent or earned freely.
+    const isSavingsDepositOp = tx.note?.startsWith('Deposit to savings:') || 
+                               tx.note?.startsWith('Maturity payout:') || 
+                               tx.note?.startsWith('Early closure payout:');
+
     if (tx.type === 'expense') {
-      await WalletService.updateWalletBalance(tx.sourceWalletId, -(tx.amount + fee));
+      const totalAmount = tx.amount + fee;
+      await WalletService.updateWalletBalance(tx.sourceWalletId, -totalAmount);
+      if (!isSavingsDepositOp) {
+        await YieldPocketService.onWithdraw(tx.sourceWalletId, totalAmount);
+      }
       if (tx.savingsGoalId) {
         await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, tx.amount);
       }
     } else if (tx.type === 'income') {
-      await WalletService.updateWalletBalance(tx.sourceWalletId, tx.amount - fee);
+      const netAmount = tx.amount - fee;
+      await WalletService.updateWalletBalance(tx.sourceWalletId, netAmount);
+      if (!isSavingsDepositOp) {
+        await YieldPocketService.onDeposit(tx.sourceWalletId, netAmount);
+      }
       if (tx.savingsGoalId) {
         await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, tx.amount);
       }
     } else if (tx.type === 'transfer') {
-      await WalletService.updateWalletBalance(tx.sourceWalletId, -(tx.amount + fee));
+      const totalAmount = tx.amount + fee;
+      await WalletService.updateWalletBalance(tx.sourceWalletId, -totalAmount);
+      await YieldPocketService.onWithdraw(tx.sourceWalletId, totalAmount);
       if (tx.destinationWalletId) {
         await WalletService.updateWalletBalance(tx.destinationWalletId, tx.amount);
+        await YieldPocketService.onDeposit(tx.destinationWalletId, tx.amount);
       }
       if (tx.savingsGoalId) {
         await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, tx.amount);
       }
     } else if (tx.type === 'adjustment') {
-      await WalletService.updateWalletBalance(tx.sourceWalletId, tx.amount); // adjustment amount should be the diff
+      await WalletService.updateWalletBalance(tx.sourceWalletId, tx.amount);
+      if (tx.amount > 0) {
+        await YieldPocketService.onDeposit(tx.sourceWalletId, tx.amount);
+      } else if (tx.amount < 0) {
+        await YieldPocketService.onWithdraw(tx.sourceWalletId, Math.abs(tx.amount));
+      }
     }
   },
 
   async reverseTransactionEffect(tx: Transaction): Promise<void> {
     const fee = tx.fee || 0;
+    const isSavingsDepositOp = tx.note?.startsWith('Deposit to savings:') || 
+                               tx.note?.startsWith('Maturity payout:') || 
+                               tx.note?.startsWith('Early closure payout:');
+
     if (tx.type === 'expense') {
-      await WalletService.updateWalletBalance(tx.sourceWalletId, tx.amount + fee);
+      const totalAmount = tx.amount + fee;
+      await WalletService.updateWalletBalance(tx.sourceWalletId, totalAmount);
+      if (!isSavingsDepositOp) {
+        await YieldPocketService.onDeposit(tx.sourceWalletId, totalAmount);
+      }
       if (tx.savingsGoalId) {
         await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, -tx.amount);
       }
     } else if (tx.type === 'income') {
-      await WalletService.updateWalletBalance(tx.sourceWalletId, -(tx.amount - fee));
+      const netAmount = tx.amount - fee;
+      await WalletService.updateWalletBalance(tx.sourceWalletId, -netAmount);
+      if (!isSavingsDepositOp) {
+        await YieldPocketService.onWithdraw(tx.sourceWalletId, netAmount);
+      }
       if (tx.savingsGoalId) {
         await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, -tx.amount);
       }
     } else if (tx.type === 'transfer') {
-      await WalletService.updateWalletBalance(tx.sourceWalletId, tx.amount + fee);
+      const totalAmount = tx.amount + fee;
+      await WalletService.updateWalletBalance(tx.sourceWalletId, totalAmount);
+      await YieldPocketService.onDeposit(tx.sourceWalletId, totalAmount);
       if (tx.destinationWalletId) {
         await WalletService.updateWalletBalance(tx.destinationWalletId, -tx.amount);
+        await YieldPocketService.onWithdraw(tx.destinationWalletId, tx.amount);
       }
       if (tx.savingsGoalId) {
         await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, -tx.amount);
       }
     } else if (tx.type === 'adjustment') {
       await WalletService.updateWalletBalance(tx.sourceWalletId, -tx.amount);
+      if (tx.amount > 0) {
+        await YieldPocketService.onWithdraw(tx.sourceWalletId, tx.amount);
+      } else if (tx.amount < 0) {
+        await YieldPocketService.onDeposit(tx.sourceWalletId, Math.abs(tx.amount));
+      }
     }
   }
 };

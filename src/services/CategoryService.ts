@@ -7,7 +7,7 @@ export const CategoryService = {
     const db = await getDb();
     const countResult = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM categories');
     if (countResult && countResult.count > 0) {
-      await this.ensureDebtCategoriesExist();
+      await this.ensureSystemCategoriesExist();
       return;
     }
 
@@ -120,16 +120,17 @@ export const CategoryService = {
     await db.runAsync('DELETE FROM categories WHERE id = ?', id);
   },
 
-  async ensureDebtCategoriesExist(): Promise<void> {
+  async ensureSystemCategoriesExist(): Promise<void> {
     const db = await getDb();
-    const debtCategories = [
+    const systemCategories = [
       { name: 'Lending', type: 'expense', icon: 'push-outline' },
       { name: 'Debt Payment', type: 'expense', icon: 'cash-outline' },
       { name: 'Borrowed Money', type: 'income', icon: 'download-outline' },
       { name: 'Debt Repayment', type: 'income', icon: 'wallet-outline' },
+      { name: 'Yield Interest', type: 'income', icon: 'trending-up' },
     ] as const;
 
-    for (const cat of debtCategories) {
+    for (const cat of systemCategories) {
       const existing = await db.getFirstAsync<{ id: string }>('SELECT id FROM categories WHERE name = ? AND type = ?', [cat.name, cat.type]);
       if (!existing) {
         await this.addCategory({

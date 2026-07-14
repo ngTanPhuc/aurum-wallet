@@ -1,8 +1,10 @@
 import React from 'react';
+import { appAlert } from '../../components/glass/AppAlert';
+jest.mock('../../components/glass/AppAlert', () => ({ appAlert: jest.fn() }));
 import { render, fireEvent, act } from '@testing-library/react-native';
 import { AddEditSavingsGoalScreen } from '../AddEditSavingsGoalScreen';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { Alert } from 'react-native';
+
 
 jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
@@ -63,7 +65,7 @@ describe('AddEditSavingsGoalScreen', () => {
   });
 
   it('shows error if missing required fields', async () => {
-    jest.spyOn(Alert, 'alert');
+    
     (useFinanceStore as unknown as jest.Mock).mockImplementation((selector) => {
       const state = { savingsGoals: [], addSavingsGoal: jest.fn() };
       return selector ? selector(state) : state;
@@ -75,7 +77,7 @@ describe('AddEditSavingsGoalScreen', () => {
       fireEvent.press(getByText('Save Goal'));
     });
     
-    expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please enter a goal name');
+    expect(appAlert).toHaveBeenCalledWith('Error', 'Please enter a goal name');
   });
 
   it('shows date picker on press', () => {

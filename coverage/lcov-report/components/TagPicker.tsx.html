@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">97.22% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>36/36</span>
+                <span class='fraction'>35/36</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">93.33% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>15/15</span>
+                <span class='fraction'>14/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.55% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>29/29</span>
+                <span class='fraction'>28/29</span>
             </div>
         
             
@@ -201,7 +201,14 @@
 <a name='L136'></a><a href='#L136'>136</a>
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
-<a name='L139'></a><a href='#L139'>139</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,7 +273,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -301,7 +309,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,9 +348,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView } from 'react-native';
+import { appAlert } from './glass/AppAlert';
 import { Tag } from '../types';
 import { useFinanceStore } from '../store/useFinanceStore';
+import { theme } from '../theme/theme';
 &nbsp;
 &nbsp;
 interface Props {
@@ -369,15 +380,15 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) =&gt; {
     if (!name) return;
 &nbsp;
     if (tags.some(t =&gt; t.name.toLowerCase() === name.toLowerCase())) {
-      Alert.alert('Error', 'A tag with this name already exists.');
+      appAlert('Error', 'A tag with this name already exists.');
       return;
     }
 &nbsp;
     try {
-      await addTag({ name, color: '#007bff' });
+      await addTag({ name, color: theme.colors.primary });
       setNewTagName('');
     } catch (e) {
-      Alert.alert('Error', 'Failed to create tag.');
+      appAlert('Error', 'Failed to create tag.');
     }
   };
 &nbsp;
@@ -391,7 +402,7 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) =&gt; {
         {selectedTags.map(tag =&gt; (
           &lt;TouchableOpacity key={tag.id} style={styles.tagBadge} onPress={() =&gt; toggleTag(tag.id)}&gt;
             &lt;Text style={styles.tagBadgeText}&gt;{tag.name}&lt;/Text&gt;
-            &lt;Text style={{ color: '#fff', fontSize: 16, marginLeft: 4 }}&gt;✕&lt;/Text&gt;
+            &lt;Ionicons name="close" size={16} color={theme.colors.background} style={{ marginLeft: 4 }} /&gt;
           &lt;/TouchableOpacity&gt;
         ))}
         &lt;TouchableOpacity style={styles.addBtn} onPress={() =&gt; setModalVisible(true)}&gt;
@@ -404,8 +415,8 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) =&gt; {
           &lt;View style={styles.modalContent}&gt;
             &lt;View style={styles.modalHeader}&gt;
               &lt;Text style={styles.modalTitle}&gt;Manage Tags&lt;/Text&gt;
-              &lt;TouchableOpacity onPress={() =&gt; setModalVisible(false)}&gt;
-                &lt;Text style={{ color: '#333', fontSize: 24, fontWeight: 'bold' }}&gt;✕&lt;/Text&gt;
+              &lt;TouchableOpacity onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setModalVisible(false)}</span>&gt;
+                &lt;Ionicons name="close" size={24} color={theme.colors.textPrimary} /&gt;
               &lt;/TouchableOpacity&gt;
             &lt;/View&gt;
 &nbsp;
@@ -415,6 +426,7 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) =&gt; {
                 value={newTagName}
                 onChangeText={setNewTagName}
                 placeholder="New Tag Name"
+                placeholderTextColor={theme.colors.textMuted}
               /&gt;
               &lt;TouchableOpacity style={styles.createBtn} onPress={handleCreateTag}&gt;
                 &lt;Text style={styles.createBtnText}&gt;Create&lt;/Text&gt;
@@ -433,7 +445,7 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) =&gt; {
                     &lt;Text style={[styles.tagListItemText, isSelected &amp;&amp; styles.tagListItemTextSelected]}&gt;
                       #{tag.name}
                     &lt;/Text&gt;
-                    {isSelected &amp;&amp; &lt;Text style={{ color: '#007bff', fontSize: 20, fontWeight: 'bold' }}&gt;✓&lt;/Text&gt;}
+                    {isSelected &amp;&amp; &lt;Ionicons name="checkmark" size={20} color={theme.colors.primary} /&gt;}
                   &lt;/TouchableOpacity&gt;
                 );
               })}
@@ -450,32 +462,32 @@ export const TagPicker = ({ selectedTagIds, onChange }: Props) =&gt; {
 };
 &nbsp;
 const styles = StyleSheet.create({
-  container: { marginBottom: 16 },
-  label: { fontSize: 14, color: '#666', marginBottom: 8 },
+  container: { marginBottom: theme.spacing.lg },
+  label: { ...theme.typography.body2, color: theme.colors.textMuted, marginBottom: theme.spacing.sm },
   selectedTagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tagBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#007bff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
-  tagBadgeText: { color: '#fff', fontSize: 14, fontWeight: '500' },
-  addBtn: { backgroundColor: '#e0e0e0', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, justifyContent: 'center' },
-  addBtnText: { color: '#333', fontSize: 14, fontWeight: '500' },
+  tagBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.primary, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderRadius: theme.radii.lg },
+  tagBadgeText: { ...theme.typography.body2, color: theme.colors.background, fontWeight: '500' },
+  addBtn: { backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderRadius: theme.radii.lg, justifyContent: 'center', borderWidth: 1, borderColor: theme.colors.border },
+  addBtnText: { ...theme.typography.body2, color: theme.colors.textPrimary, fontWeight: '500' },
   
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '80%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.85)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: theme.colors.background, borderTopLeftRadius: theme.radii.xl, borderTopRightRadius: theme.radii.xl, padding: theme.spacing.xl, maxHeight: '80%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.lg },
+  modalTitle: { ...theme.typography.h2, color: theme.colors.textPrimary },
   
-  createRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  input: { flex: 1, backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 16 },
-  createBtn: { backgroundColor: '#007bff', paddingHorizontal: 16, justifyContent: 'center', borderRadius: 8 },
-  createBtnText: { color: '#fff', fontWeight: 'bold' },
+  createRow: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.lg },
+  input: { ...theme.typography.body1, flex: 1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary },
+  createBtn: { backgroundColor: theme.colors.primary, paddingHorizontal: theme.spacing.lg, justifyContent: 'center', borderRadius: theme.radii.sm },
+  createBtnText: { color: theme.colors.background, fontWeight: 'bold' },
   
   tagList: { maxHeight: 300 },
-  tagListItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#eee' },
-  tagListItemSelected: { backgroundColor: '#f0f8ff', paddingHorizontal: 8, borderRadius: 8 },
-  tagListItemText: { fontSize: 16, color: '#333' },
-  tagListItemTextSelected: { color: '#007bff', fontWeight: 'bold' },
+  tagListItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.md, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.colors.border },
+  tagListItemSelected: { backgroundColor: theme.colors.surfaceStrong, paddingHorizontal: theme.spacing.sm, borderRadius: theme.radii.sm },
+  tagListItemText: { ...theme.typography.body1, color: theme.colors.textPrimary },
+  tagListItemTextSelected: { color: theme.colors.primary, fontWeight: 'bold' },
   
-  doneBtn: { backgroundColor: '#007bff', padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 16 },
-  doneBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  doneBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: theme.spacing.lg },
+  doneBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },
 });
 &nbsp;</pre></td></tr></table></pre>
 
@@ -484,7 +496,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-01T07:52:20.043Z
+                at 2026-07-14T04:35:35.267Z
             </div>
         <script src="../prettify.js"></script>
         <script>

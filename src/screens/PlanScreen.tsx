@@ -11,6 +11,8 @@ import { theme } from '../theme/theme';
 import { CustomHeader } from '../components/CustomHeader';
 import { GlassCard } from '../components/glass/GlassCard';
 
+import { useFocusEffect } from '@react-navigation/native';
+
 type Props = CompositeScreenProps<
   BottomTabScreenProps<BottomTabParamList, 'Plan'>,
   NativeStackScreenProps<RootStackParamList>
@@ -25,9 +27,17 @@ export const PlanScreen = ({ navigation }: Props) => {
     yieldPocketSettings,
     pendingRecurringTransactions,
     getBudgetProgress,
-    debts
+    debts,
+    transactions,
+    loadData
   } = useFinanceStore();
   const defaultCurrency = useSettingsStore(state => state.settings.defaultCurrency);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -37,17 +47,16 @@ export const PlanScreen = ({ navigation }: Props) => {
   const budgetSummary = useMemo(() => {
     let totalBudgeted = 0;
     let totalSpent = 0;
+    const targetDate = new Date().toISOString();
     budgets.forEach(b => {
-      if (b.month === month && b.year === year) {
-        const progress = getBudgetProgress(b.categoryId, month, year);
-        totalBudgeted += progress.budgeted;
-        totalSpent += progress.spent;
-      }
+      const progress = getBudgetProgress(b.id, targetDate);
+      totalBudgeted += progress.budgeted;
+      totalSpent += progress.spent;
     });
     const left = totalBudgeted - totalSpent;
     const percentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
-    return { left, percentage, activeCount: budgets.filter(b => b.month === month && b.year === year).length };
-  }, [budgets, month, year, getBudgetProgress]);
+    return { left, percentage, activeCount: budgets.length };
+  }, [budgets, getBudgetProgress, transactions]);
 
   // Goals Summary
   const goalsSummary = useMemo(() => {

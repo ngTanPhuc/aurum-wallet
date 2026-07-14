@@ -46,12 +46,17 @@ export interface Transaction {
   tags?: Tag[]; // populated by joins
 }
 
+export type BudgetRecurrence = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type BudgetTargetType = 'category' | 'tag';
+
 export interface Budget {
   id: string;
-  categoryId: string;
+  name: string;
   amount: number;
-  month: number;
-  year: number;
+  targetType: BudgetTargetType;
+  targetId: string;
+  recurrence: BudgetRecurrence;
+  startDate: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -130,7 +135,7 @@ export type RootStackParamList = {
   AddEditTransaction: { transactionId?: string; type?: 'expense' | 'income' | 'transfer' | 'adjustment'; savingsGoalId?: string };
   AddEditWallet: { walletId?: string };
   Budgets: undefined;
-  AddEditBudget: { budgetId?: string; month?: number; year?: number };
+  AddEditBudget: { budgetId?: string };
   SavingsGoals: undefined;
   SavingsGoalDetail: { goalId: string };
   AddEditSavingsGoal: { goalId?: string };
@@ -144,11 +149,13 @@ export type RootStackParamList = {
   Templates: undefined;
   AddEditTemplate: { templateId?: string };
   Tags: undefined;
+  Categories: undefined;
   Subscriptions: undefined;
   Calendar: undefined;
   Settings: undefined;
   YieldPockets: undefined;
   AddEditYieldPocket: { walletId?: string };
+  YieldPocketDetail: { walletId: string };
   DebtDashboard: undefined;
   AddEditDebt: { debtId?: string; direction?: DebtDirection };
   DebtDetail: { debtId: string };
@@ -203,12 +210,17 @@ export interface SavingsDeposit {
 
 export interface YieldPocketSettings {
   walletId: string;
-  annualYieldRate: number;
+  yieldRule: 'STANDARD' | 'T1_FUND';
+  currentApy: number;
   yieldFrequency: 'daily' | 'monthly';
   postingMode: 'auto' | 'manual';
   lastYieldCalculatedAt?: string;
   nextYieldDate?: string;
   allowSpendingDirectly: boolean;
+  interestBearingBalance: number;
+  pendingDeposit: number;
+  lastRolloverDate?: string;
+  lastSyncDate?: string;
   createdAt: string;
   updatedAt: string;
 }
