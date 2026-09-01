@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -163,26 +163,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -195,7 +193,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -204,7 +204,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -252,24 +252,24 @@ interface InsightCardProps {
   onActionPress?: (route: string) =&gt; void;
 }
 &nbsp;
-export const InsightCard = ({ insight, onActionPress }: InsightCardProps) =&gt; {
-  const getThemeColors = () =&gt; {
-    switch (insight.type) {
+export const InsightCard = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> insight, onActionPress }: InsightCardProps) =&gt; {</span>
+  const getThemeColors = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    switch (insight.type) {</span>
       case 'alert':
-        return { bg: theme.colors.dangerBg, border: theme.colors.danger, text: theme.colors.danger, iconBg: '#450a0a' }; // Red 950
+<span class="cstat-no" title="statement not covered" >        return { bg: theme.colors.dangerBg, border: theme.colors.danger, text: theme.colors.danger, iconBg: '#450a0a' }; </span>// Red 950
       case 'warning':
-        return { bg: theme.colors.warningBg, border: theme.colors.warning, text: theme.colors.warning, iconBg: '#451a03' }; // Amber 950
+<span class="cstat-no" title="statement not covered" >        return { bg: theme.colors.warningBg, border: theme.colors.warning, text: theme.colors.warning, iconBg: '#451a03' }; </span>// Amber 950
       case 'success':
-        return { bg: theme.colors.successBg, border: theme.colors.success, text: theme.colors.success, iconBg: '#022c22' }; // Emerald 950
+<span class="cstat-no" title="statement not covered" >        return { bg: theme.colors.successBg, border: theme.colors.success, text: theme.colors.success, iconBg: '#022c22' }; </span>// Emerald 950
       case 'info':
       default:
-        return { bg: theme.colors.infoBg, border: theme.colors.info, text: theme.colors.info, iconBg: '#172554' }; // Blue 950
+<span class="cstat-no" title="statement not covered" >        return { bg: theme.colors.infoBg, border: theme.colors.info, text: theme.colors.info, iconBg: '#172554' }; </span>// Blue 950
     }
   };
 &nbsp;
-  const colors = getThemeColors();
+  const colors = <span class="cstat-no" title="statement not covered" >getThemeColors();</span>
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View style={[styles.card, { backgroundColor: colors.bg, borderColor: colors.border }]}&gt;
       &lt;View style={styles.header}&gt;
         {insight.icon &amp;&amp; (
@@ -284,7 +284,7 @@ export const InsightCard = ({ insight, onActionPress }: InsightCardProps) =&gt; 
       {insight.actionLabel &amp;&amp; insight.actionRoute &amp;&amp; (
         &lt;TouchableOpacity 
           style={[styles.actionButton, { backgroundColor: colors.text }]}
-          onPress={() =&gt; onActionPress &amp;&amp; onActionPress(insight.actionRoute!)}
+          onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >onActionPress &amp;&amp; onActionPress(insight.actionRoute!)}</span>
         &gt;
           &lt;Text style={styles.actionText}&gt;{insight.actionLabel}&lt;/Text&gt;
         &lt;/TouchableOpacity&gt;
@@ -293,7 +293,7 @@ export const InsightCard = ({ insight, onActionPress }: InsightCardProps) =&gt; 
   );
 };
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   card: {
     borderRadius: theme.radii.lg,
     borderWidth: 1,
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T04:35:35.267Z
+                at 2026-07-14T08:43:59.604Z
             </div>
         <script src="../prettify.js"></script>
         <script>

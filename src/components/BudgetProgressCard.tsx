@@ -31,7 +31,7 @@ export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = React.memo(
       <View style={styles.header}>
         <View>
           <View style={styles.titleRow}>
-            <Text style={styles.categoryName}>{budget.name}</Text>
+            <Text style={styles.categoryName}>{budget.name || 'Unknown'}</Text>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{budget.recurrence}</Text>
             </View>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { appAlert } from '../components/glass/AppAlert';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TransactionType, TransactionTemplate } from '../types';
@@ -38,6 +39,8 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
   const [categoryId, setCategoryId] = useState('');
   const [savingsGoalId, setSavingsGoalId] = useState(initialGoalId || '');
   const [note, setNote] = useState('');
+  const [transactionDate, setTransactionDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -88,6 +91,9 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
         setDestinationWalletId(tx.destinationWalletId || '');
         setCategoryId(tx.categoryId || '');
         setNote(tx.note || '');
+        if (tx.transactionDate) {
+          setTransactionDate(new Date(tx.transactionDate));
+        }
         if (tx.tags) {
           setTagIds(tx.tags.map(t => t.id));
         }
@@ -133,7 +139,7 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
           savingsGoalId: savingsGoalId || undefined,
           note,
           tags: tags.filter(t => tagIds.includes(t.id)),
-          transactionDate: new Date().toISOString(),
+          transactionDate: transactionDate.toISOString(),
           updatedAt: new Date().toISOString(),
         };
 
@@ -291,6 +297,30 @@ export const AddTransactionScreen = ({ route, navigation }: Props) => {
           placeholderTextColor={theme.colors.textMuted}
         />
 
+        <Text style={styles.label}>Transaction Date</Text>
+        <TouchableOpacity
+          style={styles.datePickerButton}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Text style={styles.datePickerIcon}>📅</Text>
+          <Text style={styles.datePickerText}>
+            {transactionDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </Text>
+        </TouchableOpacity>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={transactionDate}
+            mode="date"
+            display="default"
+            maximumDate={new Date()}
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(Platform.OS === 'ios');
+              if (selectedDate) setTransactionDate(selectedDate);
+            }}
+          />
+        )}
+
         <TagPicker selectedTagIds={tagIds} onChange={setTagIds} />
 
         {!isEditing && (
@@ -347,6 +377,9 @@ const styles = StyleSheet.create({
   typeTextActive: { color: theme.colors.background },
   label: { ...theme.typography.body2, color: theme.colors.textMuted, marginBottom: theme.spacing.sm },
   input: { ...theme.typography.body1, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, color: theme.colors.textPrimary, marginBottom: theme.spacing.lg },
+  datePickerButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radii.sm, padding: theme.spacing.md, marginBottom: theme.spacing.lg, gap: theme.spacing.sm },
+  datePickerIcon: { fontSize: 18 },
+  datePickerText: { ...theme.typography.body1, color: theme.colors.textPrimary },
   saveTemplateContainer: { backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.radii.sm, marginBottom: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.border },
   saveTemplateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.sm },
   templatesContainer: { marginBottom: theme.spacing.lg },

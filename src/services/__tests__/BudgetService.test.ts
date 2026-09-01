@@ -65,14 +65,14 @@ describe('BudgetService', () => {
   describe('addBudget', () => {
     it('should insert a new budget', async () => {
       const budget: any = {
-        id: '1', categoryId: 'c1', amount: 100, month: 6, year: 2023, createdAt: '2023', updatedAt: '2023'
+        id: '1', name: 'Food', amount: 100, targetType: 'category', targetId: 'c1', recurrence: 'monthly', startDate: '2023-06-01', createdAt: '2023', updatedAt: '2023'
       };
 
       await BudgetService.addBudget(budget);
 
       expect(mockDb.runAsync).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO budgets'),
-        '1', 'c1', 100, 6, 2023, '2023', '2023'
+        '1', 'Food', 100, 'category', 'c1', 'monthly', '2023-06-01', '2023', '2023'
       );
     });
   });
@@ -80,14 +80,14 @@ describe('BudgetService', () => {
   describe('updateBudget', () => {
     it('should update an existing budget', async () => {
       const budget: any = {
-        id: '1', categoryId: 'c1', amount: 200, month: 6, year: 2023, updatedAt: '2023'
+        id: '1', name: 'Food', amount: 200, targetType: 'category', targetId: 'c1', recurrence: 'monthly', startDate: '2023-06-01', updatedAt: '2023'
       };
 
       await BudgetService.updateBudget(budget);
 
       expect(mockDb.runAsync).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE budgets SET'),
-        'c1', 200, 6, 2023, '2023', '1'
+        'Food', 200, 'category', 'c1', 'monthly', '2023-06-01', '2023', '1'
       );
     });
   });

@@ -16,6 +16,9 @@ describe('YieldPocketEngine', () => {
   let mockSettings: YieldPocketSettings;
 
   beforeEach(() => {
+    // Reset mock queue to prevent stale mockResolvedValueOnce values from bleeding between tests.
+    // jest.clearAllMocks() only clears calls/results, NOT the resolved value queue.
+    mockDb.getFirstAsync.mockReset();
     mockSettings = {
       walletId: 'w1',
       yieldRule: 'T1_FUND',
@@ -25,6 +28,10 @@ describe('YieldPocketEngine', () => {
       allowSpendingDirectly: true,
       interestBearingBalance: 1000,
       pendingDeposit: 500,
+      minimumBalance: 0,
+      pendingSettlementDate: null,
+      fractionalYieldCarry: 0,
+      isQualified: true,
       createdAt: '2023-01-01T00:00:00.000Z',
       updatedAt: '2023-01-01T00:00:00.000Z',
     };
@@ -50,21 +57,32 @@ describe('YieldPocketEngine', () => {
       expect(mockSettings.interestBearingBalance).toBe(800);
     });
 
-    it('allows going negative if amount > total balance (self-healing for out of sync wallets)', async () => {
+    it('allows going to 0 when amount > total balance (self-healing: interestBearingBalance is clamped, not negative)', async () => {
       await YieldPocketService.onWithdraw('w1', 2000);
       expect(mockSettings.pendingDeposit).toBe(0);
-      expect(mockSettings.interestBearingBalance).toBe(-500); // 1500 total - 2000
+      // New behaviour: IBB is clamped to 0 — we never go negative.
+      expect(mockSettings.interestBearingBalance).toBe(0);
     });
   });
 
   describe('STANDARD Rule', () => {
-    it('ignores onDeposit and onWithdraw rules for pending limits', async () => {
+    it('does not modify pendingDeposit or interestBearingBalance on deposit/withdraw', async () => {
       mockSettings.yieldRule = 'STANDARD';
+      // STANDARD rule: no ledger tracking — wallet.balance is used directly for yield.
+      // onDeposit only handles threshold re-crossing for STANDARD; it does not touch pendingDeposit.
+      mockDb.getFirstAsync
+        .mockResolvedValueOnce(mockSettings)   // getSettingsForWallet in onDeposit
+        .mockResolvedValueOnce({ balance: 5500 }) // wallet balance fetch for threshold check
+        .mockResolvedValueOnce(null);            // saveSettings check (INSERT path)
       await YieldPocketService.onDeposit('w1', 5000);
-      expect(mockSettings.pendingDeposit).toBe(500); // Unchanged
+      expect(mockSettings.pendingDeposit).toBe(500); // unchanged for STANDARD
 
+      mockDb.getFirstAsync
+        .mockResolvedValueOnce(mockSettings)       // getSettingsForWallet in onWithdraw
+        .mockResolvedValueOnce({ balance: 1000 })  // wallet balance fetch
+        .mockResolvedValueOnce(null);              // saveSettings check
       await YieldPocketService.onWithdraw('w1', 99999);
-      expect(mockSettings.interestBearingBalance).toBe(1000); // Unchanged
+      expect(mockSettings.interestBearingBalance).toBe(1000); // unchanged for STANDARD
     });
   });
 

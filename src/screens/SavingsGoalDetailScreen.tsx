@@ -103,7 +103,7 @@ export const SavingsGoalDetailScreen = ({ route, navigation }: Props) => {
     }
 
     if (type === 'add') {
-      const pocketSetting = store.yieldPocketSettings.find(s => s.walletId === selectedWalletId);
+      const pocketSetting = store.yieldPocketSettings?.find(s => s.walletId === selectedWalletId);
       if (pocketSetting && !pocketSetting.allowSpendingDirectly) {
         appAlert('Error', 'This Yield Pocket does not allow direct spending. Please select another wallet or transfer funds first.');
         return;

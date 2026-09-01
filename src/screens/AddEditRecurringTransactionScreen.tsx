@@ -37,7 +37,7 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
   // A proper date picker (like @react-native-community/datetimepicker) should be used in production
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [isActive, setIsActive] = useState(true);
-  const [isSubscription, setIsSubscription] = useState(false);
+
 
   const handleAmountChange = (text: string) => {
     const digitsOnly = text.replace(/\D/g, '');
@@ -65,7 +65,7 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
         setFrequency(rt.frequency);
         setStartDate(rt.startDate.split('T')[0]);
         setIsActive(rt.isActive);
-        setIsSubscription(rt.isSubscription ?? false);
+
       }
     }
   }, [isEditing, recurringId, recurringTransactions]);
@@ -126,7 +126,7 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
         frequency,
         startDate: isoStartDate,
         isActive,
-        isSubscription,
+
         updatedAt: new Date().toISOString(),
       };
 
@@ -182,7 +182,7 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
         </View>
 
         <Text style={styles.label}>Name</Text>
-        <AmountInput 
+        <TextInput 
           style={styles.input} 
           value={name} 
           onChangeText={setName} 
@@ -266,12 +266,7 @@ export const AddEditRecurringTransactionScreen = ({ route, navigation }: Props) 
           <Switch value={isActive} onValueChange={setIsActive} />
         </View>
 
-        {type === 'expense' && (
-          <View style={styles.switchRow}>
-            <Text style={styles.label}>Is this a subscription?</Text>
-            <Switch value={isSubscription} onValueChange={setIsSubscription} />
-          </View>
-        )}
+
 
         <Text style={styles.label}>Note (optional)</Text>
         <TextInput 

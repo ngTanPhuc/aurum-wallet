@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/60</span>
+                <span class='fraction'>0/61</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/40</span>
+                <span class='fraction'>0/34</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/51</span>
+                <span class='fraction'>0/53</span>
             </div>
         
             
@@ -338,13 +338,36 @@
 <a name='L273'></a><a href='#L273'>273</a>
 <a name='L274'></a><a href='#L274'>274</a>
 <a name='L275'></a><a href='#L275'>275</a>
-<a name='L276'></a><a href='#L276'>276</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a>
+<a name='L278'></a><a href='#L278'>278</a>
+<a name='L279'></a><a href='#L279'>279</a>
+<a name='L280'></a><a href='#L280'>280</a>
+<a name='L281'></a><a href='#L281'>281</a>
+<a name='L282'></a><a href='#L282'>282</a>
+<a name='L283'></a><a href='#L283'>283</a>
+<a name='L284'></a><a href='#L284'>284</a>
+<a name='L285'></a><a href='#L285'>285</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -357,17 +380,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -382,7 +401,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -626,6 +644,8 @@ import { theme } from '../theme/theme';
 import { CustomHeader } from '../components/CustomHeader';
 import { GlassCard } from '../components/glass/GlassCard';
 &nbsp;
+import { useFocusEffect } from '@react-navigation/native';
+&nbsp;
 type Props = CompositeScreenProps&lt;
   BottomTabScreenProps&lt;BottomTabParamList, 'Plan'&gt;,
   NativeStackScreenProps&lt;RootStackParamList&gt;
@@ -640,9 +660,17 @@ export const PlanScreen = <span class="cstat-no" title="statement not covered" >
     yieldPocketSettings,
     pendingRecurringTransactions,
     getBudgetProgress,
-    debts
+    debts,
+    transactions,
+    loadData
   } = <span class="cstat-no" title="statement not covered" >useFinanceStore();</span>
   const defaultCurrency = <span class="cstat-no" title="statement not covered" >useSettingsStore(<span class="fstat-no" title="function not covered" >st</span>ate =&gt; <span class="cstat-no" title="statement not covered" >state.settings.defaultCurrency)</span>;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  useFocusEffect(</span>
+    React.useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >      loadData();</span>
+    }, [loadData])
+  );
 &nbsp;
   const now = <span class="cstat-no" title="statement not covered" >new Date();</span>
   const month = <span class="cstat-no" title="statement not covered" >now.getMonth() + 1;</span>
@@ -652,17 +680,16 @@ export const PlanScreen = <span class="cstat-no" title="statement not covered" >
   const budgetSummary = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
     let totalBudgeted = <span class="cstat-no" title="statement not covered" >0;</span>
     let totalSpent = <span class="cstat-no" title="statement not covered" >0;</span>
+    const targetDate = <span class="cstat-no" title="statement not covered" >new Date().toISOString();</span>
 <span class="cstat-no" title="statement not covered" >    budgets.forEach(<span class="fstat-no" title="function not covered" >b </span>=&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (b.month === month &amp;&amp; b.year === year) {</span>
-        const progress = <span class="cstat-no" title="statement not covered" >getBudgetProgress(b.categoryId, month, year);</span>
-<span class="cstat-no" title="statement not covered" >        totalBudgeted += progress.budgeted;</span>
-<span class="cstat-no" title="statement not covered" >        totalSpent += progress.spent;</span>
-      }
+      const progress = <span class="cstat-no" title="statement not covered" >getBudgetProgress(b.id, targetDate);</span>
+<span class="cstat-no" title="statement not covered" >      totalBudgeted += progress.budgeted;</span>
+<span class="cstat-no" title="statement not covered" >      totalSpent += progress.spent;</span>
     });
     const left = <span class="cstat-no" title="statement not covered" >totalBudgeted - totalSpent;</span>
     const percentage = <span class="cstat-no" title="statement not covered" >totalBudgeted &gt; 0 ? (totalSpent / totalBudgeted) * 100 : 0;</span>
-<span class="cstat-no" title="statement not covered" >    return { left, percentage, activeCount: budgets.filter(<span class="fstat-no" title="function not covered" >b </span>=&gt; <span class="cstat-no" title="statement not covered" >b.month === month &amp;&amp; b.year === year)</span>.length };</span>
-  }, [budgets, month, year, getBudgetProgress]);
+<span class="cstat-no" title="statement not covered" >    return { left, percentage, activeCount: budgets.length };</span>
+  }, [budgets, getBudgetProgress, transactions]);
 &nbsp;
   // Goals Summary
   const goalsSummary = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
@@ -895,7 +922,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T04:35:35.267Z
+                at 2026-07-14T08:43:59.604Z
             </div>
         <script src="../prettify.js"></script>
         <script>

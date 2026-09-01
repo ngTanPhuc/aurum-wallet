@@ -38,6 +38,20 @@ export const AddEditSavingsDepositScreen = ({ route, navigation }: Props) => {
     setPrincipalAmount(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
   };
 
+  const handleInterestRateChange = (text: string) => {
+    let val = text.replace(/[^0-9.]/g, '');
+    if (val.startsWith('0') && val.length > 1 && val[1] !== '.') {
+      val = val.replace(/^0+/, '');
+    }
+    setAnnualInterestRate(val);
+  };
+
+  const handleTermValueChange = (text: string) => {
+    const digitsOnly = text.replace(/\D/g, '');
+    const trimmed = digitsOnly.replace(/^0+/, '');
+    setTermValue(trimmed);
+  };
+
   const handleSave = async () => {
     if (!name.trim()) {
       appAlert('Error', 'Please enter a name');
@@ -178,7 +192,7 @@ export const AddEditSavingsDepositScreen = ({ route, navigation }: Props) => {
               placeholder="5.5"
               placeholderTextColor={theme.colors.textMuted}
               value={annualInterestRate}
-              onChangeText={setAnnualInterestRate}
+              onChangeText={handleInterestRateChange}
               allowDecimal
               editable={!existingDeposit}
             />
@@ -190,7 +204,7 @@ export const AddEditSavingsDepositScreen = ({ route, navigation }: Props) => {
               placeholder="6"
               placeholderTextColor={theme.colors.textMuted}
               value={termValue}
-              onChangeText={setTermValue}
+              onChangeText={handleTermValueChange}
               editable={!existingDeposit}
             />
           </View>

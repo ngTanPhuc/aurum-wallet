@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { View, TextInput, StyleSheet, TextInputProps, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, TextInputProps, StyleProp, TextStyle, ViewStyle, Pressable, Animated } from 'react-native';
 import { theme } from '../../theme/theme';
 import { useKeypad } from '../../context/KeypadContext';
 
@@ -19,13 +19,35 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   containerStyle, 
   maxLength,
   allowDecimal,
+  placeholder = '0',
+  placeholderTextColor = theme.colors.textMuted,
   ...props 
 }) => {
-  const { showKeypad } = useKeypad();
+  const { showKeypad, activeInputId, isKeypadVisible } = useKeypad();
   const viewRef = useRef<View>(null);
+  const inputId = useRef(Math.random().toString(36).substring(7)).current;
+
+  const isActive = isKeypadVisible && activeInputId === inputId;
+  const blinkAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (isActive) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(blinkAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+          Animated.timing(blinkAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+        ])
+      );
+      animation.start();
+      return () => animation.stop();
+    } else {
+      blinkAnim.setValue(0);
+    }
+  }, [isActive]);
 
   const handleFocus = () => {
     showKeypad({
+      id: inputId,
       initialValue: value,
       onChange: onChangeText,
       maxLength,
@@ -34,7 +56,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
     });
   };
 
-  const flatStyle = StyleSheet.flatten(style) || {};
+  const flatStyle = (StyleSheet.flatten(style) || {}) as TextStyle;
   const { marginTop, marginBottom, marginVertical, margin, ...inputStyle } = flatStyle as any;
   
   const margins = {
@@ -44,19 +66,60 @@ export const AmountInput: React.FC<AmountInputProps> = ({
     ...(margin !== undefined && { margin }),
   };
 
+  const isCentered = inputStyle.textAlign === 'center';
+  const fontSize = inputStyle.fontSize || 18;
+  const cursorHeight = fontSize * 0.85;
+  const cursorColor = inputStyle.color || theme.colors.primary;
+
   return (
-    <View ref={viewRef} collapsable={false} style={[styles.container, margins, containerStyle]}>
-      <TextInput
-        style={[styles.input, inputStyle]}
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType="numeric"
-        showSoftInputOnFocus={false}
-        onFocus={handleFocus}
-        onPressIn={handleFocus}
-        {...props}
-      />
-    </View>
+    <Pressable
+      ref={viewRef as any}
+      onPress={handleFocus}
+      style={[styles.container, margins, containerStyle]}
+    >
+      <View pointerEvents="none" style={styles.inputWrapper}>
+        <TextInput
+          style={[styles.input, inputStyle]}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType="numeric"
+          editable={false}
+          placeholder={placeholder}
+          placeholderTextColor={placeholderTextColor}
+          {...props}
+        />
+        {isActive && (
+          <View 
+            style={[
+              styles.cursorOverlay, 
+              isCentered ? styles.cursorCentered : styles.cursorLeft
+            ]}
+          >
+            {/* Hidden measuring text to position cursor right after the text content */}
+            <Text 
+              style={[
+                styles.measureText, 
+                inputStyle, 
+                { opacity: 0 }
+              ]} 
+              numberOfLines={1}
+            >
+              {value || placeholder}
+            </Text>
+            <Animated.View
+              style={[
+                styles.cursor,
+                {
+                  height: cursorHeight,
+                  backgroundColor: cursorColor,
+                  opacity: blinkAnim,
+                },
+              ]}
+            />
+          </View>
+        )}
+      </View>
+    </Pressable>
   );
 };
 
@@ -65,7 +128,35 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
   },
+  inputWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
   input: {
-    // paddingRight removed since we no longer have the inline button
+    // Standard text input
+  },
+  cursorOverlay: {
+    ...StyleSheet.absoluteFill,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.md,
+  },
+  cursorLeft: {
+    justifyContent: 'flex-start',
+  },
+  cursorCentered: {
+    justifyContent: 'center',
+  },
+  measureText: {
+    // Used to align cursor right after the text
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    paddingHorizontal: 0,
+  },
+  cursor: {
+    width: 2,
+    borderRadius: 1,
+    marginLeft: 2,
   },
 });
+

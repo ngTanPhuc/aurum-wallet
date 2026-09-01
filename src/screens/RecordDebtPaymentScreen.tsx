@@ -21,9 +21,20 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
 
   const debt = debts.find(d => d.id === debtId);
   
-  const [amountStr, setAmountStr] = useState(debt ? debt.remainingAmount.toString() : '');
+  const initialAmountStr = debt ? debt.remainingAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+  const [amountStr, setAmountStr] = useState(initialAmountStr);
   const [walletId, setWalletId] = useState('');
   const [note, setNote] = useState('');
+
+  const handleAmountChange = (text: string) => {
+    const digitsOnly = text.replace(/\D/g, '');
+    const trimmed = digitsOnly.replace(/^0+/, '');
+    if (!trimmed) {
+      setAmountStr('');
+      return;
+    }
+    setAmountStr(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
+  };
 
   useEffect(() => {
     if (wallets.length > 0 && !walletId) {
@@ -42,7 +53,7 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
   const isLent = debt.direction === 'lent';
 
   const handleSave = async () => {
-    const amount = parseFloat(amountStr);
+    const amount = parseFloat(amountStr.replace(/\./g, ''));
     if (!amount || amount <= 0) return appAlert('Error', 'Please enter a valid amount.');
     if (amount > debt.remainingAmount) return appAlert('Error', `Amount cannot exceed remaining balance (${debt.remainingAmount}).`);
     if (!walletId) return appAlert('Error', 'Please select a wallet.');
@@ -114,7 +125,7 @@ export const RecordDebtPaymentScreen = ({ navigation, route }: Props) => {
           <AmountInput
             style={styles.inputLarge}
             value={amountStr}
-            onChangeText={setAmountStr}
+            onChangeText={handleAmountChange}
             placeholder="0"
           />
           <Text style={styles.helperText}>Remaining balance: {debt.remainingAmount.toLocaleString()} {defaultCurrency}</Text>

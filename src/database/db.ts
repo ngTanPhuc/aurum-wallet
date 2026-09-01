@@ -220,6 +220,44 @@ const MIGRATIONS: Migration[] = [
         console.log('[Migration 13] Error reworking budgets:', e.message);
       }
     }
+  },
+  {
+    id: 14,
+    name: 'yield_pocket_minimum_balance',
+    up: async (db) => {
+      try {
+        await db.execAsync(
+          'ALTER TABLE yield_pocket_settings ADD COLUMN minimumBalance REAL NOT NULL DEFAULT 0;'
+        );
+      } catch (e: any) {
+        if (!e.message?.includes('duplicate column name')) {
+          console.log('[Migration 14] Error adding minimumBalance column:', e.message);
+        }
+      }
+    }
+  },
+  {
+    id: 15,
+    name: 'yield_pocket_settlement_v3',
+    up: async (db) => {
+      // pendingSettlementDate: NULL = already settled (backward compat for existing pockets)
+      // fractionalYieldCarry: 0 = no carry yet
+      // isQualified: 1 = existing pockets were already earning, treat as qualified
+      const alterCols = [
+        'ALTER TABLE yield_pocket_settings ADD COLUMN pendingSettlementDate TEXT;',
+        'ALTER TABLE yield_pocket_settings ADD COLUMN fractionalYieldCarry REAL NOT NULL DEFAULT 0;',
+        'ALTER TABLE yield_pocket_settings ADD COLUMN isQualified INTEGER NOT NULL DEFAULT 1;',
+      ];
+      for (const sql of alterCols) {
+        try {
+          await db.execAsync(sql);
+        } catch (e: any) {
+          if (!e.message?.includes('duplicate column name')) {
+            console.log('[Migration 15]', e.message);
+          }
+        }
+      }
+    }
   }
 ];
 

@@ -64,16 +64,9 @@ export const PlanScreen = ({ navigation }: Props) => {
     return { activeCount: active.length };
   }, [savingsGoals]);
 
-  // Subscriptions Summary
-  const subsSummary = useMemo(() => {
-    const subs = recurringTransactions.filter(r => r.isSubscription && r.isActive);
-    const cost = subs.reduce((acc, curr) => acc + curr.amount, 0);
-    return { activeCount: subs.length, totalCost: cost };
-  }, [recurringTransactions]);
-
   // Recurring Summary
   const recurringSummary = useMemo(() => {
-    const rtx = recurringTransactions.filter(r => !r.isSubscription && r.isActive);
+    const rtx = recurringTransactions.filter(r => r.isActive);
     return { activeCount: rtx.length, pendingCount: pendingRecurringTransactions.length };
   }, [recurringTransactions, pendingRecurringTransactions]);
 
@@ -157,15 +150,7 @@ export const PlanScreen = ({ navigation }: Props) => {
             </GlassCard>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate('Subscriptions')}>
-            <GlassCard style={styles.tileCard}>
-              <Ionicons name="swap-horizontal" size={24} color={theme.colors.info} style={styles.tileIcon} />
-              <Text style={styles.tileTitle}>Subscriptions</Text>
-              <Text style={styles.tileDesc}>
-                {subsSummary.activeCount > 0 ? `${formatCurrency(subsSummary.totalCost)} / month` : 'No subscriptions'}
-              </Text>
-            </GlassCard>
-          </TouchableOpacity>
+
 
           <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate('RecurringTransactions')}>
             <GlassCard style={styles.tileCard}>

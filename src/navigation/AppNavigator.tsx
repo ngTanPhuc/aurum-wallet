@@ -39,7 +39,6 @@ import { TemplatesScreen } from '../screens/TemplatesScreen';
 import { AddEditTemplateScreen } from '../screens/AddEditTemplateScreen';
 import { TagsScreen } from '../screens/TagsScreen';
 import { CategoriesScreen } from '../screens/CategoriesScreen';
-import { SubscriptionsScreen } from '../screens/SubscriptionsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { SavingsDepositsScreen } from '../screens/SavingsDepositsScreen';
 import { SavingsDepositDetailScreen } from '../screens/SavingsDepositDetailScreen';
@@ -309,11 +308,6 @@ export const AppNavigator = () => {
             name="Categories" 
             component={CategoriesScreen} 
             options={{ title: 'Manage Categories', headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Subscriptions" 
-            component={SubscriptionsScreen} 
-            options={{ title: 'Subscriptions', headerShown: false }} 
           />
           <Stack.Screen 
             name="Calendar" 

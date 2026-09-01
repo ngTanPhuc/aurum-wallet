@@ -3,6 +3,7 @@ import { Animated, Dimensions, View } from 'react-native';
 import { CustomKeypad } from '../components/glass/CustomKeypad';
 
 type KeypadConfig = {
+  id?: string;
   initialValue: string;
   onChange: (val: string) => void;
   maxLength?: number;
@@ -14,6 +15,7 @@ interface KeypadContextProps {
   showKeypad: (config: KeypadConfig) => void;
   hideKeypad: () => void;
   isKeypadVisible: boolean;
+  activeInputId: string | null;
   appTranslateY: Animated.Value;
 }
 
@@ -24,12 +26,14 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const currentShift = useRef(0);
 
   const [isVisible, setIsVisible] = useState(false);
+  const [activeInputId, setActiveInputId] = useState<string | null>(null);
   const [value, setValue] = useState('');
   const [onChangeCallback, setOnChangeCallback] = useState<(val: string) => void>(() => () => {});
   const [maxLength, setMaxLength] = useState<number | undefined>();
   const [allowDecimal, setAllowDecimal] = useState<boolean>(false);
 
   const showKeypad = (config: KeypadConfig) => {
+    setActiveInputId(config.id || null);
     setValue(config.initialValue);
     setOnChangeCallback(() => config.onChange);
     setMaxLength(config.maxLength);
@@ -44,8 +48,6 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           const keypadHeight = 420; // Safe height
           const screenHeight = Dimensions.get('window').height;
           
-          // pageY is the current on-screen position.
-          // To find the absolute position in the scroll view, we add back the current shift.
           const unshiftedY = pageY + currentShift.current;
           const bottomOfInput = unshiftedY + height;
           const topOfKeypad = screenHeight - keypadHeight;
@@ -68,6 +70,7 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const hideKeypad = () => {
     setIsVisible(false);
+    setActiveInputId(null);
     currentShift.current = 0;
     Animated.timing(appTranslateY, {
       toValue: 0,
@@ -85,10 +88,6 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       hideKeypad();
       return;
     } else {
-      // For '.' we must ensure we don't add multiple dots if already present, but the raw values
-      // handled by Aurum Wallet's inputs usually strip non-digits or manage formatting internally.
-      // However, we send raw characters and let the caller component format them, 
-      // or we handle raw string construction here.
       if (key === '.' && newValue.includes('.')) return;
       if (maxLength && newValue.length >= maxLength) return;
       newValue = newValue + key;
@@ -99,7 +98,7 @@ export const KeypadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <KeypadContext.Provider value={{ showKeypad, hideKeypad, isKeypadVisible: isVisible, appTranslateY }}>
+    <KeypadContext.Provider value={{ showKeypad, hideKeypad, isKeypadVisible: isVisible, activeInputId, appTranslateY }}>
       <Animated.View style={{ flex: 1, transform: [{ translateY: appTranslateY }] }}>
         {children}
       </Animated.View>

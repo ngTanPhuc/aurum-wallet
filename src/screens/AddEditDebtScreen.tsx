@@ -30,6 +30,24 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
   const [dueDateStr, setDueDateStr] = useState('');
   const [note, setNote] = useState('');
 
+  const handleAmountChange = (text: string) => {
+    const digitsOnly = text.replace(/\D/g, '');
+    const trimmed = digitsOnly.replace(/^0+/, '');
+    if (!trimmed) {
+      setAmountStr('');
+      return;
+    }
+    setAmountStr(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
+  };
+
+  const handleInterestRateChange = (text: string) => {
+    let val = text.replace(/[^0-9.]/g, '');
+    if (val.startsWith('0') && val.length > 1 && val[1] !== '.') {
+      val = val.replace(/^0+/, '');
+    }
+    setInterestRateStr(val);
+  };
+
   // Default wallet
   useEffect(() => {
     if (wallets.length > 0 && !walletId) {
@@ -38,7 +56,7 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
   }, [wallets]);
 
   // Live preview calculations
-  const principal = parseFloat(amountStr) || 0;
+  const principal = parseFloat(amountStr.replace(/\./g, '')) || 0;
   const rate = parseFloat(interestRateStr) || 0;
   const startDate = new Date().toISOString();
   let dueDate = undefined;
@@ -137,7 +155,7 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
           <AmountInput
             style={styles.inputLarge}
             value={amountStr}
-            onChangeText={setAmountStr}
+            onChangeText={handleAmountChange}
             placeholder="0"
           />
 
@@ -169,7 +187,7 @@ export const AddEditDebtScreen = ({ navigation, route }: Props) => {
               <AmountInput
                 style={styles.input}
                 value={interestRateStr}
-                onChangeText={setInterestRateStr}
+                onChangeText={handleInterestRateChange}
                 allowDecimal
                 placeholder="e.g. 5"
                 placeholderTextColor={theme.colors.textMuted}

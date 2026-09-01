@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">51.28% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>20/39</span>
+                <span class='fraction'>0/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">58.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>7/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">52.77% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/36</span>
+                <span class='fraction'>0/36</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -211,10 +211,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -278,29 +278,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -354,10 +354,10 @@ import { SavingsDeposit } from '../types';
 import uuid from 'react-native-uuid';
 import { TransactionService } from './TransactionService';
 &nbsp;
-export const SavingsDepositService = {
-  async getSavingsDeposits(): Promise&lt;SavingsDeposit[]&gt; {
-    const db = await getDb();
-    return await db.getAllAsync&lt;SavingsDeposit&gt;('SELECT * FROM savings_deposits ORDER BY createdAt DESC');
+export const SavingsDepositService = <span class="cstat-no" title="statement not covered" >{</span>
+<span class="fstat-no" title="function not covered" >  as</span>ync getSavingsDeposits(): Promise&lt;SavingsDeposit[]&gt; {
+    const db = <span class="cstat-no" title="statement not covered" >await getDb();</span>
+<span class="cstat-no" title="statement not covered" >    return await db.getAllAsync&lt;SavingsDeposit&gt;('SELECT * FROM savings_deposits ORDER BY createdAt DESC');</span>
   },
 &nbsp;
 <span class="fstat-no" title="function not covered" >  as</span>ync addSavingsDeposit(deposit: SavingsDeposit): Promise&lt;void&gt; {
@@ -420,30 +420,30 @@ export const SavingsDepositService = {
     );
   },
 &nbsp;
-  calculateMaturityDate(startDate: string, termValue: number, termUnit: 'day' | 'month' | 'year'): string {
-    const date = new Date(startDate);
-    if (termUnit === 'day') {
-      date.setDate(date.getDate() + termValue);
-    } else if (termUnit === 'month') {
-      date.setMonth(date.getMonth() + termValue);
-    } else <span class="missing-if-branch" title="else path not taken" >E</span>if (termUnit === 'year') {
-      date.setFullYear(date.getFullYear() + termValue);
+<span class="fstat-no" title="function not covered" >  ca</span>lculateMaturityDate(startDate: string, termValue: number, termUnit: 'day' | 'month' | 'year'): string {
+    const date = <span class="cstat-no" title="statement not covered" >new Date(startDate);</span>
+<span class="cstat-no" title="statement not covered" >    if (termUnit === 'day') {</span>
+<span class="cstat-no" title="statement not covered" >      date.setDate(date.getDate() + termValue);</span>
+    } else <span class="cstat-no" title="statement not covered" >if (termUnit === 'month') {</span>
+<span class="cstat-no" title="statement not covered" >      date.setMonth(date.getMonth() + termValue);</span>
+    } else <span class="cstat-no" title="statement not covered" >if (termUnit === 'year') {</span>
+<span class="cstat-no" title="statement not covered" >      date.setFullYear(date.getFullYear() + termValue);</span>
     }
-    return date.toISOString();
+<span class="cstat-no" title="statement not covered" >    return date.toISOString();</span>
   },
 &nbsp;
-  calculateSimpleInterest(principal: number, rate: number, startDate: string, maturityDate: string): number {
-    const start = new Date(startDate).getTime();
-    const end = new Date(maturityDate).getTime();
-    const daysElapsed = (end - start) / (1000 * 60 * 60 * 24);
-    return (principal * rate / 100) * (daysElapsed / 365);
+<span class="fstat-no" title="function not covered" >  ca</span>lculateSimpleInterest(principal: number, rate: number, startDate: string, maturityDate: string): number {
+    const start = <span class="cstat-no" title="statement not covered" >new Date(startDate).getTime();</span>
+    const end = <span class="cstat-no" title="statement not covered" >new Date(maturityDate).getTime();</span>
+    const daysElapsed = <span class="cstat-no" title="statement not covered" >(end - start) / (1000 * 60 * 60 * 24);</span>
+<span class="cstat-no" title="statement not covered" >    return (principal * rate / 100) * (daysElapsed / 365);</span>
   },
 &nbsp;
-  isDepositMatured(deposit: SavingsDeposit): boolean {
-    if (deposit.status !== 'active') return false;
-    const now = new Date().getTime();
-    const maturity = new Date(deposit.maturityDate).getTime();
-    return now &gt;= maturity;
+<span class="fstat-no" title="function not covered" >  is</span>DepositMatured(deposit: SavingsDeposit): boolean {
+<span class="cstat-no" title="statement not covered" >    if (deposit.status !== 'active') <span class="cstat-no" title="statement not covered" >return false;</span></span>
+    const now = <span class="cstat-no" title="statement not covered" >new Date().getTime();</span>
+    const maturity = <span class="cstat-no" title="statement not covered" >new Date(deposit.maturityDate).getTime();</span>
+<span class="cstat-no" title="statement not covered" >    return now &gt;= maturity;</span>
   },
 &nbsp;
 <span class="fstat-no" title="function not covered" >  as</span>ync matureDeposit(deposit: SavingsDeposit, interestCategoryId?: string): Promise&lt;void&gt; {
@@ -499,7 +499,7 @@ export const SavingsDepositService = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T04:35:35.267Z
+                at 2026-07-14T08:43:59.604Z
             </div>
         <script src="../prettify.js"></script>
         <script>

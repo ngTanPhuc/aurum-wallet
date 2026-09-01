@@ -187,6 +187,10 @@ CREATE TABLE IF NOT EXISTS yield_pocket_settings (
   pendingDeposit REAL NOT NULL DEFAULT 0,
   lastRolloverDate TEXT,
   lastSyncDate TEXT,
+  minimumBalance REAL NOT NULL DEFAULT 0,
+  pendingSettlementDate TEXT,
+  fractionalYieldCarry REAL NOT NULL DEFAULT 0,
+  isQualified INTEGER NOT NULL DEFAULT 1,
   createdAt TEXT NOT NULL,
   updatedAt TEXT NOT NULL,
   FOREIGN KEY (walletId) REFERENCES wallets (id) ON DELETE CASCADE

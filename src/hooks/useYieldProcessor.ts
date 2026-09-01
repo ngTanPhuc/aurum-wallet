@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
+import { AppState } from 'react-native';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { YieldPocketService } from '../services/YieldPocketService';
 import { TransactionService } from '../services/TransactionService';
@@ -16,75 +16,117 @@ export const useYieldProcessor = () => {
     if (isLoading) return;
     let yieldProcessed = false;
     const now = new Date();
-    
+
     const db = await getDb();
     const defaultCategory = await db.getFirstAsync<{ id: string }>("SELECT id FROM categories WHERE name = 'Yield Interest' AND type = 'income'");
     const interestCategoryId = defaultCategory?.id;
 
     for (const settings of yieldPocketSettings) {
-      if (settings.postingMode === 'auto') {
-        const nextDateStr = settings.nextYieldDate || settings.createdAt;
-        let currentDate = new Date(nextDateStr);
-        let didAdvance = false;
+      if (settings.postingMode !== 'auto') continue;
 
-        const wallet = await db.getFirstAsync<{balance: number}>('SELECT balance FROM wallets WHERE id = ?', settings.walletId);
-        let currentWalletBalance = wallet?.balance || 0;
-        
-        while (currentDate.getTime() <= now.getTime()) {
-          didAdvance = true;
+      const nextDateStr = settings.nextYieldDate || settings.createdAt;
+      let currentDate = new Date(nextDateStr);
+      let didAdvance = false;
 
-          // T+1 Rollover: settle pending deposits FIRST, then calculate yield on the settled balance.
-          if (settings.yieldRule === 'T1_FUND') {
+      // Read current wallet balance for STANDARD rule
+      const walletRow = await db.getFirstAsync<{ balance: number }>('SELECT balance FROM wallets WHERE id = ?', settings.walletId);
+      let currentWalletBalance = walletRow?.balance ?? 0;
+
+      while (currentDate.getTime() <= now.getTime()) {
+        didAdvance = true;
+
+        // ── T1_FUND: settle pendingDeposit once the settlement date has passed ──
+        if (settings.yieldRule === 'T1_FUND' && settings.pendingDeposit > 0) {
+          const settlementDate = settings.pendingSettlementDate
+            ? new Date(settings.pendingSettlementDate)
+            : null;
+
+          if (!settlementDate || currentDate >= settlementDate) {
             settings.interestBearingBalance += settings.pendingDeposit;
             settings.pendingDeposit = 0;
+            settings.pendingSettlementDate = null;
           }
+        }
 
-          let expectedYield = 0;
-          let baseBalance = settings.yieldRule === 'T1_FUND' ? settings.interestBearingBalance : currentWalletBalance;
-          
+        // ── Determine base balance for yield calculation ──────────────────────
+        const baseBalance = settings.yieldRule === 'T1_FUND'
+          ? settings.interestBearingBalance
+          : currentWalletBalance;
+
+        // ── Threshold gate ────────────────────────────────────────────────────
+        const minBalance = settings.minimumBalance ?? 0;
+        const meetsThreshold = minBalance <= 0 || baseBalance >= minBalance;
+
+        // ── Settlement gate for STANDARD rule ────────────────────────────────
+        // T1_FUND gate is implicit: interestBearingBalance is 0 until settled.
+        const stdSettlementPassed = settings.yieldRule !== 'STANDARD' ||
+          !settings.pendingSettlementDate ||
+          currentDate >= new Date(settings.pendingSettlementDate);
+
+        // ── Calculate yield with fractional carry ─────────────────────────────
+        let expectedYield = 0;
+        let newCarry = settings.fractionalYieldCarry ?? 0;
+
+        if (
+          meetsThreshold &&
+          settings.isQualified &&
+          baseBalance > 0 &&
+          stdSettlementPassed
+        ) {
           if (settings.yieldFrequency === 'daily') {
-            expectedYield = YieldPocketService.calculateDailyYield(baseBalance, settings.currentApy);
+            const result = YieldPocketService.calculateDailyYieldWithCarry(
+              baseBalance, settings.currentApy, newCarry
+            );
+            expectedYield = result.yield;
+            newCarry = result.newCarry;
           } else {
-            expectedYield = YieldPocketService.calculateMonthlyYield(baseBalance, settings.currentApy);
+            const result = YieldPocketService.calculateMonthlyYieldWithCarry(
+              baseBalance, settings.currentApy, newCarry
+            );
+            expectedYield = result.yield;
+            newCarry = result.newCarry;
           }
-          
-          if (expectedYield > 0) {
-            const isoDate = currentDate.toISOString();
-            // addTransaction → income → onDeposit will update the pocket's pendingDeposit.
-            // The yield starts as "pending" for T+1 settlement (it earns on next day's rollover).
-            await TransactionService.addTransaction({
-              id: uuid.v4() as string,
-              type: 'income',
-              amount: expectedYield,
-              sourceWalletId: settings.walletId,
-              categoryId: interestCategoryId,
-              note: 'Yield earned',
-              transactionDate: isoDate,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            });
-            
-            currentWalletBalance += expectedYield;
-            // NOTE: Do NOT manually update settings.interestBearingBalance here.
-            // The income transaction above calls onDeposit, which adds to pendingDeposit.
-            // It will be settled into interestBearingBalance on the NEXT day's rollover — correct T+1 behavior.
-          }
+        }
+        // Always persist the updated carry (even if 0 yield this day, carry accumulates)
+        settings.fractionalYieldCarry = newCarry;
 
-          settings.lastRolloverDate = currentDate.toISOString();
-          const nextStr = YieldPocketService.getNextYieldDate(currentDate.toISOString(), settings.yieldFrequency);
-          currentDate = new Date(nextStr);
-          settings.nextYieldDate = nextStr;
-          settings.lastYieldCalculatedAt = new Date().toISOString();
+        // ── Post yield transaction ────────────────────────────────────────────
+        if (expectedYield > 0) {
+          const isoDate = currentDate.toISOString();
+          // note = 'Yield earned' is checked in TransactionService to set isYieldIncome=true,
+          // preventing onDeposit from re-triggering the threshold settlement window.
+          await TransactionService.addTransaction({
+            id: uuid.v4() as string,
+            type: 'income',
+            amount: expectedYield,
+            sourceWalletId: settings.walletId,
+            categoryId: interestCategoryId,
+            note: 'Yield earned',
+            transactionDate: isoDate,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+
+          currentWalletBalance += expectedYield;
+          // NOTE: onDeposit (called via addTransaction) adds yield to pendingDeposit.
+          // It will settle into interestBearingBalance on the NEXT day's rollover — T+1 compound.
         }
-        
-        if (didAdvance) {
-          settings.updatedAt = new Date().toISOString();
-          await YieldPocketService.saveSettings(settings);
-          yieldProcessed = true;
-        }
+
+        // ── Advance loop ──────────────────────────────────────────────────────
+        settings.lastRolloverDate = currentDate.toISOString();
+        const nextStr = YieldPocketService.getNextYieldDate(currentDate.toISOString(), settings.yieldFrequency);
+        currentDate = new Date(nextStr);
+        settings.nextYieldDate = nextStr;
+        settings.lastYieldCalculatedAt = new Date().toISOString();
+      }
+
+      if (didAdvance) {
+        settings.updatedAt = new Date().toISOString();
+        await YieldPocketService.saveSettings(settings);
+        yieldProcessed = true;
       }
     }
-    
+
     if (yieldProcessed) {
       await loadData();
     }
@@ -92,7 +134,7 @@ export const useYieldProcessor = () => {
 
   useEffect(() => {
     if (isLoading) return;
-    
+
     processYield();
 
     const subscription = AppState.addEventListener('change', nextAppState => {

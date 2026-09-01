@@ -42,6 +42,10 @@ const makePocket = (overrides: Partial<YieldPocketSettings> = {}): YieldPocketSe
   yieldFrequency: 'daily',
   postingMode: 'auto',
   allowSpendingDirectly: true,
+  minimumBalance: 0,
+  pendingSettlementDate: null,
+  fractionalYieldCarry: 0,
+  isQualified: true,
   createdAt: '2026-07-01T00:00:00.000Z',
   updatedAt: '2026-07-01T00:00:00.000Z',
   ...overrides,
@@ -136,10 +140,14 @@ describe('YieldPocketService', () => {
         expect.anything(), // allowSpendingDirectly
         expect.anything(), // interestBearingBalance
         expect.anything(), // pendingDeposit
-        null, // lastRolloverDate
-        null, // lastSyncDate
+        null,              // lastRolloverDate
+        null,              // lastSyncDate
+        expect.anything(), // minimumBalance
+        null,              // pendingSettlementDate
+        expect.anything(), // fractionalYieldCarry
+        expect.anything(), // isQualified
         expect.anything(), // updatedAt
-        'w1'              // walletId
+        'w1'               // walletId
       );
     });
   });

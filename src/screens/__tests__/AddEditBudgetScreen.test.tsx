@@ -90,25 +90,10 @@ describe('AddEditBudgetScreen', () => {
     expect(appAlert).toHaveBeenCalledWith('Invalid Amount', 'Please enter a valid budget amount.');
   });
 
-  it('validates duplicate budget', () => {
-    setupStore({
-      budgets: [{ id: 'b1', amount: 500, categoryId: 'c1', month: 6, year: 2026 }]
-    });
-    const route = { params: { month: 6, year: 2026 } };
-    const { getByText, getByPlaceholderText } = render(
-      <AddEditBudgetScreen navigation={mockNavigation as any} route={route as any} />
-    );
-
-    fireEvent.changeText(getByPlaceholderText('0'), '1000');
-    fireEvent.press(getByText('Set C1'));
-    fireEvent.press(getByText('Save Budget'));
-
-    expect(appAlert).toHaveBeenCalledWith('Duplicate Budget', 'A budget for this category already exists in this month.');
-  });
 
   it('saves new budget successfully', async () => {
     setupStore();
-    const route = { params: { month: 6, year: 2026 } };
+    const route = { params: {} };
     const { getByText, getByPlaceholderText } = render(
       <AddEditBudgetScreen navigation={mockNavigation as any} route={route as any} />
     );
@@ -120,9 +105,8 @@ describe('AddEditBudgetScreen', () => {
     await waitFor(() => {
       expect(mockAddBudget).toHaveBeenCalledWith(expect.objectContaining({
         amount: 1000,
-        categoryId: 'c1',
-        month: 6,
-        year: 2026
+        targetId: 'c1',
+        targetType: 'category'
       }));
       expect(mockNavigation.goBack).toHaveBeenCalled();
     });
@@ -130,7 +114,7 @@ describe('AddEditBudgetScreen', () => {
 
   it('updates existing budget successfully', async () => {
     setupStore({
-      budgets: [{ id: 'b1', amount: 500, categoryId: 'c2', month: 6, year: 2026 }]
+      budgets: [{ id: 'b1', name: 'Food Budget', amount: 500, targetType: 'category', targetId: 'c1', recurrence: 'monthly', startDate: new Date().toISOString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }]
     });
     const route = { params: { budgetId: 'b1' } };
     const { getByText, getByDisplayValue } = render(

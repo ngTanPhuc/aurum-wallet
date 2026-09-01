@@ -10,6 +10,7 @@ import { CustomHeader } from '../components/CustomHeader';
 import { theme } from '../theme/theme';
 import { WalletPicker } from '../components/WalletPicker';
 import { YieldPocketService } from '../services/YieldPocketService';
+import { getSettlementDate } from '../utils/settlementDate';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditYieldPocket'>;
 
@@ -26,6 +27,7 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
   const [yieldFrequency, setYieldFrequency] = useState<'daily' | 'monthly'>('daily');
   const [allowSpendingDirectly, setAllowSpendingDirectly] = useState(true);
   const [postingMode, setPostingMode] = useState<'auto' | 'manual'>('auto');
+  const [minimumBalanceStr, setMinimumBalanceStr] = useState('0');
 
   useEffect(() => {
     if (isEditing && walletId) {
@@ -35,9 +37,28 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
         setYieldFrequency(existing.yieldFrequency);
         setAllowSpendingDirectly(existing.allowSpendingDirectly);
         setPostingMode(existing.postingMode || 'auto');
+        setMinimumBalanceStr((existing.minimumBalance ?? 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
       }
     }
   }, [walletId, isEditing, yieldPocketSettings]);
+
+  const handleApyChange = (text: string) => {
+    let val = text.replace(/[^0-9.]/g, '');
+    if (val.startsWith('0') && val.length > 1 && val[1] !== '.') {
+      val = val.replace(/^0+/, '');
+    }
+    setAnnualYieldRate(val);
+  };
+
+  const handleMinBalanceChange = (text: string) => {
+    const digitsOnly = text.replace(/\D/g, '');
+    const trimmed = digitsOnly.replace(/^0+/, '');
+    if (!trimmed) {
+      setMinimumBalanceStr('');
+      return;
+    }
+    setMinimumBalanceStr(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
+  };
 
   // We don't filter out wallets from the picker itself because WalletPicker fetches internally,
   // but we can validate it on save.
@@ -68,9 +89,20 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
 
     const wallet = wallets.find(w => w.id === selectedWalletId);
     const initialBalance = wallet ? wallet.balance : 0;
+    const minBalance = Math.max(0, parseFloat(minimumBalanceStr.replace(/\./g, '')) || 0);
 
-    // For new pockets: initial balance goes into pendingDeposit (T+1 applies from day one).
-    // First yield is scheduled for tomorrow so the processor doesn't fire instantly on creation.
+    // Determine initial qualification and settlement date for NEW pockets.
+    // Existing pockets keep their current state.
+    const isNewPocket = !existing;
+    const newPocketIsQualified = isNewPocket
+      ? (minBalance <= 0 || initialBalance >= minBalance)
+      : existing!.isQualified;
+    const newPocketSettlementDate = isNewPocket && newPocketIsQualified
+      ? getSettlementDate(new Date()).toISOString()
+      : (existing?.pendingSettlementDate ?? null);
+
+    // nextYieldDate governs when the ROLLOVER fires (daily/monthly tick).
+    // This is independent of pendingSettlementDate (which governs when balance earns).
     const firstYieldDate = existing?.nextYieldDate
       || YieldPocketService.getNextYieldDate(now, yieldFrequency);
 
@@ -87,6 +119,10 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
       pendingDeposit: existing ? existing.pendingDeposit : initialBalance,
       lastRolloverDate: existing?.lastRolloverDate,
       lastSyncDate: existing?.lastSyncDate,
+      minimumBalance: minBalance,
+      pendingSettlementDate: newPocketSettlementDate,
+      fractionalYieldCarry: existing?.fractionalYieldCarry ?? 0,
+      isQualified: newPocketIsQualified,
       createdAt: existing?.createdAt || now,
       updatedAt: now,
     };
@@ -135,7 +171,7 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
         <AmountInput
           style={styles.input}
           value={annualYieldRate}
-          onChangeText={setAnnualYieldRate}
+          onChangeText={handleApyChange}
           allowDecimal
           placeholder="e.g. 5.5" 
           placeholderTextColor={theme.colors.textMuted}
@@ -183,6 +219,17 @@ export const AddEditYieldPocketScreen = ({ route, navigation }: Props) => {
           />
         </View>
 
+        <Text style={styles.label}>Minimum Balance Threshold</Text>
+        <AmountInput
+          style={styles.input}
+          value={minimumBalanceStr}
+          onChangeText={handleMinBalanceChange}
+          allowDecimal={false}
+          placeholder="e.g. 10000"
+          placeholderTextColor={theme.colors.textMuted}
+        />
+        <Text style={styles.fieldHint}>Interest only accrues when the balance meets or exceeds this amount. Set to 0 to always earn interest.</Text>
+
         <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
           <Text style={styles.saveBtnText}>{isEditing ? 'Save Changes' : 'Create Yield Pocket'}</Text>
         </TouchableOpacity>
@@ -213,6 +260,8 @@ const styles = StyleSheet.create({
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 32, padding: 16, backgroundColor: theme.colors.surface, borderRadius: theme.radii.md },
   switchLabel: { ...theme.typography.body1, color: theme.colors.textPrimary, marginBottom: 4 },
   switchSubLabel: { ...theme.typography.body2, color: theme.colors.textMuted, fontSize: 12 },
+
+  fieldHint: { ...theme.typography.body2, color: theme.colors.textMuted, fontSize: 12, marginTop: 6, marginBottom: 4 },
 
   saveBtn: { backgroundColor: theme.colors.primary, padding: theme.spacing.lg, borderRadius: theme.radii.sm, alignItems: 'center', marginTop: 32 },
   saveBtnText: { ...theme.typography.body1, color: theme.colors.background, fontWeight: 'bold' },

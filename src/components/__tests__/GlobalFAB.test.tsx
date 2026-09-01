@@ -57,7 +57,7 @@ describe('GlobalFAB', () => {
     fireEvent.press(getByText('add'));
     
     fireEvent.press(getByText('pie-chart'));
-    expect(navigateMock).toHaveBeenCalledWith('AddEditBudget', expect.objectContaining({ month: expect.any(Number), year: expect.any(Number) }));
+    expect(navigateMock).toHaveBeenCalledWith('AddEditBudget', {});
   });
 
   it('navigates to AddEditSavingsGoal when selected', () => {

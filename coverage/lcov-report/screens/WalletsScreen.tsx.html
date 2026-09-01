@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">93.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/15</span>
+                <span class='fraction'>0/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.5% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>5/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>7/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">91.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -144,26 +144,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,7 +184,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,26 +208,26 @@ type Props = CompositeScreenProps&lt;
   NativeStackScreenProps&lt;RootStackParamList&gt;
 &gt;;
 &nbsp;
-export const WalletsScreen = ({ navigation }: Props) =&gt; {
-  const wallets = useFinanceStore(state =&gt; state.wallets);
-  const [showArchived, setShowArchived] = useState(false);
+export const WalletsScreen = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> navigation }: Props) =&gt; {</span>
+  const wallets = <span class="cstat-no" title="statement not covered" >useFinanceStore(<span class="fstat-no" title="function not covered" >st</span>ate =&gt; <span class="cstat-no" title="statement not covered" >state.wallets)</span>;</span>
+  const [showArchived, setShowArchived] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   
-  const activeWallets = wallets.filter(w =&gt; !w.isArchived);
-  const archivedWallets = wallets.filter(w =&gt; w.isArchived);
+  const activeWallets = <span class="cstat-no" title="statement not covered" >wallets.filter(<span class="fstat-no" title="function not covered" >w </span>=&gt; <span class="cstat-no" title="statement not covered" >!w.isArchived)</span>;</span>
+  const archivedWallets = <span class="cstat-no" title="statement not covered" >wallets.filter(<span class="fstat-no" title="function not covered" >w </span>=&gt; <span class="cstat-no" title="statement not covered" >w.isArchived)</span>;</span>
   
-  const displayWallets = showArchived ? <span class="branch-0 cbranch-no" title="branch not covered" >[...activeWallets, ...archivedWallets] </span>: activeWallets;
+  const displayWallets = <span class="cstat-no" title="statement not covered" >showArchived ? [...activeWallets, ...archivedWallets] : activeWallets;</span>
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View style={styles.container}&gt;
       &lt;CustomHeader title="Wallets" /&gt;
       &lt;FlatList
         data={displayWallets}
-        keyExtractor={w =&gt; w.id}
-        renderItem={({ item }) =&gt; (
-          &lt;View style={[item.isArchived &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >{ opacity: 0.6 }]</span>}&gt;
+        keyExtractor={<span class="fstat-no" title="function not covered" >w </span>=&gt; <span class="cstat-no" title="statement not covered" >w.id}</span>
+        renderItem={<span class="fstat-no" title="function not covered" >({</span> item }) =&gt; (
+<span class="cstat-no" title="statement not covered" >          &lt;View style={[item.isArchived &amp;&amp; { opacity: 0.6 }]}&gt;</span>
             &lt;WalletCard 
               wallet={item} 
-              onPress={(w) =&gt; navigation.navigate('AddEditWallet', { walletId: w.id })} 
+              onPress={<span class="fstat-no" title="function not covered" >(w</span>) =&gt; <span class="cstat-no" title="statement not covered" >navigation.navigate('AddEditWallet', { walletId: w.id })} </span>
             /&gt;
           &lt;/View&gt;
         )}
@@ -237,7 +237,7 @@ export const WalletsScreen = ({ navigation }: Props) =&gt; {
           archivedWallets.length &gt; 0 ? (
             &lt;TouchableOpacity style={styles.toggleArchived} onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setShowArchived(!showArchived)}</span>&gt;
               &lt;Text style={styles.toggleArchivedText}&gt;
-                {showArchived ? <span class="branch-0 cbranch-no" title="branch not covered" >'Hide Archived Wallets' </span>: `Show Archived Wallets (${archivedWallets.length})`}
+                {showArchived ? 'Hide Archived Wallets' : `Show Archived Wallets (${archivedWallets.length})`}
               &lt;/Text&gt;
             &lt;/TouchableOpacity&gt;
           ) : null
@@ -248,7 +248,7 @@ export const WalletsScreen = ({ navigation }: Props) =&gt; {
   );
 };
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   container: { flex: 1, backgroundColor: theme.colors.background },
   list: { padding: theme.spacing.lg },
   empty: { ...theme.typography.body1, textAlign: 'center', color: theme.colors.textMuted, marginTop: theme.spacing.xxl },
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T04:35:35.267Z
+                at 2026-07-14T08:43:59.604Z
             </div>
         <script src="../prettify.js"></script>
         <script>

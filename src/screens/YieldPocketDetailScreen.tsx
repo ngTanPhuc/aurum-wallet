@@ -242,6 +242,31 @@ export const YieldPocketDetailScreen = ({ route, navigation }: Props) => {
                 </View>
               </View>
 
+              {/* Settlement pending banner */}
+              {pocket.pendingSettlementDate && new Date(pocket.pendingSettlementDate) > new Date() && (
+                <View style={styles.settlingBanner}>
+                  <Ionicons name="time-outline" size={16} color={theme.colors.warning} />
+                  <Text style={styles.settlingText}>
+                    Settling — yield starts on{' '}
+                    <Text style={{ fontWeight: 'bold' }}>
+                      {new Date(pocket.pendingSettlementDate).toLocaleDateString(undefined, {
+                        weekday: 'short', month: 'short', day: 'numeric'
+                      })}
+                    </Text>
+                  </Text>
+                </View>
+              )}
+
+              {/* Not yet qualified (balance below threshold) */}
+              {!pocket.isQualified && (
+                <View style={styles.settlingBanner}>
+                  <Ionicons name="alert-circle-outline" size={16} color={theme.colors.warning} />
+                  <Text style={styles.settlingText}>
+                    Balance is below the minimum threshold — no yield is accruing.
+                  </Text>
+                </View>
+              )}
+
               {isManual && isDue ? (
                 <TouchableOpacity style={styles.collectBtn} onPress={handleCollect}>
                   <Text style={styles.collectBtnText}>Collect Yield</Text>
@@ -316,9 +341,9 @@ export const YieldPocketDetailScreen = ({ route, navigation }: Props) => {
               onChangeText={(text) => {
                 const digits = text.replace(/\D/g, '');
                 const trimmed = digits.replace(/^0+/, '') || '';
-                setSyncInput(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+                setSyncInput(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
               }}
-              placeholder="e.g. 201,500"
+              placeholder="e.g. 201.500"
               placeholderTextColor={theme.colors.textMuted}
               
               autoFocus
@@ -382,6 +407,9 @@ const styles = StyleSheet.create({
   syncBtnTextGroup: { flex: 1 },
   syncBtnText: { ...theme.typography.body1, color: theme.colors.primary, fontWeight: '600' },
   syncBtnSub: { ...theme.typography.body2, color: theme.colors.textMuted, marginTop: 1 },
+
+  settlingBanner: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme.colors.warning + '18', borderRadius: theme.radii.sm, padding: theme.spacing.sm, marginBottom: theme.spacing.sm },
+  settlingText: { ...theme.typography.body2, color: theme.colors.warning, flex: 1 },
 
   sectionTitle: { ...theme.typography.h3, color: theme.colors.textPrimary, marginBottom: theme.spacing.md },
 

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">41.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">14.28% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">41.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
@@ -106,14 +106,11 @@
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -125,9 +122,12 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -138,8 +138,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,15 +147,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Platform } from 'react-native';
 &nbsp;
-const PIN_KEY = 'app_pin_hash';
+const PIN_KEY = <span class="cstat-no" title="statement not covered" >'app_pin_hash';</span>
 &nbsp;
 /**
  * Platform-adaptive secure storage.
  * - Native: uses expo-secure-store (hardware-backed Keychain/Keystore)
  * - Web: falls back to AsyncStorage (since SecureStore requires native APIs)
  */
-const storage = Platform.OS === 'web'
-  ? <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
+const storage = <span class="cstat-no" title="statement not covered" >Platform.OS === 'web'</span>
+  ? {
 <span class="fstat-no" title="function not covered" >      as</span>ync getItemAsync(key: string): Promise&lt;string | null&gt; {
 <span class="cstat-no" title="statement not covered" >        return localStorage.getItem(key);</span>
       },
@@ -168,7 +168,7 @@ const storage = Platform.OS === 'web'
     }
   : require('expo-secure-store');
 &nbsp;
-export const PinService = {
+export const PinService = <span class="cstat-no" title="statement not covered" >{</span>
 <span class="fstat-no" title="function not covered" >  as</span>ync setPin(pin: string): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await storage.setItemAsync(PIN_KEY, pin);</span>
   },
@@ -178,9 +178,9 @@ export const PinService = {
 <span class="cstat-no" title="statement not covered" >    return stored === pin;</span>
   },
 &nbsp;
-  async hasPin(): Promise&lt;boolean&gt; {
-    const stored = await storage.getItemAsync(PIN_KEY);
-    return stored !== null;
+<span class="fstat-no" title="function not covered" >  as</span>ync hasPin(): Promise&lt;boolean&gt; {
+    const stored = <span class="cstat-no" title="statement not covered" >await storage.getItemAsync(PIN_KEY);</span>
+<span class="cstat-no" title="statement not covered" >    return stored !== null;</span>
   },
 &nbsp;
 <span class="fstat-no" title="function not covered" >  as</span>ync removePin(): Promise&lt;void&gt; {
@@ -193,7 +193,7 @@ export const PinService = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-14T04:35:35.267Z
+                at 2026-07-14T08:43:59.604Z
             </div>
         <script src="../prettify.js"></script>
         <script>

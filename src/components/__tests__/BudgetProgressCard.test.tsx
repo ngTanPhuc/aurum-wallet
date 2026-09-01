@@ -8,7 +8,7 @@ jest.mock('../../store/useFinanceStore', () => ({
   useFinanceStore: jest.fn()
 }));
 
-const mockBudget: Budget = { id: 'b1', name: 'Test Budget', amount: 500, targetType: 'category', targetId: 'c1', recurrence: 'monthly', startDate: '2023-06-01T00:00:00.000Z', createdAt: '2023-01-01', updatedAt: '2023-01-01' };
+const mockBudget: Budget = { id: 'b1', name: 'Food', amount: 500, targetType: 'category', targetId: 'c1', recurrence: 'monthly', startDate: '2023-06-01T00:00:00.000Z', createdAt: '2023-01-01', updatedAt: '2023-01-01' };
 
 describe('BudgetProgressCard', () => {
   const mockCategories = [
@@ -30,6 +30,7 @@ describe('BudgetProgressCard', () => {
           { id: 't5', categoryId: 'c1', type: 'income', amount: 100, transactionDate: '2026-06-15T10:00:00Z' }, // different type
         ],
         categories: mockCategories,
+        getBudgetProgress: jest.fn().mockReturnValue({ budgeted: 500, spent: 100, remaining: 400, percentage: 20 }),
       };
       return selector(state);
     });
@@ -49,6 +50,7 @@ describe('BudgetProgressCard', () => {
           { id: 't1', categoryId: 'c1', type: 'expense', amount: 850, transactionDate: '2026-06-01T10:00:00Z' },
         ],
         categories: mockCategories,
+        getBudgetProgress: jest.fn().mockReturnValue({ budgeted: 500, spent: 100, remaining: 400, percentage: 20 }),
       };
       return selector(state);
     });
@@ -64,6 +66,7 @@ describe('BudgetProgressCard', () => {
           { id: 't1', categoryId: 'c1', type: 'expense', amount: 1050, transactionDate: '2026-06-01T10:00:00Z' },
         ],
         categories: mockCategories,
+        getBudgetProgress: jest.fn().mockReturnValue({ budgeted: 500, spent: 100, remaining: 400, percentage: 20 }),
       };
       return selector(state);
     });
@@ -77,11 +80,13 @@ describe('BudgetProgressCard', () => {
       const state = {
         transactions: [],
         categories: [], // Empty categories
+        getBudgetProgress: jest.fn().mockReturnValue({ budgeted: 500, spent: 100, remaining: 400, percentage: 20 }),
       };
       return selector(state);
     });
 
-    const { getByText } = render(<BudgetProgressCard budget={mockBudget} targetDate="2023-06-15T00:00:00.000Z" />);
+    const budgetWithoutName = { ...mockBudget, name: '' };
+    const { getByText } = render(<BudgetProgressCard budget={budgetWithoutName} targetDate="2023-06-15T00:00:00.000Z" />);
     expect(getByText('Unknown')).toBeTruthy();
   });
 });

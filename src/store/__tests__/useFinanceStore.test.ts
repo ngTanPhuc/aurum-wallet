@@ -142,12 +142,12 @@ describe('useFinanceStore', () => {
 
   it('getBudgetProgress', () => {
     useFinanceStore.setState({
-      budgets: [{ categoryId: 'c1', month: 1, year: 2026, amount: 100 } as any],
+      budgets: [{ id: 'b1', targetType: 'category', targetId: 'c1', startDate: '2026-06-01T00:00:00.000Z', amount: 100 } as any],
       transactions: [
-        { type: 'expense', categoryId: 'c1', transactionDate: '2026-01-10T10:00:00Z', amount: 20 } as any
+        { type: 'expense', categoryId: 'c1', transactionDate: '2026-06-10T10:00:00Z', amount: 20 } as any
       ]
     });
-    const result = useFinanceStore.getState().getBudgetProgress('c1', '2026-06-15T00:00:00.000Z');
+    const result = useFinanceStore.getState().getBudgetProgress('b1', '2026-06-15T00:00:00.000Z');
     expect(result.budgeted).toBe(100);
     expect(result.spent).toBe(20);
     expect(result.percentage).toBe(20);

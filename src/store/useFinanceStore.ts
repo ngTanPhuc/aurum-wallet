@@ -496,10 +496,16 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   getTotalBalance: () => {
-    const { wallets } = get();
-    return wallets
+    const { wallets, savingsDeposits } = get();
+    const walletsTotal = wallets
       .filter((w) => w.includeInTotal && !w.isArchived)
       .reduce((acc, w) => acc + w.balance, 0);
+      
+    const depositsTotal = savingsDeposits
+      .filter((d) => d.status === 'active')
+      .reduce((acc, d) => acc + d.principalAmount, 0);
+      
+    return walletsTotal + depositsTotal;
   },
 
   getSavingsRate: (month: number, year: number) => {
@@ -594,7 +600,13 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   getInsights: () => {
     const state = get();
-    return InsightEngine.generateInsights(state.transactions, state.budgets, state.savingsGoals, state.categories);
+    return InsightEngine.generateInsights(
+      state.transactions,
+      state.budgets,
+      state.savingsGoals,
+      state.categories,
+      state.getBudgetProgress
+    );
   },
 
   addTemplate: async (template) => {

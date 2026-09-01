@@ -150,7 +150,6 @@ export type RootStackParamList = {
   AddEditTemplate: { templateId?: string };
   Tags: undefined;
   Categories: undefined;
-  Subscriptions: undefined;
   Calendar: undefined;
   Settings: undefined;
   YieldPockets: undefined;
@@ -221,6 +220,26 @@ export interface YieldPocketSettings {
   pendingDeposit: number;
   lastRolloverDate?: string;
   lastSyncDate?: string;
+  /**
+   * ISO date string — when the current pendingDeposit (or re-qualified balance)
+   * becomes interest-bearing. Follows MoMo's business-day settlement calendar.
+   * Null means the balance is already fully settled and earning.
+   */
+  pendingSettlementDate: string | null;
+  /**
+   * Sub-unit yield accumulated but not yet posted (due to Math.floor rounding).
+   * Carries over day-to-day so small balances never permanently lose fractional yield.
+   */
+  fractionalYieldCarry: number;
+  /**
+   * Whether the pocket's balance is currently above the minimumBalance threshold
+   * and has undergone (or is awaiting) settlement.
+   * False = balance dropped below threshold; a new deposit crossing back above
+   * will trigger a fresh settlement window (Option B).
+   */
+  isQualified: boolean;
+  /** Minimum balance (in wallet currency) required before any interest accrues. 0 = no threshold. */
+  minimumBalance: number;
   createdAt: string;
   updatedAt: string;
 }

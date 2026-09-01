@@ -34,7 +34,7 @@ export const AddEditBudgetScreen = ({ route, navigation }: Props) => {
   const [recurrence, setRecurrence] = useState<BudgetRecurrence>(existingBudget?.recurrence || 'monthly');
   
   const initialAmount = existingBudget?.amount 
-    ? existingBudget.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    ? existingBudget.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
     : '';
   const [amount, setAmount] = useState(initialAmount);
 
@@ -47,16 +47,14 @@ export const AddEditBudgetScreen = ({ route, navigation }: Props) => {
   }, [targetType, expenseCategories, targetId, isEditing]);
 
   const handleSave = async () => {
-    const amountNum = parseFloat(amount.replace(/[^0-9.-]+/g, ''));
+    const amountNum = parseFloat(amount.replace(/\./g, ''));
     if (isNaN(amountNum) || amountNum <= 0) {
       appAlert('Invalid Amount', 'Please enter a valid budget amount.');
       return;
     }
 
-    if (!name.trim()) {
-      appAlert('Name Required', 'Please provide a name for this budget.');
-      return;
-    }
+    const selectedCategory = categories.find(c => c.id === targetId);
+    const budgetName = name.trim() || selectedCategory?.name || 'Budget';
 
     if (!targetId) {
       appAlert('Target Required', 'Please select a category or tag.');
@@ -78,7 +76,7 @@ export const AddEditBudgetScreen = ({ route, navigation }: Props) => {
       if (isEditing && existingBudget) {
         await updateBudget({
           ...existingBudget,
-          name: name.trim(),
+          name: budgetName,
           amount: amountNum,
           targetType,
           targetId,
@@ -89,7 +87,7 @@ export const AddEditBudgetScreen = ({ route, navigation }: Props) => {
       } else {
         await addBudget({
           id: uuid.v4() as string,
-          name: name.trim(),
+          name: budgetName,
           amount: amountNum,
           targetType,
           targetId,
@@ -125,7 +123,7 @@ export const AddEditBudgetScreen = ({ route, navigation }: Props) => {
       setAmount('');
       return;
     }
-    setAmount(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+    setAmount(trimmed.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
   };
 
   return (

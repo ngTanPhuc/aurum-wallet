@@ -165,7 +165,9 @@ export const TransactionService = {
       const netAmount = tx.amount - fee;
       await WalletService.updateWalletBalance(tx.sourceWalletId, netAmount);
       if (!isSavingsDepositOp) {
-        await YieldPocketService.onDeposit(tx.sourceWalletId, netAmount);
+        // Yield income must not trigger threshold-crossing re-qualification.
+        const isYieldIncome = tx.note === 'Yield earned' || tx.note === 'Manual Yield Collection';
+        await YieldPocketService.onDeposit(tx.sourceWalletId, netAmount, isYieldIncome);
       }
       if (tx.savingsGoalId) {
         await SavingsGoalService.updateSavingsGoalAmount(tx.savingsGoalId, tx.amount);
